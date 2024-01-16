@@ -1,0 +1,159 @@
+---
+Author: "Anna Ramji"
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(sf)
+library(ggspatial)
+library(terra)
+library(here)
+library(leaflet)
+library(plotly)
+library(htmltools)
+library(tmap)
+library(rnaturalearth)
+library(rnaturalearthdata)
+```
+
+
+```{r}
+milkweed_path <- here("../../capstone/milkweed_polygon_data/")
+
+milkweed_data_raw <- st_read(milkweed_path)
+
+```
+```{r}
+st_crs(milkweed_data_raw) # EPSG 3857
+```
+
+```{r}
+plot(milkweed_data_raw)
+```
+
+```{r tidied_subsets}
+milkweed_tidy <- milkweed_data_raw |> 
+  janitor::clean_names()
+
+
+milkweed_presence <- milkweed_tidy|> 
+  select(milkweed_p, milkweed_sp) |> 
+  filter(!is.na(milkweed_p))
+
+milkweed_species <- milkweed_tidy |> 
+  filter(!is.na(milkweed_sp))
+```
+
+```{r}
+
+
+```
+
+
+```{r prelim_plot_1}
+m1 <- ggplot(data = milkweed_presence) +
+  geom_sf(aes(fill = milkweed_p)
+          #   , size = 2
+  ) +
+  labs(x = "Longitude",
+       y = "Latitude",
+       fill = "Milkweed Present:") + 
+  theme_bw()
+
+ggplotly(m1)
+```
+
+
+```{r prelim_plot_2}
+m2 <- ggplot(data = milkweed_species) +
+  geom_sf(aes(fill = milkweed_sp)) +
+  labs(x = "Longitude",
+       y = "Latitude",
+       fill = "Milkweed Species") + 
+  theme_bw()
+
+ggplotly(m2)
+```
+
+
+```{r baseplot}
+# has crs (sf object)
+cali <- ne_states(country = "united states of america", 
+                     returnclass = "sf") |> 
+  st_transform(crs = st_crs(milkweed_tidy)) |> 
+  filter(gn_name %in% c("California"))
+
+# st_crs(cali)
+
+# doesn't have crs (data frame)
+california_map <- map_data("state") |> 
+  filter(region %in% c("california")) 
+# |
+#   st_as_sf() |>  # struggled here
+#   st_transform(crs = st_crs(milkweed_tidy))
+
+
+
+m3 <- ggplot() +
+  geom_sf(data = cali
+               # ,
+               # aes(x = long, y = lat)
+               ) + 
+  
+  geom_sf(data = milkweed_presence,
+          aes(fill = milkweed_sp)
+          #   , size = 2
+  ) +
+  labs(x = "Longitude",
+       y = "Latitude",
+       fill = "Milkweed Present:") + 
+#  coord_quickmap() + 
+  theme_bw()
+
+ggplotly(m3)
+
+```
+
+
+```{r}
+# neStates <- subset(states, states$STUSPS %in% c(
+#   "CT","ME","MA","NH","RI","VT","NY","NJ","PA"
+# ))
+# 
+# leaflet(neStates) %>%
+#   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+#     opacity = 1.0, fillOpacity = 0.5,
+#     fillColor = ~colorQuantile("YlOrRd", ALAND)(ALAND),
+#     highlightOptions = highlightOptions(color = "white", weight = 2,
+#       bringToFront = TRUE))
+```
+
+
+
+```{r, eval=FALSE}
+#pal <- viridis::viridis(5)
+pal <- colorBin("viridis", domain = milkweed_tidy$milkweed_sp) # color palette
+
+
+leaflet(milkweed_tidy) |> 
+  addPolygons(color = "#444444",
+              weight = 1,
+              smoothFactor = 0.5,
+              opacity = 1.0,
+              fillOpacity = 0.5,
+              fillColor = ~pal(milkweed_tidy$milkweed_sp),
+              # fillColor = ~colorQuantile(palette = pal,
+              #                            domain = milkweed_tidy$milkweed_sp),
+              highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                  bringToFront = TRUE)
+              
+  )
+```
+
+
+
+```{r}
+#tm_shape()
+```
+

@@ -47,3 +47,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+
+# render files
+
+milkweed-test_files
+milkweed-test.html
