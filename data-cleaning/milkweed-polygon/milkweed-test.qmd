@@ -19,7 +19,7 @@ library(rnaturalearthdata)
 
 
 ```{r}
-milkweed_path <- here("../../capstone/milkweed_polygon_data/")
+milkweed_path <- here("~/../../capstone/milkweedmod/data/milkweed_polygon_data/")
 
 milkweed_data_raw <- st_read(milkweed_path)
 
@@ -102,12 +102,14 @@ m3 <- ggplot() +
                ) + 
   
   geom_sf(data = milkweed_presence,
-          aes(fill = milkweed_sp)
+          aes(fill = milkweed_sp, 
+              color = milkweed_sp)
           #   , size = 2
   ) +
   labs(x = "Longitude",
        y = "Latitude",
-       fill = "Milkweed Present:") + 
+       fill = "Milkweed Present:",
+       color = "") + 
 #  coord_quickmap() + 
   theme_bw()
 
@@ -151,9 +153,89 @@ leaflet(milkweed_tidy) |>
   )
 ```
 
+# LPNF boundary data
 
+Reading in LPNF boundary file
+```{r}
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
+lpnf_boundary
+```
+
+### preliminary visualization of LPNF boundary data
+```{r}
+# finding los padres national forest 
+lpnf_boundary$FORESTNAME[27]
+
+#test_lpnf <- boundary$FORESTNAME[27] # creating temporary variable to store LPNF-associated geometries
+#plot(test_lpnf)
+
+lpnf_subset <- lpnf_boundary %>% 
+  filter(FORESTNAME %in% c("Los Padres National Forest"))
+
+
+plot(lpnf_subset)
+```
+
+
+```{r reprojecting}
+# reprojecting both datasets' crs to EPSG: 2230 for California Zone 6 (area of interest) 
+lpnf_reprojected <- lpnf_subset |> st_transform(crs = "EPSG:2230")
+
+# reproject milkweed data
+milkweed_reprojected <- milkweed_tidy |> st_transform(crs = st_crs(lpnf_reprojected))
+
+# check if CRS match
+st_crs(lpnf_reprojected) == st_crs(milkweed_reprojected)
+```
+
+
+### Preliminary plot of milkweed data + LPNF Boundary 
+
+
+```{r prelim-lpnf-milkweed-plot}
+ggplot() +
+  geom_sf(data = cali,
+          fill = "transparent",
+          color = "black") +
+  geom_sf(data = lpnf_reprojected,
+          color = "darkgreen",
+          fill = "transparent") + 
+  geom_sf(data = milkweed_tidy,
+          aes(fill = milkweed_sp, 
+              color = milkweed_sp)
+          #   , size = 2
+  ) +
+  labs(x = "Longitude",
+       y = "Latitude",
+       fill = "Milkweed Species:",
+       color = "") + 
+  #  coord_quickmap() + 
+  theme_bw()
+
+```
+
+### next step: make bounding box to highlight area for better visualization
 
 ```{r}
-#tm_shape()
+
+ggplot() +
+  geom_sf(data = lpnf_reprojected,
+          color = "darkgreen",
+          fill = "transparent") + 
+  geom_sf(data = milkweed_tidy,
+          aes(fill = milkweed_sp, 
+              color = milkweed_sp)
+          #   , size = 2
+  ) +
+  labs(x = "Longitude",
+       y = "Latitude",
+       fill = "Milkweed Species:",
+       color = "") + 
+  #  coord_quickmap() + 
+  theme_bw()
+
 ```
+
+
+
 
