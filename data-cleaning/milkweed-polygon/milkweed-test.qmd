@@ -239,3 +239,23 @@ ggplot() +
 
 
 
+
+## Trails Data
+
+Read in data
+```{r}
+trails_data_raw <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_trails_raw/2023_Regional_Trails_and_Roads_lines.shp"))
+
+```
+
+
+
+## Soils data exploration
+
+Read in data
+```{r}
+soils_raw <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/spatial/soilmu_l_ca772.shp"))
+
+#plot(soils_raw)
+```
+
