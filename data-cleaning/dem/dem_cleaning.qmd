@@ -1,0 +1,142 @@
+---
+title: "DEM"
+author: "Sam Muir"
+---
+
+Data is from the USGS National Map
+- 3DEP 1 arc-second DEM current
+
+```{r}
+ library(tidyverse)
+ library(raster)
+ library(terra)
+ library(rayshader)
+ library(tmap)
+ library(whitebox)
+ library(ggnewscale)
+ library(tidyterra)
+ library(giscoR)
+ library(units)
+ library(ggblend)
+library(here)
+```
+
+```{r}
+file_path <- here("~/../../capstone/milkweedmod/data/dem/")
+```
+
+```{r}
+n35w119 <- rast(here(file_path, "USGS_1_n35w119_20190919.tif"))
+```
+
+
+
+```{r}
+## code for dem ##
+plot(terra::terrain(elevation, opt="slope"))
+
+#### determine area of interest (with sf) ####
+area_sf <- sf::st_bbox(n35w119) %>% sf::st_as_sfc() %>% sf::st_buffer(1000)
+area_sp <- area_sf %>% sf::as_Spatial()
+
+#### get digital elevation data (with elevatr) ####
+dem <- elevatr::get_elev_raster(locations = elevation, prj = sf::st_crs(4326), z = 7, clip = "bbox")
+
+#### prepare hillshaded raster (with rayshader) ####
+elmat <- matrix(
+  raster::extract(dem, raster::extent(dem)),
+  nrow = ncol(dem), 
+  ncol = nrow(dem)
+)
+
+raymat <- rayshader::ray_shade(elmat)
+ambmat <- rayshader::ambient_shade(elmat)
+
+hillshade <- elmat %>%
+  sphere_shade(texture = "imhof1") %>%
+  add_shadow(raymat) %>%
+  add_shadow(ambmat)
+
+#### tranform hillshade to georeferenced raster (with raster) ####
+e <- raster::extent(dem)
+hillshade_raster <- raster::brick(hillshade, xmn = e[1], xmx = e[2], ymn = e[3], ymx = e[4], crs = raster::crs(dem))
+
+
+tm_shape(hillshade_raster[[1]]) +
+  tm_raster(title = "DEM") +
+  tm_layout(legend.title.size = ,
+            legend.text.size = 0.6,
+            legend.position = c("left","top"),
+            legend.bg.color = "white",
+            legend.digits = 5,
+            legend.bg.alpha = 0.6,
+            legend.height = 17)
+
+
+
+#--------------------------------------------------
+
+elevation <- rast("USGS_13_n35w120_20190924.tif")
+
+# convert the raster into a data.frame of xyz
+mdtdf <- as.data.frame(elevation, xy = TRUE)
+names(mdtdf)[3] <- "alt"
+
+# estimate elevation
+sl <- terrain(elevation, "slope", unit = "radians")
+#plot(sl)
+
+# estimate the aspect or orientation
+asp <- terrain(elevation, "aspect", unit = "radians")
+#plot(asp)
+
+# calculate the hillshade effect with 45º of elevation
+# hill_single <- shade(sl, asp, 
+#                      angle = 45, 
+#                      direction = 300,
+#                      normalize= TRUE)
+# 
+# # final hillshade 
+# #plot(hill_single, col = grey(1:100/100))
+# 
+# # convert the hillshade to xyz
+# hilldf_single <- as.data.frame(hill_single, xy = TRUE)
+
+# pass multiple directions to shade()
+hillmulti <- map(c(270, 15, 60, 330), function(dir){ 
+  shade(sl, asp, 
+        angle = 45, 
+        direction = dir,
+        normalize= TRUE)})
+  
+# create a multidimensional raster and reduce it by summing up
+hillmulti <- rast(hillmulti) %>% sum()
+  
+hillmultidf <- as.data.frame(hillmulti, xy = TRUE)
+
+
+# map 
+ggplot() +
+  list(
+    geom_raster(data = hillmultidf,
+                aes(x, y, fill = sum),
+                show.legend = FALSE),
+    scale_fill_distiller(palette = "Greys"),
+    new_scale_fill(),
+    geom_raster(data = mdtdf,
+                aes(x, y, fill = alt),
+                alpha = .7),
+    scale_fill_hypso_tint_c(breaks = c(180, 250, 500, 1000,
+                                       1500,  2000, 2500,
+                                       3000, 3500, 4000))
+  ) %>% blend("multiply") +
+  guides(fill = guide_colorsteps(barwidth = 20,
+                                 barheight = .5,
+                                 title.position = "right")) +
+  labs(fill = "m") +
+  coord_sf() +
+  theme_void() +
+  theme(legend.position = "top")
+
+```
+
