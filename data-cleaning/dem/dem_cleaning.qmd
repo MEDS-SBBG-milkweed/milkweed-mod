@@ -7,17 +7,17 @@ Data is from the USGS National Map
 - 3DEP 1 arc-second DEM current
 
 ```{r}
- library(tidyverse)
- library(raster)
- library(terra)
- library(rayshader)
- library(tmap)
- library(whitebox)
- library(ggnewscale)
- library(tidyterra)
- library(giscoR)
- library(units)
- library(ggblend)
+library(tidyverse)
+library(raster)
+library(terra)
+library(rayshader)
+library(tmap)
+library(whitebox)
+library(ggnewscale)
+library(tidyterra)
+library(giscoR)
+library(units)
+library(ggblend)
 library(here)
 ```
 
