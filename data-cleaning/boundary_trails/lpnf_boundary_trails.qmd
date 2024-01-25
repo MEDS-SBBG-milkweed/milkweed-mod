@@ -1,0 +1,71 @@
+---
+title: "LPNF Boundary and Trails/Roads"
+author: "Amanda"
+---
+
+Load packages
+```{r}
+library(tidyverse)
+library(sf)
+library(here)
+library(mapdata)
+```
+
+Read in data
+```{r}
+# California National Forest boundaries
+boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
+
+trails <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+```
+
+Filter boundaries to Los Padres National Forest
+```{r}
+lpnf_boundary <- boundary %>% 
+  filter(FORESTNAME %in% c("Los Padres National Forest"))
+```
+
+Reproject all data to EPSG: 2230 for California Zone 6 (area of interest) 
+```{r}
+# reprojecting both datasets' crs to EPSG: 2230 for California Zone 6 (area of interest) 
+lpnf_reprojected <- lpnf_boundary |> st_transform(crs = "EPSG:2230")
+
+# reproject milkweed data
+trails_reprojected <- trails |> st_transform(crs = st_crs(lpnf_reprojected))
+
+# check if CRS match
+st_crs(lpnf_reprojected) == st_crs(trails_reprojected)
+```
+
+Prepare data for plotting
+```{r}
+# drop Z and/or M dimensions from trails data
+# was getting error: "number of columns of matrices must match (see arg 9)"
+trails_reprojected <- st_zm(trails_reprojected)
+```
+
+Plot trails and lpnf boundary
+```{r}
+# make basemap
+ca <- map_data("state") %>% 
+  filter(region == "california")
+ca_sf <- st_as_sf(ca,
+                  coords = c("long", "lat"),
+                  crs = st_crs(lpnf_reprojected))
+ca_reprojected <- ca_sf %>% st_transform(crs = st_crs(lpnf_reprojected))
+
+# plot!
+ggplot() +
+  #geom_sf(data = ca_sf, fill = "lightgreen", color = "black") +
+  geom_sf(data = lpnf_reprojected,
+          color = "darkgreen",
+          fill = "transparent",
+          lwd = 1) + 
+  geom_sf(data = trails_reprojected,
+          aes(color = Type)) +
+  labs(x = "Longitude",
+       y = "Latitude") +
+  theme_bw()
+```
+
+
