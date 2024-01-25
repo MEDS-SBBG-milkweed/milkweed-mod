@@ -255,7 +255,7 @@ trails_data_raw <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_trails_r
 Read in data
 ```{r}
 soils_raw <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/spatial/soilmu_l_ca772.shp"))
-
+soils_tabular <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/tabular/"))
 #plot(soils_raw)
 ```
 
