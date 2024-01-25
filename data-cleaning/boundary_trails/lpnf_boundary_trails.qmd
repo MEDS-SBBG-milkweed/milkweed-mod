@@ -51,21 +51,36 @@ ca <- map_data("state") %>%
   filter(region == "california")
 ca_sf <- st_as_sf(ca,
                   coords = c("long", "lat"),
-                  crs = st_crs(lpnf_reprojected))
+                  crs = "epsg:4326") %>% 
+  summarise(geometry = st_combine(geometry)) %>%
+  st_cast("POLYGON")
 ca_reprojected <- ca_sf %>% st_transform(crs = st_crs(lpnf_reprojected))
+
+# create bbox around lpnf
+lpnf_bb <- st_bbox(lpnf_reprojected)
 
 # plot!
 ggplot() +
-  #geom_sf(data = ca_sf, fill = "lightgreen", color = "black") +
+  geom_sf(data = ca_sf, fill = "lightgreen", color = "black") +
   geom_sf(data = lpnf_reprojected,
           color = "darkgreen",
           fill = "transparent",
           lwd = 1) + 
   geom_sf(data = trails_reprojected,
           aes(color = Type)) +
+  coord_sf(xlim = c(lpnf_bb[1], lpnf_bb[3]),
+           ylim = c(lpnf_bb[2], lpnf_bb[4])) +
+  # geom_polygon(data = ca, aes(x = long, y = lat),
+  #              fill = "lightgray", color = "black") +
+  # coord_sf(crs = "epsg:2230") +
   labs(x = "Longitude",
        y = "Latitude") +
   theme_bw()
 ```
 
+```{r}
+# attempt with basemap
+
+
+```
 
