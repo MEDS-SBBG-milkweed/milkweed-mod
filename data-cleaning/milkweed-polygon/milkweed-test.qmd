@@ -218,6 +218,15 @@ ggplot() +
 
 ```{r}
 
+lpnf_bbox <- st_bbox(lpnf_reprojected)
+
+lpnf_xmin <- lpnf_bbox[1]
+lpnf_xmax <- lpnf_bbox[3]
+lpnf_ymin <- lpnf_bbox[2]
+lpnf_ymax <- lpnf_bbox[4]
+
+
+
 ggplot() +
   geom_sf(data = lpnf_reprojected,
           color = "darkgreen",
@@ -244,8 +253,17 @@ ggplot() +
 
 Read in data
 ```{r}
-trails_data_raw <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_trails_raw/2023_Regional_Trails_and_Roads_lines.shp"))
+trails_raw <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
 
+# reproject trails data
+trails_reprojected <- trails |> st_transform(crs = st_crs(milkweed_reprojected))
+```
+
+
+```{r}
+# drop Z and/or M dimensions from trails data
+# was getting error: "number of columns of matrices must match (see arg 9)"
+trails_reprojected <- st_zm(trails_reprojected)
 ```
 
 
@@ -254,8 +272,7 @@ trails_data_raw <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_trails_r
 
 Read in data
 ```{r}
-soils_raw <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/spatial/soilmu_l_ca772.shp"))
+soils_raw_a <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/spatial/soilmu_a_ca772.shp"))
 soils_tabular <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/tabular/"))
 #plot(soils_raw)
 ```
-
