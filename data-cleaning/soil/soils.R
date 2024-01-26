@@ -4,7 +4,7 @@ library(tmap)
 
 
 a <- st_bbox(
-  c(xmin = -119.93, xmax = -118.94, ymin = 34.95, ymax = 34.45), 
+  c(xmin = -119.93, xmax = -119.52, ymin = 34.95, ymax = 34.59), 
   crs = st_crs(4326)
 )
 
@@ -46,3 +46,8 @@ tm_shape(texture_05cm) +
             legend.digits = 5,
             legend.bg.alpha = 0.6,
   legend.height =17)
+
+
+
+z <- mukey.wcs(a, db = 'gssurgo', res = 30)
+plot(z, main = attr(z, 'layer name'))
