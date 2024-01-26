@@ -7,13 +7,13 @@ library(raster)
 library(WorldClimTiles)
 
 #Download tiles
-tilenames <- c("11","12","21","22")
+tilenames <- c("11","12")
 tiles <- tile_get(tilenames, "bio")
 tiles
 #Merge the downloaded tiles layer by layer. The function produces a raster stack that contains the merged layers with the correct variable names.
 merged <- tile_merge(tiles)
 
-plot(merged[[5]]) #Plotting bioclim 1 - much better!
+plot(merged[[1]]) #Plotting bioclim 1 - much better!
 
 #Let's change the names to have a better defined raster
 bioclim_names <-c("Annual_Mean_Temp",
@@ -40,10 +40,15 @@ bioclim_names <-c("Annual_Mean_Temp",
 names(merged) <- bioclim_names
 
 #We can look in more detail at the rasters within the stack 
-plot(merged[[1]], main = names(merged[[1]]))
+plot(merged[[13]], main = names(merged[[13]]))
 
 #Lets save your environmental data as a GeoTIFF file
-outfile <- writeRaster(merged, filename='bioclim.tif', format="GTiff", overwrite=TRUE,options=c("INTERLEAVE=BAND","COMPRESS=LZW"))
+outfile <- writeRaster(merged, filename=file.path(milkweed_path, 'bioclim.tif'), format="GTiff", overwrite=TRUE,options=c("INTERLEAVE=BAND","COMPRESS=LZW"))
 
 #if you want to read back your environmental RasterBrick data
-envdata <- brick("bioclim.tif")
+milkweed_path <- here("~/../../capstone/milkweedmod/data/bioclim/")
+envdata <- brick(here("~/../../capstone/milkweedmod/data/bioclim/bioclim.tif"))
+
+plot(envdata[[1]])
+
+st_crs(merged)
