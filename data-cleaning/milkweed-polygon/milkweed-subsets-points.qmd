@@ -1,0 +1,54 @@
+---
+author: "Anna Ramji"
+title: "Milkweed Subsets & Polygons to Points"
+---
+
+
+```{r setup}
+# load required packages
+library(tidyverse)
+library(janitor)
+library(sf)
+library(ggspatial)
+library(terra)
+library(here)
+library(leaflet)
+library(plotly)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# read in data
+
+milkweed_path <- here("~/../../capstone/milkweedmod/data/milkweed_polygon_data/")
+
+milkweed_data_raw <- st_read(milkweed_path)
+
+```
+
+
+
+```{r subsets}
+# remove "No" observations
+milkweed_cleaned <- milkweed_data_raw |> 
+  janitor::clean_names() |> 
+  filter(milkweed_p != "no")
+
+# subset per species
+
+# Asclepias californica
+californica <- milkweed_cleaned |> 
+  filter(milkweed_sp %in% c("Asclepias californica"))
+
+# Asclepias eriocarpa
+eriocarpa <- milkweed_cleaned |> 
+  filter(milkweed_sp %in% c("Asclepias eriocarpa"))
+
+erosa <- milkweed_cleaned |> 
+  filter(milkweed_sp %in% c("Asclepias erosa")) # only 5 observations
+
+vestita <- milkweed_cleaned |> 
+  filter(milkweed_sp %in% c("Asclepias vestita")) # only 7 observations
+
+
+```
+
