@@ -37,11 +37,11 @@ milkweed_cleaned <- milkweed_data_raw |>
 
 # Asclepias californica
 californica <- milkweed_cleaned |> 
-  filter(milkweed_sp %in% c("Asclepias californica"))
+  filter(milkweed_sp %in% c("Asclepias californica")) # 48 observations
 
 # Asclepias eriocarpa
 eriocarpa <- milkweed_cleaned |> 
-  filter(milkweed_sp %in% c("Asclepias eriocarpa"))
+  filter(milkweed_sp %in% c("Asclepias eriocarpa")) # 116 observations
 
 erosa <- milkweed_cleaned |> 
   filter(milkweed_sp %in% c("Asclepias erosa")) # only 5 observations
