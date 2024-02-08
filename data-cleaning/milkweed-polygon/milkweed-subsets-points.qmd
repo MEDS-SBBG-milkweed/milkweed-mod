@@ -29,26 +29,44 @@ milkweed_data_raw <- st_read(milkweed_path)
 
 ```{r subsets}
 # remove "No" observations
-milkweed_cleaned <- milkweed_data_raw |> 
+milkweed_presence <- milkweed_data_raw |> 
   janitor::clean_names() |> 
   filter(milkweed_p != "no")
 
 # subset per species
 
 # Asclepias californica
-californica <- milkweed_cleaned |> 
+californica <- milkweed_presence |> 
   filter(milkweed_sp %in% c("Asclepias californica")) # 48 observations
 
 # Asclepias eriocarpa
-eriocarpa <- milkweed_cleaned |> 
+eriocarpa <- milkweed_presence |> 
   filter(milkweed_sp %in% c("Asclepias eriocarpa")) # 116 observations
 
-erosa <- milkweed_cleaned |> 
+erosa <- milkweed_presence |> 
   filter(milkweed_sp %in% c("Asclepias erosa")) # only 5 observations
 
-vestita <- milkweed_cleaned |> 
+vestita <- milkweed_presence |> 
   filter(milkweed_sp %in% c("Asclepias vestita")) # only 7 observations
 
 
 ```
+
+
+```{r}
+
+all_spec_subset <- milkweed_presence |> 
+  select(milkweed_sp, geometry)
+
+all_spec_centroids <- st_centroid(all_spec_subset)
+
+
+
+# st_crs(all_spec_centroids)
+# epsg 3857
+
+# all_spec_points <- writeRaster(all_spec_centroids, "")
+
+```
+
 
