@@ -65,7 +65,7 @@ all_spec_centroids <- st_centroid(all_spec_subset)
 # st_crs(all_spec_centroids)
 # epsg 3857
 
-all_spec_points <- st_write(all_spec_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
+# all_spec_points <- st_write(all_spec_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
 
 ```
 
