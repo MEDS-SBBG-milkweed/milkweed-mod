@@ -276,3 +276,10 @@ soils_raw_a <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/s
 soils_tabular <- st_read(here("~/../../capstone/milkweedmod/data/soil_data/CA772/tabular/"))
 #plot(soils_raw)
 ```
+
+Read in Centroid Data
+```{r}
+all_centroids_test <- st_read("~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
+
+```
+
