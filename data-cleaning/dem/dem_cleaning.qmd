@@ -22,11 +22,21 @@ library(here)
 ```
 
 ```{r}
+# set file path
 file_path <- here("~/../../capstone/milkweedmod/data/dem/")
+
+# read in dem data tiles
+n35w119 <- rast(here(file_path, "USGS_1_n35w119_20190919.tif"))
 ```
 
 ```{r}
-n35w119 <- rast(here(file_path, "USGS_1_n35w119_20190919.tif"))
+# mosaic the tiles to get full area
+dem <- mosaic()
+```
+
+```{r}
+# resample to get the resolution to match bioclim (0.008333333 x 0.008333333)
+resampled_raster <- resample(r, new_resolution)
 ```
 
 
