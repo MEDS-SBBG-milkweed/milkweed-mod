@@ -1,12 +1,7 @@
 ---
-title: "SBBG centroids + Bioclim"
+title: "eriocarpa_centroids_bioclim"
 format: html
 ---
-
-### Packages
-
-Wallace uses the following R packages that must be installed and loaded
-before starting.
 
 ```{r}
 library(spocc)
@@ -26,7 +21,8 @@ milkweed_data_raw <- st_read(milkweed_path)
 # remove "No" observations
 milkweed_presence <- milkweed_data_raw |> 
   janitor::clean_names() |> 
-  filter(milkweed_p != "no")  %>%
+  filter(milkweed_p != "no",
+         milkweed_sp == "Asclepias eriocarpa")  %>%
   st_transform("EPSG:4326") %>% 
   st_centroid()
 
@@ -38,12 +34,10 @@ milkweed_points <- milkweed_presence %>%
 milkweed_prep <- bind_cols(milkweed_presence, milkweed_points) %>%
   rename(longitude = X,
          latitude = Y) %>%
-  mutate(scientific_name = "all milkweed") %>%
+  mutate(scientific_name = "Asclepias eriocarpa") %>%
   select(longitude, latitude, scientific_name) %>%
   st_drop_geometry() %>%
   mutate(occID = row_number())
-
-#write_csv(milkweed_prep, "~/../../capstone/milkweedmod/data/milkweedpoints.csv")
 ```
 
 ## Analysis
@@ -133,7 +127,7 @@ bgSample_Ac <- penvs_bgSample(
 # Extract values of environmental layers for each background point
 bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
 ##Add extracted values to background points table
-bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias spp."), bgSample_Ac,
+bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias eriocarpa"), bgSample_Ac,
                             occID = NA, year = NA, institution_code = NA, country = NA,
                             state_province = NA, locality = NA, elevation = NA,
                             record_type = NA, bgEnvsVals_Ac)
@@ -213,6 +207,6 @@ m  %>%
               weight = 4, color = "blue", group = 'proj') %>%
   addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Predicted Suitability<br>(Training)")
+            title = "Asclepias eriocarpa<br>Predicted Suitability<br>(Training)")
 ```
 
