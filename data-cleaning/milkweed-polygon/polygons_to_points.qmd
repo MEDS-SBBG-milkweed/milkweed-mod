@@ -17,19 +17,48 @@ library(leaflet)
 ```{r}
 milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/data/milkweed_polygon_data/"))
 
+# read in bioclim raster
+envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
+
 # remove "No" observations
 milkweed_presence <- milkweed_data_raw |> 
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
-  st_transform("EPSG:4326")
-
-# read in bioclim raster
-envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
+  st_transform(crs(envs_Ac)) %>%
+  filter(milkweed_sp == "Asclepias vestita") %>%
+  dplyr::select(milkweed_sp)
 ```
+
+
+```{r}
+multi.p <- st_cast(milkweed_presence, "MULTIPOINT")
+my_points <- multi.p  %>% st_cast("POINT")
+
+milkweed_points <- my_points %>%
+  st_coordinates() %>%
+  data.frame() %>%
+  mutate(scientific_name = "Asclepias vestita") %>%
+  mutate(occID = row_number()) %>%
+  rename(longitude = X,
+         latitude = Y)
+
+plot(multi.p)
+plot(milkweed_presence)
+```
+
 
 ```{r}
 bbox <- st_bbox(milkweed_presence)
 env_crop <- crop(envs_Ac, bbox)
+
+test <- terra::extract(envs_Ac, my_points)
+
+ggplot() +
+  geom_sf(data = my_points,
+          alpha = 0.5, size = 0.5) +
+  geom_sf(data = milkweed_presence,
+          alpha = 0.5,
+          fill = "lightblue")
 ```
 
 ```{r}
@@ -37,6 +66,6 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addPolygons(data = milkweed_presence,
               weight = 4, color = "blue", group = 'proj') %>%
   addRasterImage(env_crop$wallace_bioclim_1, opacity = 0.7)
-```
 
-- so...the polygons do not go over multiple raster cells
+plot(env_crop)
+```
