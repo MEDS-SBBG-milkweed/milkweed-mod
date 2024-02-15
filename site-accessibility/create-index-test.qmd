@@ -1,0 +1,56 @@
+---
+title: "Site Accessibility Index Score"
+author: "Amanda Herbst"
+date-created: "2024-02-15"
+---
+
+Our goal is to create a site accessibility index score that indicates areas in the LPNF that SBBG researchers can access easily. We will base this index on distance from trails/roads, public/private land, vegetation density, and slope.
+
+There are tools for calculating this in ArcGIS but not much has been found in R.
+
+**Land Ownership**: [ca.gov](https://gis.data.ca.gov/datasets/f73858e200634ca888b19ca8c78e3aed_0/explore?location=34.536765%2C-119.257630%2C7.00)
+
+# Load packages
+
+```{r}
+library(tidyverse)
+library(sf)
+```
+
+# Load lpnf data for bounding box
+
+```{r}
+boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
+lpnf_boundary <- boundary %>% 
+  filter(FORESTNAME %in% c("Los Padres National Forest"))
+lpnf_bb <- st_bbox(lpnf_boundary)
+
+st_crs(lpnf_boundary)
+```
+
+# Load data
+
+```{r}
+# land ownership ----
+
+land_ownership <- st_read(here("~/../../capstone/milkweedmod/data/California_Land_Ownership/ownership23_1.shp"))
+st_crs(land_ownership)
+
+# reproject 
+ownership_reprojected <- land_ownership %>%  st_transform(crs = st_crs(lpnf_boundary))
+st_crs(ownership_reprojected)
+```
+
+# Explore data
+
+```{r}
+ggplot() +
+  geom_sf(data = ownership_reprojected, aes(fill = OWN_LEVEL)) +
+  geom_sf(data = lpnf_boundary,
+          color = "darkgreen",
+          fill = "transparent",
+          lwd = 1) +
+  coord_sf(xlim = c(lpnf_bb[1], lpnf_bb[3]),
+           ylim = c(lpnf_bb[2], lpnf_bb[4])) +
+  theme_bw()
+```
