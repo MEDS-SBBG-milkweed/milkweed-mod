@@ -3,8 +3,9 @@ title: "Canopy Cover"
 author: "Melissa Widas"
 ---
 
-
+## Load in Data
 ```{r}
+# load packages
 library(tidyverse)
 library(raster)
 library(terra)
@@ -34,5 +35,70 @@ santa_barbara_county <- rast(here(canopy_cover_path, "SantaBarbaraCounty-Vegetat
 
 ventura_county <- rast(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 ```
+
+## Initial Data Exploration
+```{r}
+# check to see how kern county plots
+plot(kern_county)
+```
+
+```{r}
+# check to see how los angeles county plots
+plot(los_angeles_county)
+```
+```{r}
+# check crs of kern county
+crs(kern_county) # WGS 84, spits out a ton of info though
+```
+
+
+```{r}
+res(kern_county)
+```
+
+```{r}
+res(los_angeles_county)
+```
+
+## Combine data into 1 SpatRaster
+```{r}
+# combine rasters into a single raster for canopy cover
+canopy_cover_full <- mosaic(kern_county, los_angeles_county, monterey_county, san_luis_obispo_county, santa_barbara_county, ventura_county)
+```
+
+```{r}
+plot(canopy_cover_full)
+```
+
+```{r}
+# resolution of canopy cover full is 10x10
+res(canopy_cover_full)
+```
+
+
+## Explore BioClim Data
+```{r}
+# Read in bioclim data
+envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
+
+# resolution of bioclim data is 0.0083x0.0083
+res(envs_Ac)
+
+# crs of bioclim is WGS 84
+crs(envs_Ac)
+```
+
+## Get Canopy Cover and BioClim into same CRS
+```{r}
+canopy_cover_full_reproject <- projectRaster(canopy_cover_full,
+                                       crs = crs(envs_Ac),
+                                       res = 0.008333333)
+```
+
+
+
+
+
+
 
 
