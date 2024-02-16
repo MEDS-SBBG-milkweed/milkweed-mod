@@ -1,0 +1,38 @@
+---
+title: "Canopy Cover"
+author: "Melissa Widas"
+---
+
+
+```{r}
+library(tidyverse)
+library(raster)
+library(terra)
+library(tmap)
+library(ggnewscale)
+library(tidyterra)
+library(giscoR)
+library(units)
+library(ggblend)
+library(here)
+```
+
+```{r}
+# Prepare milkweed data 
+canopy_cover_path <- here::here("~/../../capstone/milkweedmod/data/canopy_cover/")
+
+# read in canopy cover data tiles
+kern_county <- rast(here(canopy_cover_path, "KernCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+los_angeles_county <- rast(here(canopy_cover_path, "LosAngelesCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+monterey_county <- rast(here(canopy_cover_path, "MontereyCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+san_luis_obispo_county <- rast(here(canopy_cover_path, "SanLuisObispoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+santa_barbara_county <- rast(here(canopy_cover_path, "SantaBarbaraCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+ventura_county <- rast(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+```
+
+
