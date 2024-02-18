@@ -41,19 +41,19 @@ ventura_county <- rast(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyC
 # Prepare milkweed data using stars package
 canopy_cover_path <- here::here("~/../../capstone/milkweedmod/data/canopy_cover/")
 
-# read in canopy cover data tiles
-kern_county_s <- read_stars(here(canopy_cover_path, "KernCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
-kern_county_star <- st_as_stars(kern_county_s, dimensions = NULL)
-
-los_angeles_county_s <- read_stars(here(canopy_cover_path, "LosAngelesCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
-
-monterey_county_s <- read_stars(here(canopy_cover_path, "MontereyCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
-
-san_luis_obispo_county_s <- read_stars(here(canopy_cover_path, "SanLuisObispoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
-
-santa_barbara_county_s <- read_stars(here(canopy_cover_path, "SantaBarbaraCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
-
-ventura_county_s <- read_stars(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+# # read in canopy cover data tiles
+# kern_county_s <- read_stars(here(canopy_cover_path, "KernCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+# kern_county_star <- st_as_stars(kern_county_s, dimensions = NULL)
+# 
+# los_angeles_county_s <- read_stars(here(canopy_cover_path, "LosAngelesCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+# 
+# monterey_county_s <- read_stars(here(canopy_cover_path, "MontereyCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+# 
+# san_luis_obispo_county_s <- read_stars(here(canopy_cover_path, "SanLuisObispoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+# 
+# santa_barbara_county_s <- read_stars(here(canopy_cover_path, "SantaBarbaraCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+# 
+# ventura_county_s <- read_stars(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 ```
 
 ## Initial Data Exploration
@@ -86,8 +86,8 @@ res(los_angeles_county)
 ```{r}
 # combine rasters into a single raster for canopy cover
 canopy_cover_full <- mosaic(kern_county, los_angeles_county, monterey_county, san_luis_obispo_county, santa_barbara_county, ventura_county)
-# combine rasters into a single raster for canopy cover using stars objects
-canopy_cover_full_s <- st_mosaic(kern_county_s, los_angeles_county_s, monterey_county_s, san_luis_obispo_county_s, santa_barbara_county_s, ventura_county_s)
+# # combine rasters into a single raster for canopy cover using stars objects
+# canopy_cover_full_s <- st_mosaic(kern_county_s, los_angeles_county_s, monterey_county_s, san_luis_obispo_county_s, santa_barbara_county_s, ventura_county_s)
 ```
 
 ```{r}
@@ -134,6 +134,9 @@ plot(canopy_cover_full_reproject)
 ```
 
 
+```{r}
+writeRaster(canopy_cover_full_reproject, here::here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
+```
 
 
 
