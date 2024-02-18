@@ -16,10 +16,11 @@ library(giscoR)
 library(units)
 library(ggblend)
 library(here)
+library(stars)
 ```
 
 ```{r}
-# Prepare milkweed data 
+# Prepare milkweed data using raster package
 canopy_cover_path <- here::here("~/../../capstone/milkweedmod/data/canopy_cover/")
 
 # read in canopy cover data tiles
@@ -36,10 +37,30 @@ santa_barbara_county <- rast(here(canopy_cover_path, "SantaBarbaraCounty-Vegetat
 ventura_county <- rast(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 ```
 
+```{r}
+# Prepare milkweed data using stars package
+canopy_cover_path <- here::here("~/../../capstone/milkweedmod/data/canopy_cover/")
+
+# read in canopy cover data tiles
+kern_county_s <- read_stars(here(canopy_cover_path, "KernCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+kern_county_star <- st_as_stars(kern_county_s, dimensions = NULL)
+
+los_angeles_county_s <- read_stars(here(canopy_cover_path, "LosAngelesCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+monterey_county_s <- read_stars(here(canopy_cover_path, "MontereyCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+san_luis_obispo_county_s <- read_stars(here(canopy_cover_path, "SanLuisObispoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+santa_barbara_county_s <- read_stars(here(canopy_cover_path, "SantaBarbaraCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+
+ventura_county_s <- read_stars(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+```
+
 ## Initial Data Exploration
 ```{r}
 # check to see how kern county plots
 plot(kern_county)
+plot(kern_county_s)
 ```
 
 ```{r}
@@ -49,6 +70,7 @@ plot(los_angeles_county)
 ```{r}
 # check crs of kern county
 crs(kern_county) # WGS 84, spits out a ton of info though
+st_crs(kern_county_s)
 ```
 
 
@@ -64,6 +86,8 @@ res(los_angeles_county)
 ```{r}
 # combine rasters into a single raster for canopy cover
 canopy_cover_full <- mosaic(kern_county, los_angeles_county, monterey_county, san_luis_obispo_county, santa_barbara_county, ventura_county)
+# combine rasters into a single raster for canopy cover using stars objects
+canopy_cover_full_s <- st_mosaic(kern_county_s, los_angeles_county_s, monterey_county_s, san_luis_obispo_county_s, santa_barbara_county_s, ventura_county_s)
 ```
 
 ```{r}
@@ -74,7 +98,7 @@ plot(canopy_cover_full)
 # resolution of canopy cover full is 10x10
 res(canopy_cover_full)
 
-# 
+# crs of canopy cover is EPSG 32610
 crs(canopy_cover_full)
 ```
 
@@ -87,19 +111,27 @@ envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_b
 # resolution of bioclim data is 0.0083x0.0083
 res(envs_Ac)
 
-# crs of bioclim is WGS 84
+# crs of bioclim is EPSG 9122
 crs(envs_Ac)
 ```
 
 ## Get Canopy Cover and BioClim into same CRS
 ```{r}
-#canopy_cover_full_reproject <- project(canopy_cover_full,
- #                                      "epsg",
- #                                      method = "near")
+canopy_cover_full_reproject <- project(canopy_cover_full,
+                                       crs(envs_Ac),
+                                       res = res(envs_Ac))
+crs(canopy_cover_full_reproject)
 
+# res of canopy_cover_reproject is 0.0001012647 x 0.0001012647
+res(canopy_cover_full_reproject)
 
+# returns FALSE????? most likely because the resolutions do not match
+compareCRS(envs_Ac, canopy_cover_full_reproject)
 ```
 
+```{r}
+plot(canopy_cover_full_reproject)
+```
 
 
 
