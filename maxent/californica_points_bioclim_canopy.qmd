@@ -73,9 +73,16 @@ milkweed_points <- my_points %>%
 ##### Crop and stack bioclim and canopy cover
 
 ```{r}
+crs(forest_buffer)
+
 # crop to forest_buffer
 bioclim_crop <- crop(bioclim, forest_buffer)
 canopy_crop <- crop(canopy, forest_buffer)
+
+
+same.crs(bioclim_crop, canopy_crop)
+
+https://gis.stackexchange.com/questions/403536/raster-extent-issue-in-r
 
 # stack
 envs_Ac <- raster::stack(bioclim_crop, canopy_crop)
