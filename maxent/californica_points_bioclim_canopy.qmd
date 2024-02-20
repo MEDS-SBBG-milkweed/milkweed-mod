@@ -162,8 +162,15 @@ using a “minimum convex polygon” method with a 1.1 degree buffer.
 # Generate background extent 
 bgExt_Ac <- penvs_bgExtent(
   occs = occs_Ac,
-  bgSel = "minimum convex polygon",
+  bgSel = forest_buffer,
   bgBuf = 1.1)
+
+# bgExt_Ac <- penvs_userBgExtent(
+#   occs = occs_Ac,
+#   bgShp_name = forest_buffer,
+#   bgShp_path = forest_buffer,
+#   userBgBuf = 0.5)
+
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
   occs = occs_Ac,
@@ -254,6 +261,10 @@ m  %>%
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias californica<br>Predicted Suitability<br>(Training)")
+            title = "Asclepias californica<br>Predicted Suitability<br>(Training)") %>%
+  addPolygons(data = lpnf_boundary,
+              fill = FALSE,
+              color = "black",
+              weight = 2)
 ```
 
