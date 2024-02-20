@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "Californica points bioclim canpoy"
 format: html
 ---
 
@@ -82,11 +82,10 @@ same.crs(bioclim_crop, canopy_crop)
 
 # resoource: https://gis.stackexchange.com/questions/403536/raster-extent-issue-in-r
 bioclim_crop_resample <- resample(bioclim_crop, canopy_crop)
-envs_Ac <- c(bioclim_crop_resample, canopy_crop)
-
+canopy_crop <- mask(canopy_crop, bioclim_crop_resample)
 
 # stack
-envs_Ac <- raster::stack(bioclim_crop, canopy_crop)
+envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop)
 ```
 
 
@@ -248,16 +247,13 @@ rasPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
 m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) 
 m  %>%
   addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
-                   radius = 5, color = 'red', fill = TRUE, fillColor = "red",
+                   radius = 5, color = 'black', fill = TRUE, fillColor = "black",
                    fillOpacity = 0.2, weight = 2) %>% 
   ##Add model prediction
   addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
- ##add background polygons
-  addPolygons(data = bgExt_Ac,fill = FALSE,
-              weight = 4, color = "blue", group = 'proj') %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias vestita<br>Predicted Suitability<br>(Training)")
+            title = "Asclepias californica<br>Predicted Suitability<br>(Training)")
 ```
 
