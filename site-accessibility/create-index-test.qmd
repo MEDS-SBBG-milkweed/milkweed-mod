@@ -1,6 +1,6 @@
 ---
 title: "Site Accessibility Index Score"
-author: "Amanda Herbst"
+author: "Amanda Herbst & Anna Ramji"
 date-created: "2024-02-15"
 ---
 
@@ -18,6 +18,8 @@ library(sf)
 library(here)
 library(raster)
 library(terra)
+library(janitor)
+library(stars)
 ```
 
 # Load lpnf data for bounding box
@@ -33,7 +35,7 @@ st_crs(lpnf_boundary)
 
 # Load data
 
-```{r}
+```{r land-ownership-data}
 # land ownership ----
 
 land_ownership <- st_read(here("~/../../capstone/milkweedmod/data/California_Land_Ownership/ownership23_1.shp"))
@@ -45,9 +47,11 @@ st_crs(ownership_reprojected)
 st_crs(ownership_reprojected) == st_crs(lpnf_boundary)
 ```
 
-# Explore data
+## Explore data
 
-```{r}
+### Preliminary Plot 1: Land ownership & LPNF boundary
+```{r prelim-plot-1}
+# preliminary plot 
 ggplot() +
   geom_sf(data = ownership_reprojected, aes(fill = OWN_LEVEL)) +
   geom_sf(data = lpnf_boundary,
@@ -58,3 +62,141 @@ ggplot() +
            ylim = c(lpnf_bb[2], lpnf_bb[4])) +
   theme_bw()
 ```
+
+# Trails & Roads
+```{r trail-road-data}
+# read in LPNF trails data 
+trails <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+
+# reproject trails data
+trails_reprojected <- trails %>% 
+  st_transform(crs = st_crs(lpnf_boundary))
+
+# check that crs match
+st_crs(ownership_reprojected) == st_crs(trails_reprojected)
+
+```
+
+### Preliminary Plot 2: Land ownership, LPNF boundary, Trails & Roads
+```{r prelim-plot-2}
+# add trails onto preliminary plot
+ggplot() +
+  geom_sf(data = ownership_reprojected, aes(fill = OWN_LEVEL)) +
+  geom_sf(data = lpnf_boundary,
+          color = "darkgreen",
+          fill = "transparent",
+          lwd = 1) +
+  geom_sf(data = trails_reprojected, aes(color = Type)) + 
+  coord_sf(xlim = c(lpnf_bb[1], lpnf_bb[3]),
+           ylim = c(lpnf_bb[2], lpnf_bb[4])) +
+  theme_bw()
+```
+
+Note: it looks like we only have the trail data for the lower part of the forest. We'll need to go over that with the client and re-confirm that we can't get the trails data for the northern portion of the forest.
+
+
+## Creating a Trails & Roads Buffer
+
+logically speaking, the distance from trails and roads should probably be different in order to appropriately weight these in our accessibility index, i.e., a farther distance (wider buffer) from a road, smaller buffer from trails? Assumes that vegetation is less dense near roads as they serve as bigger disruptions to ecosystems. We can also start off by giving them the same buffer size.
+
+Remember dist argument from st_buffer:
+- dist: numeric; buffer distance for all, or for each of the elements in x; in case dist is a units object, it should be convertible to arc_degree if x has geographic coordinates, and to st_crs(x)$units otherwise
+
+Note about trail data:
+
+- we should ask if they have/use motorcycles or any other trail-elligible motorized vehicle (some are classified as trails, with"Motorcycles Only" as vehicles allowed)
+
+Before we can move on, let's:
+- rename columns following lower_snake_case convention
+- remove the trails that are Closed: Public_Acc == CLOSED to All Access (Trail)
+
+Things to talk about:
+- should we keep in the Closed / not open to public trails and mark them in some way in our formula as a 0? Or should we just omit them from the trails/roads dataset? -- is it better to make them seem less accessible bc no trail, or just strictly prohibited bc closed trail? If the SBBG is working with the CADFW, do they have more than public access?
+
+- should we factor in whether or not a trail is motorized vs non-motorized (question for Sarah? -- do they use motorized vehicles on trails?)
+
+
+Datatype of trails and roads data is MULTILINESTRING Z -- 3rd dimension? -- makes st_buffer angry -- warning/message: "st_as_s2(): dropping Z and/or M coordinate" -- this seems important, and maybe we can include this information when we are combining it with elevation?
+
+```{r trail-road-buffer}
+# rename columns
+trails_renamed <- trails_reprojected %>% 
+  janitor::clean_names()
+
+
+# filtered subset of open/publicly accessible trails 
+trails_public <- trails_renamed %>% 
+  filter(!public_acc %in% c("CLOSED to All Access (Trail)"))
+# length is now 1896, down from 2027
+
+
+# making a buffer
+trail_buffer <- st_buffer(trails_renamed, 
+                          dist = 300) # 300 meters?
+# classify this as being "within walking distance from trail?? 
+# or should we just have a distance from trail function?
+
+# trails subset
+only_trails <- trails_renamed %>% 
+  filter(type == "Trail") # 1283 observations
+
+# roads subset
+only_roads <- trails_renamed %>% 
+  filter(type == "Road") # 744 obs
+
+
+# convert to raster (note: requires stars package)
+trails_raster <- st_rasterize(only_trails %>% dplyr::select(type, geometry))
+
+# export as .tif
+# write_stars(trails_raster, "trails_raster.tif")
+```
+
+
+```{r trail-road-buffer-viz}
+# plot buffer to see difference
+ggplot() +
+  geom_sf(data = trails_renamed, 
+          color = "black") + 
+  geom_sf(data = trail_buffer,
+          aes(color = type),
+          alpha = 0.7) +
+  geom_sf(data = lpnf_boundary,
+          color = "darkgreen",
+          fill = "transparent",
+          lwd = 1) +
+  coord_sf(xlim = c(lpnf_bb[1], lpnf_bb[3]),
+           ylim = c(lpnf_bb[2], lpnf_bb[4])) +
+  theme_bw()
+
+
+```
+
+
+Most Accessible:
+- very close to Road 
+- low change in slope from road or trail to raster cell
+- % canopy cover (as a proxy for vegetation density) is low
+
+Relatively Pretty Accessible:
+- very close to Trail
+- mild change in slope from trail to raster cell
+- % canopy cover is fairly low
+
+etc.
+
+
+## Big-to-medium picture:
+
+for each cell:
+
+distance from trail
+
+https://gis.stackexchange.com/questions/233443/finding-distance-between-raster-pixels-and-line-features-in-r
+use 
+
+
+dist_to_trail = 
+
+then use rescale() function from {scales} package to get those continuous values from 0 to 1
+rescale(dist_to_buffer, to = c(0, 1))
