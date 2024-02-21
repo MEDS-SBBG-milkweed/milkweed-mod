@@ -23,6 +23,12 @@ Filter boundaries to Los Padres National Forest
 ```{r}
 lpnf_boundary <- boundary %>% 
   filter(FORESTNAME %in% c("Los Padres National Forest"))
+
+forest_buffer <- lpnf_boundary  %>%
+  st_buffer(dist = 1000)
+
+# st_write(lpnf_boundary, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary.shp"))
+# st_write(forest_buffer, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"))
 ```
 
 Reproject all data to EPSG: 2230 for California Zone 6 (area of interest) 
