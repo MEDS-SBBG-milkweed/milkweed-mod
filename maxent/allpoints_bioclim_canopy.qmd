@@ -22,17 +22,17 @@ bioclim <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_b
 canopy <- raster(here::here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
 
 # California National Forest boundaries
-boundary <- st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
-boundary_buffered <- here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/")
+lpnf_boundary <- st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
+boundary_buffered <- st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"))
 
-lpnf_path <- list.files(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"), full.names = TRUE)
-lpnf_shp <- list.files(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"), full.names = FALSE)
+# lpnf_path <- list.files(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"), full.names = TRUE)
+# lpnf_shp <- list.files(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"), full.names = FALSE)
 
 # remove "No" observations
 milkweed_presence <- milkweed_data_raw |> 
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
-  st_transform(crs(bioclim)) %>%
+  st_transform("EPSG:4326") %>%
   dplyr::select(milkweed_sp)
 
 # make points
@@ -76,8 +76,7 @@ bioclim_crop_resample <- resample(bioclim_crop, canopy_crop)
 canopy_crop <- mask(canopy_crop, bioclim_crop_resample)
 
 # stack
-envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop) %>%
-  projectExtent("EPSG:4326")
+envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop)
 ```
 
 
@@ -87,8 +86,7 @@ envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop) %>%
 
 ```{r}
 # rename milkweed occurrence data
- occs_Ac <- milkweed_points %>%
-  st_transform("EPSG:4326")
+ occs_Ac <- milkweed_points
 ```
 
 ### Obtain environmental data
@@ -151,19 +149,20 @@ occs_Ac <- poccs_thinOccs(
 Sampling of 5000 background points and corresponding environmental data
 using a “minimum convex polygon” method with a 1.1 degree buffer.
 
+
 ```{r}
-# Generate background extent 
+# Generate background extent
 bgExt_Ac <- penvs_bgExtent(
   occs = occs_Ac,
-  bgSel = "minimum convex polygon",
-  bgBuf = 1.1)
+  bgSel = "bounding box",
+  bgBuf = 1.4)
 
-# Generate user-defined background extent
-bgExt_Ac <- penvs_userBgExtent(
-  occs = occs_Ac,
-  bgShp_name = lpnf_shp,
-  bgShp_path = lpnf_path,
-  userBgBuf = 0.5)
+# # Generate user-defined background extent
+# bgExt_Ac <- penvs_userBgExtent(
+#   occs = occs_Ac,
+#   bgShp_name = lpnf_shp,
+#   bgShp_path = lpnf_path,
+#   userBgBuf = 0.5)
 
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
@@ -174,7 +173,7 @@ bgMask_Ac <- penvs_bgMask(
 bgSample_Ac <- penvs_bgSample(
   occs = occs_Ac,
   bgMask =  bgMask_Ac,
-  bgPtsNum = 5000)
+  bgPtsNum = 10000)
 # Extract values of environmental layers for each background point
 bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
 ##Add extracted values to background points table
@@ -248,14 +247,14 @@ rasPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
 m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) 
 m  %>%
   addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
-                   radius = 5, color = 'black', fill = TRUE, fillColor = "black",
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
                    fillOpacity = 0.2, weight = 2) %>% 
   ##Add model prediction
   addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias californica<br>Predicted Suitability<br>(Training)") %>%
+            title = "Asclepias sp.<br>Predicted Suitability<br>(Training)") %>%
   addPolygons(data = lpnf_boundary,
               fill = FALSE,
               color = "black",

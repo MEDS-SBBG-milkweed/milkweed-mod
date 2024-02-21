@@ -27,8 +27,10 @@ lpnf_boundary <- boundary %>%
 forest_buffer <- lpnf_boundary  %>%
   st_buffer(dist = 1000)
 
-# st_write(lpnf_boundary, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary.shp"))
-# st_write(forest_buffer, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"))
+st_crs(forest_buffer) <- st_crs("EPSG:4326")
+
+ #st_write(lpnf_boundary, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
+ st_write(forest_buffer, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"))
 ```
 
 Reproject all data to EPSG: 2230 for California Zone 6 (area of interest) 
