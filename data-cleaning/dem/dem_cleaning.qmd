@@ -27,11 +27,18 @@ file_path <- here("~/../../capstone/milkweedmod/data/dem/")
 
 # read in dem data tiles
 n35w119 <- rast(here(file_path, "USGS_1_n35w119_20190919.tif"))
+n35w120 <- rast(here(file_path, "USGS_1_n35w120_20190924.tif"))
+n35w121 <- rast(here(file_path, "USGS_1_n35w121_20190924.tif"))
+n36w120 <- rast(here(file_path, "USGS_1_n36w120_20190919.tif"))
+n36w121 <- rast(here(file_path, "USGS_1_n36w121_20190919.tif"))
+n36w122 <- rast(here(file_path, "USGS_13_n36w122_20130911.tif"))
+n37w122 <- rast(here(file_path, "USGS_13_n37w122_20130911.tif"))
 ```
 
 ```{r}
 # mosaic the tiles to get full area
-dem <- mosaic()
+dem <- mosaic(n35w119, n35w120, n35w121, n36w120, n36w121)
+plot(dem)
 ```
 
 ```{r}
@@ -39,24 +46,33 @@ dem <- mosaic()
 resampled_raster <- resample(r, new_resolution)
 ```
 
+```{r}
+## code for dem ##
+dem_slope <- terra::terrain(dem, v = "slope", unit="degrees")
+dem_aspect <- terra::terrain(dem, v = "aspect", unit="degrees")
+dem_roughness <- terra::terrain(dem, v = "roughness", unit="degrees")
+
+
+plot(dem_slope)
+plot(dem_aspect)
+plot(dem_roughness)
+```
+
 
 
 ```{r}
-## code for dem ##
-plot(terra::terrain(elevation, opt="slope"))
-
 #### determine area of interest (with sf) ####
-area_sf <- sf::st_bbox(n35w119) %>% sf::st_as_sfc() %>% sf::st_buffer(1000)
+area_sf <- sf::st_bbox(dem) %>% sf::st_as_sfc() %>% sf::st_buffer(1000)
 area_sp <- area_sf %>% sf::as_Spatial()
 
 #### get digital elevation data (with elevatr) ####
-dem <- elevatr::get_elev_raster(locations = elevation, prj = sf::st_crs(4326), z = 7, clip = "bbox")
+dem_elev <- elevatr::get_elev_raster(locations = dem, prj = sf::st_crs(4326), z = 7, clip = "bbox")
 
 #### prepare hillshaded raster (with rayshader) ####
 elmat <- matrix(
-  raster::extract(dem, raster::extent(dem)),
-  nrow = ncol(dem), 
-  ncol = nrow(dem)
+  terra::extract(dem, terra::ext(dem_elev)),
+  nrow = ncol(dem_elev), 
+  ncol = nrow(dem_elev)
 )
 
 raymat <- rayshader::ray_shade(elmat)
@@ -68,8 +84,8 @@ hillshade <- elmat %>%
   add_shadow(ambmat)
 
 #### tranform hillshade to georeferenced raster (with raster) ####
-e <- raster::extent(dem)
-hillshade_raster <- raster::brick(hillshade, xmn = e[1], xmx = e[2], ymn = e[3], ymx = e[4], crs = raster::crs(dem))
+e <- raster::extent(dem_elev)
+hillshade_raster <- raster::brick(hillshade, xmn = e[1], xmx = e[2], ymn = e[3], ymx = e[4], crs = raster::crs(dem_elev))
 
 
 tm_shape(hillshade_raster[[1]]) +
