@@ -31,26 +31,28 @@ n35w120 <- rast(here(file_path, "USGS_1_n35w120_20190924.tif"))
 n35w121 <- rast(here(file_path, "USGS_1_n35w121_20190924.tif"))
 n36w120 <- rast(here(file_path, "USGS_1_n36w120_20190919.tif"))
 n36w121 <- rast(here(file_path, "USGS_1_n36w121_20190919.tif"))
-n36w122 <- rast(here(file_path, "USGS_13_n36w122_20130911.tif"))
-n37w122 <- rast(here(file_path, "USGS_13_n37w122_20130911.tif"))
+n36w122 <- rast(here(file_path, "USGS_1_n36w122_20210301.tif"))
+n37w122 <- rast(here(file_path, "USGS_1_n37w122_20201207.tif"))
 ```
 
 ```{r}
 # mosaic the tiles to get full area
-dem <- mosaic(n35w119, n35w120, n35w121, n36w120, n36w121)
+dem <- mosaic(n35w119, n35w120, n35w121, n36w120, n36w121, n36w122, n37w122)
 plot(dem)
+
+# writeRaster(dem, here("~/../../capstone/milkweedmod/data/dem/lpnf_dem.tif"))
 ```
 
 ```{r}
-# resample to get the resolution to match bioclim (0.008333333 x 0.008333333)
-resampled_raster <- resample(r, new_resolution)
-```
-
-```{r}
-## code for dem ##
+## get slope and aspect ##
 dem_slope <- terra::terrain(dem, v = "slope", unit="degrees")
 dem_aspect <- terra::terrain(dem, v = "aspect", unit="degrees")
 dem_roughness <- terra::terrain(dem, v = "roughness", unit="degrees")
+
+# save rasters to data folder 
+# writeRaster(dem_slope, here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
+# writeRaster(dem_aspect, here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
+# writeRaster(dem_roughness, here("~/../../capstone/milkweedmod/data/dem/lpnf_roughness.tif"))
 
 
 plot(dem_slope)
@@ -59,7 +61,7 @@ plot(dem_roughness)
 ```
 
 
-
+dont need this code ----
 ```{r}
 #### determine area of interest (with sf) ####
 area_sf <- sf::st_bbox(dem) %>% sf::st_as_sfc() %>% sf::st_buffer(1000)
