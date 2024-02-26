@@ -12,7 +12,7 @@ There are tools for calculating this in ArcGIS but not much has been found in R.
 
 # Load packages
 
-```{r}
+```{r, message = FALSE}
 library(tidyverse)
 library(sf)
 library(here)
@@ -25,7 +25,7 @@ library(fasterize)
 
 # Load lpnf data for bounding box
 
-```{r}
+```{r, message = FALSE}
 boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
 lpnf_boundary <- boundary %>% 
   filter(FORESTNAME %in% c("Los Padres National Forest"))
@@ -36,7 +36,7 @@ st_crs(lpnf_boundary)
 
 # Load data
 
-```{r land-ownership-data}
+```{r land-ownership-data, message=FALSE}
 # land ownership ----
 
 land_ownership <- st_read(here("~/../../capstone/milkweedmod/data/California_Land_Ownership/ownership23_1.shp"))
@@ -63,6 +63,35 @@ ggplot() +
            ylim = c(lpnf_bb[2], lpnf_bb[4])) +
   theme_bw()
 ```
+
+## Create land ownership mask
+
+```{r land-ownership-mask}
+# select ownership level and geometry columns (only necessary columns)
+ownership_mask <- ownership_reprojected %>% 
+  dplyr::select(OWN_LEVEL, geometry)
+
+# save the lpnf boundary as a polygon
+lpnf_polygon <- lpnf_boundary$SHAPE
+# check that the boudnary is sfc object
+class(lpnf_boundary$SHAPE)
+
+# had a problem cropping but this line below fixed the issue thanks to:
+# https://github.com/r-spatial/sf/issues/1762
+## sf_use_s2(FALSE)
+lpnf_ownership_mask <- ownership_mask[lpnf_polygon,]
+plot(lpnf_ownership_mask)
+
+# create mask of 1s for later multiplying for accessibility
+lpnf_ownership_mask1 <- lpnf_ownership_mask %>% 
+  # new column of 1s
+  mutate(ownership = rep(1, length(lpnf_ownership_mask$OWN_LEVEL))) %>% 
+  # remove original ownership level column
+  dplyr::select(-OWN_LEVEL)
+
+plot(lpnf_ownership_mask1)
+```
+
 
 # Trails & Roads
 ```{r trail-road-data}
