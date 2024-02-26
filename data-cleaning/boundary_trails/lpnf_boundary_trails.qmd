@@ -27,11 +27,27 @@ lpnf_boundary <- boundary %>%
 forest_buffer <- lpnf_boundary  %>%
   st_buffer(dist = 1000)
 
-st_crs(forest_buffer) <- st_crs("EPSG:4326")
+#st_crs(forest_buffer) <- st_crs("EPSG:4326") # this format does not reproject the data
+
+forest_buffer <- st_transform(forest_buffer, crs = st_crs("EPSG:4326"))
 
  #st_write(lpnf_boundary, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
- st_write(forest_buffer, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"))
+ st_write(forest_buffer,
+          here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
+          append = FALSE)
+ 
 ```
+## Finding max-y for southern section
+
+```{r}
+
+ggplot(data = forest_buffer) +
+  geom_sf()
+
+# select 35.6 as max-y for subselection of southern portion! 
+```
+
+
 
 Reproject all data to EPSG: 2230 for California Zone 6 (area of interest) 
 ```{r}

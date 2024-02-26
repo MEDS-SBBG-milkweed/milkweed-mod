@@ -79,7 +79,7 @@ envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop, slope_crop_resample
 
 ```{r}
 # rename milkweed occurrence data
- occs_Ac <- milkweed_points
+ occs_Ac <- milkweed_points # all species
 ```
 
 ### Obtain environmental data

@@ -248,9 +248,12 @@ then use rescale() function from {scales} package to get those continuous values
 rescale(dist_to_buffer, to = c(0, 1))
 
 
-```{r}
+Calculate distance from each raster cell centroid to ANY/NEAREST line
+```{r distance-calc}
 
 
 
 ```
+
+- do we have an exported raster of the study area? (Southern part)
 
