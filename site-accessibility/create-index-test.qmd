@@ -20,6 +20,7 @@ library(raster)
 library(terra)
 library(janitor)
 library(stars)
+library(fasterize)
 ```
 
 # Load lpnf data for bounding box
@@ -138,18 +139,34 @@ trail_buffer <- st_buffer(trails_renamed,
 
 # trails subset
 only_trails <- trails_renamed %>% 
-  filter(type == "Trail") # 1283 observations
+  filter(type == "Trail")   # 1283 observations
 
 # roads subset
 only_roads <- trails_renamed %>% 
   filter(type == "Road") # 744 obs
 
+# selecting relevant columns, converting to x,y
+trail_raster_prep <- only_trails %>% 
+  dplyr::select(type, geometry) %>% 
+  st_zm() %>% # remove Z dimension
+  st_cast("LINESTRING") # convert to linestring (not multi)
+
 
 # convert to raster (note: requires stars package)
-trails_raster <- st_rasterize(only_trails %>% dplyr::select(type, geometry))
+#trails_raster <- raster(extent(trail_raster_prep))
+trails_raster <- st_rasterize(trail_raster_prep, field = "type", fun = "constant")
 
+# trails_test1 <- fasterize(trail_raster_prep,
+#                           field = "type",
+#                           background = 0)
+
+plot(trails_raster)
 # export as .tif
 # write_stars(trails_raster, "trails_raster.tif")
+
+# plot(raster(extent(trail_raster_prep)))
+
+raster::raster(trail_raster_prep, origin = lpnf_bb[2])
 ```
 
 
@@ -200,3 +217,11 @@ dist_to_trail =
 
 then use rescale() function from {scales} package to get those continuous values from 0 to 1
 rescale(dist_to_buffer, to = c(0, 1))
+
+
+```{r}
+
+
+
+```
+
