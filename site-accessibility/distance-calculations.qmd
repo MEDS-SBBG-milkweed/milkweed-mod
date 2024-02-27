@@ -1,0 +1,61 @@
+---
+author: "Anna Ramji"
+title: "Distance Calculations for Site Accessibility"
+---
+
+
+```{r library}
+# load necessary packages
+library(tidyverse)
+library(janitor)
+library(sf)
+library(ggspatial)
+library(terra)
+library(here)
+library(leaflet)
+library(stars)
+library(gdistance)
+```
+
+
+```{r setup}
+# read in data
+boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
+lpnf_boundary <- boundary %>% 
+  filter(FORESTNAME %in% c("Los Padres National Forest"))
+
+
+model_raster <- raster(here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+```
+
+
+
+### Setting raster cells to 0 to make a blank template for baseline distance calculations 
+
+
+```{r}
+
+plot(model_raster)
+
+# pull out the minimum
+min_rast <- min(unique(model_raster$allpoints_bioclim_canopy_dem))
+# and maximum values 
+max_rast <- max(unique(model_raster$allpoints_bioclim_canopy_dem))
+
+# set all values between the minimum and maximum to zero (all values!)
+reclass_vec <- c(min_rast, max_rast, 0)
+
+# create reclassification matrix
+reclass_matrix <- matrix(reclass_vec, ncol = 3, byrow = TRUE)
+
+# classify(raster, reclassification matrix, include.lowest = true???, right = NA)
+
+# reclassify raster based on matrix
+model_template <- classify(model_raster, # original raster
+                           reclass_matrix, # reclassification matrix
+                           include.lowest = TRUE,
+                           right = FALSE)
+
+```
+

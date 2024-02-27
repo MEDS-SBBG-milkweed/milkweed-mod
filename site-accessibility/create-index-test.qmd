@@ -29,6 +29,7 @@ library(fasterize)
 boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
 lpnf_boundary <- boundary %>% 
   filter(FORESTNAME %in% c("Los Padres National Forest"))
+
 lpnf_bb <- st_bbox(lpnf_boundary)
 
 st_crs(lpnf_boundary)
