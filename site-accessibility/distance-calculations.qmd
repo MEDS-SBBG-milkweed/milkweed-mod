@@ -23,6 +23,7 @@ library(gdistance)
 
 # ------ LPNF boundary ---------
 boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
+
 lpnf_boundary <- boundary %>% 
   filter(FORESTNAME %in% c("Los Padres National Forest")) %>% 
   st_transform(crs = "EPSG:4326")
