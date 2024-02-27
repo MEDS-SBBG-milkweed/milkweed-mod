@@ -19,13 +19,57 @@ library(gdistance)
 
 
 ```{r setup}
-# read in data
+# read in data ----
+
+# ------ LPNF boundary ---------
 boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
 lpnf_boundary <- boundary %>% 
-  filter(FORESTNAME %in% c("Los Padres National Forest"))
+  filter(FORESTNAME %in% c("Los Padres National Forest")) %>% 
+  st_transform(crs = "EPSG:4326")
 
 
-model_raster <- raster(here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+# ---- TRAILS & ROADS ----------------
+# read in LPNF trails data 
+trails_data <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+
+# reproject trails data
+trails_reprojected <- trails_data %>% 
+  st_transform(crs = st_crs(lpnf_boundary)) %>% 
+  st_zm() %>%  # remove z-dimension
+  janitor::clean_names() # tidy up column names
+
+# check that crs match
+# st_crs(lpnf_boundary) == st_crs(trails_reprojected)
+
+
+# trails subset
+only_trails <- trails_reprojected %>% 
+  filter(type == "Trail")   # 1283 observations
+
+# roads subset
+only_roads <- trails_reprojected %>% 
+  filter(type == "Road") # 744 obs
+
+# selecting relevant columns, converting to x,y
+trail_raster_prep <- only_trails %>% 
+  dplyr::select(type, geometry) %>% 
+  st_cast("LINESTRING") # convert to linestring (not multilinestring)
+
+# make it into a raster
+trails_raster <- st_rasterize(trail_raster_prep, field = "type", fun = "constant")
+
+
+roads_prep <- only_roads %>% 
+  dplyr::select(type, geometry)
+# %>% 
+#   st_cast("LINESTRING")
+
+
+# ------ read in model raster ----------
+# to make it a SpatRaster (terra), not a RasterLayer (raster)
+model_raster <- terra::rast(here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+
 
 ```
 
@@ -52,10 +96,27 @@ reclass_matrix <- matrix(reclass_vec, ncol = 3, byrow = TRUE)
 # classify(raster, reclassification matrix, include.lowest = true???, right = NA)
 
 # reclassify raster based on matrix
-model_template <- classify(model_raster, # original raster
+model_template <- terra::classify(model_raster, # original raster
                            reclass_matrix, # reclassification matrix
                            include.lowest = TRUE,
-                           right = FALSE)
+                           right = FALSE
+                           )
+
+
+plot(model_template)
+
+
+points <- as()
+```
+
+
+
+```{r}
+
+# test_raster <- raster(extent(model_raster), 249, 387)
+# 
+# plot(test_raster)
+
 
 ```
 

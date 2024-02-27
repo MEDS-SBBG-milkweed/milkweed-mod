@@ -196,7 +196,12 @@ plot(trails_raster)
 
 # plot(raster(extent(trail_raster_prep)))
 
+#test_raster <- 
 raster::raster(trail_raster_prep, origin = lpnf_bb[2])
+
+#plot(test_raster)
+# Error in .plotraster2(x, col = col, maxpixels = maxpixels, add = add, :
+# no values associated with this RasterLayer
 ```
 
 
