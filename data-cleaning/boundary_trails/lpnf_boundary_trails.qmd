@@ -22,19 +22,19 @@ trails <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_a
 Filter boundaries to Los Padres National Forest
 ```{r}
 lpnf_boundary <- boundary %>% 
-  filter(FORESTNAME %in% c("Los Padres National Forest"))
+  filter(FORESTNAME %in% c("Los Padres National Forest")) %>%
+  st_transform(forest_buffer, crs = st_crs("EPSG:4326"))
 
 forest_buffer <- lpnf_boundary  %>%
   st_buffer(dist = 1000)
 
-#st_crs(forest_buffer) <- st_crs("EPSG:4326") # this format does not reproject the data
 
-forest_buffer <- st_transform(forest_buffer, crs = st_crs("EPSG:4326"))
-
- #st_write(lpnf_boundary, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
- # st_write(forest_buffer,
- #          here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
- #          append = FALSE)
+# st_write(lpnf_boundary,
+#          here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"),
+#          append = FALSE)
+# st_write(forest_buffer,
+#         here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
+#         append = FALSE)
  
 ```
 ## Finding max-y for southern section
@@ -49,19 +49,35 @@ ggplot() +
 
 ```{r}
 # Create a bounding box 
-bbox_south <- st_bbox(c(xmin = -118, ymin = 34.2, xmax = -121, ymax = 35.5),  crs = st_crs(4269))
-bbox_north <- st_bbox(c(xmin = -122, ymin = 35.5, xmax = -121, ymax = 36.5),  crs = st_crs(4269))
+bbox_south <- st_bbox(c(xmin = -118, ymin = 34.2, xmax = -121, ymax = 35.5),  crs = st_crs(4326))
+bbox_north <- st_bbox(c(xmin = -122, ymin = 35.5, xmax = -121, ymax = 36.5),  crs = st_crs(4326))
 
 # Crop boundary
-lpnf_south <- st_crop(lpnf_boundary, bbox_south)
+lpnf_south <- st_crop(lpnf_boundary, bbox_south) %>%
+  select(SHAPE)
 lpnf_north <- st_crop(lpnf_boundary, bbox_north)
 
+lpnf_south_df <- lpnf_south %>%
+  st_coordinates() %>%
+  data.frame()
+
+
+write_csv(lpnf_south_df, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.csv"))
+
+ggplot(lpnf_south_df) +
+  geom_polygon(aes(x = X, y = Y))
 
 ggplot() +
-  geom_sf(data = lpnf_north, color = "blue4") +
   geom_sf(data = lpnf_south, color = "green4")
-```
 
+# write the two polygons
+# st_write(lpnf_north,
+#          here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp"),
+#          append = FALSE)
+st_write(lpnf_south,
+        here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"),
+        append = FALSE)
+```
 
 
 Reproject all data to EPSG: 2230 for California Zone 6 (area of interest) 

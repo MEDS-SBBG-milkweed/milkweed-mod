@@ -11,6 +11,8 @@ library(sf)
 library(ENMeval)
 library(wallace)
 library(tidyverse)
+library(leaflet)
+source("scripts/addLegend_decreasing.R")
 ```
 
 ```{r}
@@ -22,14 +24,10 @@ milkweed_data_raw <- st_read(milkweed_path)
 bioclim <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
 canopy <- raster(here::here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
 
-# California National Forest boundaries
-boundary <- st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
-
-lpnf_boundary <- boundary %>% 
-  filter(FORESTNAME %in% c("Los Padres National Forest")) %>%
-  st_transform(crs = crs(bioclim))
-
-forest_buffer <- lpnf_boundary  %>%
+# lpnf
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
+lpnf_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp"))
+lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp")) %>%
   st_buffer(dist = 1000)
 
 
@@ -37,7 +35,7 @@ forest_buffer <- lpnf_boundary  %>%
 milkweed_presence <- milkweed_data_raw |> 
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
-  st_transform(crs(envs_Ac)) %>%
+  st_transform("EPSG:4326") %>%
   filter(milkweed_sp == "Asclepias californica") %>%
   dplyr::select(milkweed_sp)
 
@@ -53,20 +51,16 @@ milkweed_points <- my_points %>%
   rename(longitude = X,
          latitude = Y)
 
-# check to see that the points are within the buffer
+#check to see that the points are within the buffer
 # leaflet() %>%
 #   addTiles() %>%
-#   addPolygons(data = lpnf_boundary,
+#   addPolygons(data = lpnf_south,
 #               fill = FALSE,
 #               color = "black",
 #               weight = 2) %>%
-#   addPolygons(data = forest_buffer,
-#               fill = FALSE,
-#               color = "red",
-#               weight = 2) %>%
 #   addCircleMarkers(data = milkweed_points,
-#                    radius = 2, 
-#                    fill = TRUE, 
+#                    radius = 2,
+#                    fill = TRUE,
 #                    opacity = 0.8)
 ```
 
@@ -74,11 +68,8 @@ milkweed_points <- my_points %>%
 
 ```{r}
 # crop to forest_buffer
-bioclim_crop <- crop(bioclim, forest_buffer)
-canopy_crop <- crop(canopy, forest_buffer)
-
-# files are in same crs but extents do not match
-same.crs(bioclim_crop, canopy_crop)
+bioclim_crop <- crop(bioclim, lpnf_south)
+canopy_crop <- crop(canopy, lpnf_south)
 
 # resoource: https://gis.stackexchange.com/questions/403536/raster-extent-issue-in-r
 bioclim_crop_resample <- resample(bioclim_crop, canopy_crop)
@@ -86,6 +77,8 @@ canopy_crop <- mask(canopy_crop, bioclim_crop_resample)
 
 # stack
 envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop)
+crs(envs_Ac) <- "EPSG:4326"
+
 ```
 
 
@@ -150,7 +143,7 @@ Thinning the occurrences to 0.1 km
 # Thin occurrences 
 occs_Ac <- poccs_thinOccs(
   occs = occs_Ac, 
-  thinDist = 0.1) # adjust this value if needed
+  thinDist = 0.05) # adjust this value if needed
 ```
 
 ### Process environmental data
@@ -160,16 +153,25 @@ using a “minimum convex polygon” method with a 1.1 degree buffer.
 
 ```{r}
 # Generate background extent 
-bgExt_Ac <- penvs_bgExtent(
-  occs = occs_Ac,
-  bgSel = forest_buffer,
-  bgBuf = 1.1)
+# bgExt_Ac <- penvs_userBgExtent(bgShp_path = "~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.csv",
+#                                bgShp_name = "lpnf_boundary_south.csv",
+#                                userBgBuf = 0, occs = occs_Ac)
+# 
+# bgExt_Ac <- penvs_userBgExtent(bgShp_path = "~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp",
+#                                bgShp_name = "lpnf_boundary_south.shp", "lpnf_boundary_south.shx","lpnf_boundary_south.dbf",
+#                                userBgBuf = 0, occs = occs_Ac)
 
-# bgExt_Ac <- penvs_userBgExtent(
-#   occs = occs_Ac,
-#   bgShp_name = forest_buffer,
-#   bgShp_path = forest_buffer,
-#   userBgBuf = 0.5)
+multi_lpnf <- st_cast(lpnf_south, "MULTIPOINT")
+south_bound_points <- multi_lpnf  %>% st_cast("POINT") %>%
+  st_coordinates() %>%
+  data.frame() %>%
+  rename(longitude = X, latitude = Y) %>%
+  mutate(occID = row_number())
+
+bgExt_Ac <- penvs_bgExtent(
+  occs = south_bound_points,
+  bgSel = "minimum convex polygon",
+  bgBuf = 0)
 
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
@@ -230,6 +232,10 @@ model_Ac <- model_maxent(
 # we can run the other models at the same time, but for now I'm just using 'L' (linear) just so it goes a bit faster while we're getting everything sorted out
 ```
 
+```{r}
+# ev <- evaluate(model_Ac@models$fc.L_rm.1, p = occs_Ac, a = bgExt_Ac, x = envs_Ac)
+# plot(ev, "ROC")
+```
 
 ### Visualize
 
@@ -241,6 +247,7 @@ m_Ac <- model_Ac@models[["fc.L_rm.1"]] # change this for different models
 predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
+
 #Get values of prediction
 mapPredVals_Ac <- getRasterVals(predSel_Ac, "cloglog") # change for different types
 
@@ -254,15 +261,15 @@ rasPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
 m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) 
 m  %>%
   addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
-                   radius = 5, color = 'black', fill = TRUE, fillColor = "black",
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
                    fillOpacity = 0.2, weight = 2) %>% 
   ##Add model prediction
   addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
-  leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
-            labFormat = reverseLabel(),
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
+            labFormat = reverseLabel(), decreasing = TRUE,
             title = "Asclepias californica<br>Predicted Suitability<br>(Training)") %>%
-  addPolygons(data = lpnf_boundary,
+  addPolygons(data = lpnf_south,
               fill = FALSE,
               color = "black",
               weight = 2)

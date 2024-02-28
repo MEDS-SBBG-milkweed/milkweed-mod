@@ -207,7 +207,7 @@ model_Ac <- model_maxent(
   bgMsk = bgMask_Ac,
   rms = c(1, 2), 
   rmsStep =  1,
-  fcs = c('L', 'LQ', 'H', 'LQH', 'LQHP'),
+  fcs = c('L'), #, 'LQ', 'H', 'LQH', 'LQHP'
   clampSel = FALSE,
   algMaxent = "maxnet",
   parallel = FALSE,
@@ -245,7 +245,7 @@ Generate a map of the maxnet generated model with no threshold
 
 ```{r}
 # Select current model and obtain raster prediction
-m_Ac <- model_Ac@models[["fc.H_rm.2"]] # change this for different models
+m_Ac <- model_Ac@models[["fc.L_rm.2"]] # change this for different models
 predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
@@ -274,5 +274,9 @@ m  %>%
               fill = FALSE,
               color = "black",
               weight = 2)
+```
+
+```{r}
+here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp")
 ```
 
