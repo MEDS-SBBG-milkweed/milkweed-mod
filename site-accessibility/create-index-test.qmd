@@ -142,16 +142,19 @@ leaflet() %>%
               fillColor = "darkgreen",
               color = "darkgreen",
               weight = 1.5,
-              opacity = 0.6) %>% 
+              opacity = 0.6) %>%
   addPolygons(data = lpnf_boundary,
               fill = FALSE,
               color = "purple",
-              weight = 2) %>% 
+              weight = 3) %>% 
   addPolylines(data = trails_leaflet,
                color = "black",
-               weight = 0.5,
+               weight = 1,
                opacity =  1
-               )
+               ) %>%
+  leaflet::addLegend("bottomleft", values = lpnf_boundary, colors = c("purple"), labels = "LPNF Boundary", opacity = 1) %>%
+  leaflet:: addLegend("bottomleft", values = lpnf_ownership_mask1, colors = c("darkgreen"), labels = "Public Land") %>%
+  leaflet::addLegend("bottomleft", values = trails_leaflet, colors = c("black"), labels = "Trails and Roads", opacity = 1)
 
 
 ```
