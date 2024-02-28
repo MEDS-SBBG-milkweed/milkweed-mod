@@ -110,17 +110,50 @@ st_crs(ownership_reprojected) == st_crs(trails_reprojected)
 
 ### Preliminary Plot 2: Land ownership, LPNF boundary, Trails & Roads
 ```{r prelim-plot-2}
+library(leaflet)
 # add trails onto preliminary plot
+
 ggplot() +
-  geom_sf(data = ownership_reprojected, aes(fill = OWN_LEVEL)) +
+  geom_sf(data = lpnf_ownership_mask1,
+          fill = "lightgreen", alpha = 0.3) +
   geom_sf(data = lpnf_boundary,
           color = "darkgreen",
           fill = "transparent",
           lwd = 1) +
-  geom_sf(data = trails_reprojected, aes(color = Type)) + 
+  geom_sf(data = trails_reprojected,
+          color = "black",
+          lwd = 0.2) + 
   coord_sf(xlim = c(lpnf_bb[1], lpnf_bb[3]),
            ylim = c(lpnf_bb[2], lpnf_bb[4])) +
   theme_bw()
+
+# -----prep ----------
+trails_leaflet <- trails_reprojected %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(type, geometry) %>% 
+  st_zm()
+
+
+# ------ leaflet ---------
+
+leaflet() %>% 
+  addProviderTiles(provider = providers$Esri.WorldTerrain) %>% 
+  addPolygons(data = lpnf_ownership_mask1,
+              fillColor = "darkgreen",
+              color = "darkgreen",
+              weight = 1.5,
+              opacity = 0.6) %>% 
+  addPolygons(data = lpnf_boundary,
+              fill = FALSE,
+              color = "purple",
+              weight = 2) %>% 
+  addPolylines(data = trails_leaflet,
+               color = "black",
+               weight = 0.5,
+               opacity =  1
+               )
+
+
 ```
 
 Note: it looks like we only have the trail data for the lower part of the forest. We'll need to go over that with the client and re-confirm that we can't get the trails data for the northern portion of the forest.
