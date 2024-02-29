@@ -1,5 +1,5 @@
 ---
-title: "All species points bioclim canpoy"
+title: "Californica: Bioclim, canopy, aspect, slope"
 format: html
 ---
 
@@ -24,17 +24,19 @@ slope <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif
 aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
 
 # California National Forest boundaries
-lpnf_boundary <- st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
-boundary_buffered <- st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"))
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
+lpnf_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp")) %>%
+  st_buffer(dist = 1000)
+lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp")) %>%
+  st_buffer(dist = 1000)
 
-# lpnf_path <- list.files(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"), full.names = TRUE)
-# lpnf_shp <- list.files(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/"), full.names = FALSE)
 
 # remove "No" observations
 milkweed_presence <- milkweed_data_raw |> 
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
   st_transform("EPSG:4326") %>%
+  filter(milkweed_sp == "Asclepias californica") %>%
   dplyr::select(milkweed_sp)
 
 # make points
@@ -44,7 +46,7 @@ my_points <- multi.p  %>% st_cast("POINT")
 milkweed_points <- my_points %>%
   st_coordinates() %>%
   data.frame() %>%
-  mutate(scientific_name = "Asclepias sp.") %>%
+  mutate(scientific_name = "Asclepias californica") %>%
   mutate(occID = row_number()) %>%
   rename(longitude = X,
          latitude = Y)
@@ -53,23 +55,21 @@ milkweed_points <- my_points %>%
 ##### Crop and stack bioclim canopy cover slope aspect
 
 ```{r}
-# crop to forest_buffer
-bioclim_crop <- crop(bioclim, boundary_buffered)
-canopy_crop <- crop(canopy, boundary_buffered)
-slope_crop <- crop(slope, boundary_buffered)
-aspect_crop <- crop (aspect, boundary_buffered)
 
 # resoource: https://gis.stackexchange.com/questions/403536/raster-extent-issue-in-r
-bioclim_crop_resample <- resample(bioclim_crop, canopy_crop)
-aspect_crop_resample <- resample(aspect_crop, canopy_crop)
-slope_crop_resample <- resample(slope_crop, canopy_crop)
+bioclim_resample <- resample(bioclim, canopy)
+aspect_resample <- resample(aspect, canopy)
+slope_resample <- resample(slope, canopy)
 
-canopy_crop <- mask(canopy_crop, bioclim_crop_resample)
-aspect_crop_resample <- mask(aspect_crop_resample, bioclim_crop_resample)
-slope_crop_resample <- mask(slope_crop_resample, bioclim_crop_resample)
+canopy_mask <- mask(canopy, bioclim_resample)
+aspect_mask <- mask(aspect_resample, bioclim_resample)
+slope_mask <- mask(slope_resample, bioclim_resample)
 
 # stack
-envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop, slope_crop_resample, aspect_crop_resample)
+envs_Ac <- raster::stack(bioclim_resample, canopy_mask, aspect_mask, slope_mask)
+crs(envs_Ac) <- "EPSG:4326"
+
+envs_north <- crop(envs_Ac, lpnf_north)
 ```
 
 
@@ -88,38 +88,8 @@ Using WorldClim (<http://www.worldclim.org/>) bioclimatic dataset at
 resolution of 0.5 arcmin.
 
 ```{r}
-# Download environmental data 
-# envs_Ac_E <- envs_worldclim(
-#   bcRes = 0.5, # resolution 30arc seconds
-#   bcSel = c('bio01', 'bio02', 'bio03', 'bio04', 'bio05', 'bio06', 'bio07', 'bio08', 'bio09', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 'bio17', 'bio18', 'bio19'), # select all bioclim vars
-#    mapCntr = c(-119.658, 34.909), # Mandatory for 30 arcsec resolution - might need to adjust  
-#   doBrick = FALSE)
-# 
-# envs_Ac_W <- envs_worldclim(
-#   bcRes = 0.5, # resolution 30arc seconds
-#   bcSel = c('bio01', 'bio02', 'bio03', 'bio04', 'bio05', 'bio06', 'bio07', 'bio08', 'bio09', 'bio10', 'bio11', 'bio12', 'bio13', 'bio14', 'bio15', 'bio16', 'bio17', 'bio18', 'bio19'), # select all bioclim vars
-#    mapCntr = c(-120.478, 38.271), # Mandatory for 30 arcsec resolution - might need to adjust  
-#   doBrick = FALSE)
-
-# Mosaic the two tiles together to get whole study region
-#envs_Ac <- mosaic(envs_Ac_W, envs_Ac_E, fun = "mean")
-#writeRaster(envs_Ac, here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
-
-# Read in bioclim data
-#envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
-
 occs_geom_Ac <- occs_Ac[c("longitude", "latitude")]
 occs_vals_Ac <- as.data.frame(raster::extract(envs_Ac, occs_geom_Ac, cellnumbers = TRUE))
-
-# Remove duplicated same cell values
-# occs_Ac <- occs_Ac[!duplicated(occs_vals_Ac[, 1]), ]
-# occs_vals_Ac <- occs_vals_Ac[!duplicated(occs_vals_Ac[, 1]), -1]
-
-# # remove occurrence records with NA environmental values
-# occs_Ac <- occs_Ac[!(rowSums(is.na(occs_vals_Ac)) >= 1), ]
-# 
-# # also remove variable value rows with NA environmental values
-# occs_vals_Ac <- na.omit(occs_vals_Ac)
 
 # add columns for env variable values for each occurrence record
 occs_Ac <- cbind(occs_Ac, occs_vals_Ac)
@@ -145,17 +115,7 @@ using a “minimum convex polygon” method with a 1.1 degree buffer.
 
 ```{r}
 # Generate background extent
-bgExt_Ac <- penvs_bgExtent(
-  occs = occs_Ac,
-  bgSel = "bounding box",
-  bgBuf = 1.4)
-
-# # Generate user-defined background extent
-# bgExt_Ac <- penvs_userBgExtent(
-#   occs = occs_Ac,
-#   bgShp_name = lpnf_shp,
-#   bgShp_path = lpnf_path,
-#   userBgBuf = 0.5)
+bgExt_Ac <- lpnf_south
 
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
@@ -235,10 +195,6 @@ model_Ac@results %>%
   gt::gt()
 ```
 
-#### Model transfer
-https://rdrr.io/cran/wallace/man/xfer_userExtent.html
-https://rdrr.io/cran/wallace/man/xfer_userEnvs.html
-
 ### Visualize
 
 Generate a map of the maxnet generated model with no threshold
@@ -269,14 +225,72 @@ m  %>%
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias sp.<br>Predicted Suitability<br>(Training)") %>%
-  addPolygons(data = lpnf_boundary,
+            title = "Asclepias californica.<br>Predicted Suitability") %>%
+  addPolygons(data = lpnf_south,
               fill = FALSE,
               color = "black",
               weight = 2)
 ```
 
+## Model Transfer
+
 ```{r}
-here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp")
+# Generate a transfer of the model to the desired area
+xfer_area_Ac <- xfer_area(
+  evalOut = model_Ac,
+  curModel = "fc.L_rm.1",
+  envs = envs_north , 
+  outputType = "cloglog",
+  alg = "maxnet",
+  clamp = FALSE,
+  xfExt = lpnf_north) 
+# store the cropped transfer variables
+xferExt_Ac <- xfer_area_Ac$envs_north
+
+#map result
+mapXferVals_Ac <- getRasterVals(xfer_area_Ac$xferArea,"cloglog")
+rasCols_Ac <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+# if no threshold specified
+legendPal <- colorNumeric(rev(rasCols_Ac), mapXferVals_Ac, na.color = 'transparent')
+rasPal_Ac <- colorNumeric(rasCols_Ac, mapXferVals_Ac, na.color = 'transparent')
+m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
+m %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = FALSE,
+            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+# map model prediction raster and transfer polygon
+  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
+  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
+                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')
+```
+
+
+# Plot both together
+
+```{r}
+leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = FALSE,
+            title = "Asclepias californica<br>Predicted Suitability<br>") %>%
+# map model prediction raster and transfer polygon
+  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
+  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
+                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')  %>%
+  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
+                   fillOpacity = 0.2, weight = 2) %>% 
+  ##Add model prediction
+  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+                 group = 'vis', layerId = 'mapPred', method = "ngb") %>%
+  addPolygons(data = lpnf_south,
+              fill = FALSE,
+              color = "black",
+              weight = 2)
 ```
 

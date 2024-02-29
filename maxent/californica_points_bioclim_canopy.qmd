@@ -12,6 +12,7 @@ library(ENMeval)
 library(wallace)
 library(tidyverse)
 library(leaflet)
+library(here)
 source("scripts/addLegend_decreasing.R")
 ```
 
@@ -67,18 +68,19 @@ milkweed_points <- my_points %>%
 ##### Crop and stack bioclim and canopy cover
 
 ```{r}
-# crop to forest_buffer
-bioclim_crop <- crop(bioclim, lpnf_south)
-canopy_crop <- crop(canopy, lpnf_south)
-
+# # crop to forest_buffer
+# bioclim_crop <- crop(bioclim, lpnf_south)
+# canopy_crop <- crop(canopy, lpnf_south)
+# 
 # resoource: https://gis.stackexchange.com/questions/403536/raster-extent-issue-in-r
-bioclim_crop_resample <- resample(bioclim_crop, canopy_crop)
-canopy_crop <- mask(canopy_crop, bioclim_crop_resample)
+bioclim_resample <- resample(bioclim, canopy)
+canopy_crop <- mask(canopy, bioclim_resample)
 
 # stack
-envs_Ac <- raster::stack(bioclim_crop_resample, canopy_crop)
+envs_Ac <- raster::stack(bioclim_resample, canopy_crop)
 crs(envs_Ac) <- "EPSG:4326"
 
+envs_north <- crop(envs_Ac, lpnf_north)
 ```
 
 
@@ -152,26 +154,8 @@ Sampling of 5000 background points and corresponding environmental data
 using a “minimum convex polygon” method with a 1.1 degree buffer.
 
 ```{r}
-# Generate background extent 
-# bgExt_Ac <- penvs_userBgExtent(bgShp_path = "~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.csv",
-#                                bgShp_name = "lpnf_boundary_south.csv",
-#                                userBgBuf = 0, occs = occs_Ac)
-# 
-# bgExt_Ac <- penvs_userBgExtent(bgShp_path = "~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp",
-#                                bgShp_name = "lpnf_boundary_south.shp", "lpnf_boundary_south.shx","lpnf_boundary_south.dbf",
-#                                userBgBuf = 0, occs = occs_Ac)
-
-multi_lpnf <- st_cast(lpnf_south, "MULTIPOINT")
-south_bound_points <- multi_lpnf  %>% st_cast("POINT") %>%
-  st_coordinates() %>%
-  data.frame() %>%
-  rename(longitude = X, latitude = Y) %>%
-  mutate(occID = row_number())
-
-bgExt_Ac <- penvs_bgExtent(
-  occs = south_bound_points,
-  bgSel = "minimum convex polygon",
-  bgBuf = 0)
+# Background extent
+bgExt_Ac <- lpnf_south
 
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
@@ -273,5 +257,41 @@ m  %>%
               fill = FALSE,
               color = "black",
               weight = 2)
+```
+
+
+## Model Transfer!
+
+```{r}
+# Generate a transfer of the model to the desired area
+xfer_area_Ac <- xfer_area(
+  evalOut = model_Ac,
+  curModel = "fc.L_rm.1",
+  envs = envs_north , 
+  outputType = "cloglog",
+  alg = "maxnet",
+  clamp = FALSE,
+  xfExt = lpnf_north) 
+# store the cropped transfer variables
+xferExt_Ac <- xfer_area_Ac$envs_north
+
+#map result
+mapXferVals_Ac <- getRasterVals(xfer_area_Ac$xferArea,"cloglog")
+rasCols_Ac <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+# if no threshold specified
+legendPal <- colorNumeric(rev(rasCols_Ac), mapXferVals_Ac, na.color = 'transparent')
+rasPal_Ac <- colorNumeric(rasCols_Ac, mapXferVals_Ac, na.color = 'transparent')
+m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
+m %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = FALSE,
+            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+# map model prediction raster and transfer polygon
+  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
+  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
+                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')
 ```
 
