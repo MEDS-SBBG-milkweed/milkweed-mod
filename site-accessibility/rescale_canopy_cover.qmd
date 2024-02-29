@@ -1,0 +1,90 @@
+---
+title: "Rescaling canopy cover for site accessibility"
+author: "Amanda Herbst"
+date-created: "Feb 29, 2024"
+---
+
+## Load packages
+```{r}
+library(tidyverse)
+library(terra)
+library(here)
+library(stars)
+```
+
+## Read in cleaned canopy cover data
+```{r}
+canopy_cover <- rast(here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
+
+plot(canopy_cover)
+```
+
+## Rescale canopy cover
+
+```{r}
+min_max <- minmax(canopy_cover) 
+# (value - minimum_vale) / (maximum_value - minimum_value)
+canopy_rescaled <- (canopy_cover - min_max[1,]) / (min_max[2,] - min_max[1,])
+
+plot(canopy_rescaled)
+canopy_rescaled
+```
+# mulitply canopy cover by land ownership
+
+```{r}
+# read in lpnf boundary
+# lpnf_boundary <-  st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary"))
+
+# read in lpnf land ownership
+lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
+
+# make mask
+lpnf_ownership_mask1 <- lpnf_ownership %>% 
+  # new column of 1s
+  mutate(ownership = rep(1, length(lpnf_ownership$OWN_LEVEL))) %>% 
+  # remove original ownership level column
+  dplyr::select(-OWN_LEVEL)
+
+#rasterize lpnf_ownership
+ownership_rasterize <- st_rasterize(lpnf_ownership_mask1)
+
+ownership_rast <- rast(ownership_rasterize)
+
+class(ownership_rast)
+```
+
+```{r}
+plot(ownership_rast)
+plot(canopy_rescaled)
+```
+```{r}
+st_crs(ownership_rast) == st_crs(canopy_rescaled)
+ext(ownership_rast) == ext(canopy_rescaled)
+res(ownership_rast) == res(canopy_rescaled)
+
+ext(ownership_rast) <- ext(canopy_rescaled)
+# reproject ownership to same CRS, extent, and resolution of canopy_cover
+lpnf_ownership_reproject <- project(ownership_rast,
+                                    crs(canopy_rescaled),
+                                       res = res(canopy_rescaled))
+
+# check crs, extent and resolution again
+st_crs(lpnf_ownership_reproject) == st_crs(canopy_rescaled)
+res(lpnf_ownership_reproject) == res(canopy_rescaled)
+ext(lpnf_ownership_reproject) == ext(canopy_rescaled)
+
+# resample to get equal resolution and extent 
+lpnf_ownership_resample <- resample(lpnf_ownership_reproject, canopy_rescaled)
+
+# double check 
+ext(lpnf_ownership_resample) == ext(canopy_rescaled)
+res(lpnf_ownership_resample) == res(canopy_rescaled)
+
+```
+
+
+```{r}
+access_test <- lpnf_ownership_resample*canopy_rescaled
+plot(access_test)
+```
+
