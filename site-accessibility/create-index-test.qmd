@@ -89,9 +89,9 @@ ggplot() +
           fill = "transparent",
           lwd = 1)
 
-#st_write(lpnf_ownership,
-         here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"),
-        append = FALSE)
+# st_write(lpnf_ownership,
+#          here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"),
+#         append = FALSE)
 
 # create mask of 1s for later multiplying for accessibility
 lpnf_ownership_mask1 <- lpnf_ownership %>% 
