@@ -36,7 +36,6 @@ milkweed_presence <- milkweed_data_raw |>
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
   st_transform("EPSG:4326") %>%
-  filter(milkweed_sp == "Asclepias californica") %>%
   dplyr::select(milkweed_sp)
 
 # make points
@@ -46,7 +45,7 @@ my_points <- multi.p  %>% st_cast("POINT")
 milkweed_points <- my_points %>%
   st_coordinates() %>%
   data.frame() %>%
-  mutate(scientific_name = "Asclepias californica") %>%
+  mutate(scientific_name = "Asclepias sp.") %>%
   mutate(occID = row_number()) %>%
   rename(longitude = X,
          latitude = Y)
@@ -225,7 +224,7 @@ m  %>%
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias californica.<br>Predicted Suitability") %>%
+            title = "Asclepias sp.<br>Predicted Suitability") %>%
   addPolygons(data = lpnf_south,
               fill = FALSE,
               color = "black",
@@ -257,7 +256,7 @@ m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
 m %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+            title = "Asclepias sp. <br>Predicted Suitability<br>(Transferred)") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -274,7 +273,7 @@ m %>%
 leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "Asclepias californica<br>Predicted Suitability<br>") %>%
+            title = "Asclepias sp.<br>Predicted Suitability<br>") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
