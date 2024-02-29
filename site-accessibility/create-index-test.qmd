@@ -80,13 +80,23 @@ class(lpnf_boundary$SHAPE)
 # had a problem cropping but this line below fixed the issue thanks to:
 # https://github.com/r-spatial/sf/issues/1762
 ## sf_use_s2(FALSE)
-lpnf_ownership_mask <- ownership_mask[lpnf_polygon,]
-plot(lpnf_ownership_mask)
+lpnf_ownership <- ownership_mask[lpnf_polygon,]
+
+ggplot() +
+  geom_sf(data = lpnf_ownership, fill = "lightgreen") +
+   geom_sf(data = lpnf_boundary,
+          color = "darkgreen",
+          fill = "transparent",
+          lwd = 1)
+
+# st_write(lpnf_ownership,
+#          here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"),
+#         append = FALSE)
 
 # create mask of 1s for later multiplying for accessibility
-lpnf_ownership_mask1 <- lpnf_ownership_mask %>% 
+lpnf_ownership_mask1 <- lpnf_ownership %>% 
   # new column of 1s
-  mutate(ownership = rep(1, length(lpnf_ownership_mask$OWN_LEVEL))) %>% 
+  mutate(ownership = rep(1, length(lpnf_ownership$OWN_LEVEL))) %>% 
   # remove original ownership level column
   dplyr::select(-OWN_LEVEL)
 
