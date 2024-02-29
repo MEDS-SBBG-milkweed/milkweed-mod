@@ -129,7 +129,7 @@ bgSample_Ac <- penvs_bgSample(
 # Extract values of environmental layers for each background point
 bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
 ##Add extracted values to background points table
-bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias eriocarpa"), bgSample_Ac,
+bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias sp."), bgSample_Ac,
                             occID = NA, year = NA, institution_code = NA, country = NA,
                             state_province = NA, locality = NA, elevation = NA,
                             record_type = NA, bgEnvsVals_Ac)
@@ -294,6 +294,6 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
-dismo::response(model_Ac@models[[1]], data = envs_Ac)
+dismo::response(model_Ac@models[[1]])
 ```
 
