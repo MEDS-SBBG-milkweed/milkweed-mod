@@ -1,5 +1,5 @@
 ---
-title: "Californica: Bioclim, canopy, aspect, slope"
+title: "eriocarpa: Bioclim, canopy, aspect, slope"
 format: html
 ---
 
@@ -37,7 +37,7 @@ milkweed_presence <- milkweed_data_raw |>
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
   st_transform("EPSG:4326") %>%
-  filter(milkweed_sp == "Asclepias californica") %>%
+  filter(milkweed_sp == "Asclepias eriocarpa") %>%
   dplyr::select(milkweed_sp)
 
 # make points
@@ -110,10 +110,6 @@ occs_Ac <- poccs_thinOccs(
 
 ### Process environmental data
 
-Sampling of 5000 background points and corresponding environmental data
-using a “minimum convex polygon” method with a 1.1 degree buffer.
-
-
 ```{r}
 # Generate background extent
 bgExt_Ac <- lpnf_south
@@ -174,20 +170,7 @@ model_Ac <- model_maxent(
   parallel = FALSE,
   numCores = 7)
 
-# we can run the other models at the same time, but for now I'm just using 'L' (linear) just so it goes a bit faster while we're getting everything sorted out
-
-# Warning: model fc.H_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.H_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# ENMevaluate completed in 20 minutes 41.3 seconds.
-# Maxent ran successfully and output evaluation results for 10 models (Regularization multiplier values: [1, 2]; Feature classes: [L, LQ, H, LQH, LQHP]), using maxnet with clamping off.
+# we can only run L and LQ; any models with H (hinge) are not what we want- get the weird coefficients error
 ```
 
 https://jamiemkass.github.io/ENMeval/articles/ENMeval-2.0-vignette.html#different-parameterizations
@@ -226,7 +209,7 @@ m  %>%
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias californica.<br>Predicted Suitability") %>%
+            title = "Asclepias eriocarpa<br>Predicted Suitability") %>%
   addPolygons(data = lpnf_south,
               fill = FALSE,
               color = "black",
@@ -239,7 +222,7 @@ m  %>%
 # Generate a transfer of the model to the desired area
 xfer_area_Ac <- xfer_area(
   evalOut = model_Ac,
-  curModel = "fc.L_rm.1",
+  curModel = "fc.L_rm.2",
   envs = envs_north , 
   outputType = "cloglog",
   alg = "maxnet",
@@ -258,7 +241,7 @@ m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
 m %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+            title = "Asclepias eriocarpa<br>Predicted Suitability<br>(Transferred)") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -275,7 +258,7 @@ m %>%
 leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+            title = "<em>Asclepias eriocarpa</em><br>Predicted Suitability<br>") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
