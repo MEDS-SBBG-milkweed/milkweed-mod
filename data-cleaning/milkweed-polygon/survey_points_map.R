@@ -17,7 +17,8 @@ trails <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_a
 
 # filter boundary
 lpnf_boundary <- boundary %>% 
-  filter(FORESTNAME %in% c("Los Padres National Forest")) 
+  filter(FORESTNAME %in% c("Los Padres National Forest")) %>%
+  st_transform("EPSG:4326")
 
 # filter data for mapping
 milkweed_map <- milkweed_data_raw |> 
@@ -25,14 +26,15 @@ milkweed_map <- milkweed_data_raw |>
   st_transform(crs(envs_Ac)) %>%
   dplyr::select(milkweed_p, milkweed_sp) %>%
   st_centroid() %>%
-  st_transform(crs(lpnf_boundary))
+  st_transform("EPSG:4326")
 
 milkweed_yes <- milkweed_map %>%
-  filter(milkweed_p == "yes")
+  filter(milkweed_p == "yes",
+         milkweed_sp != "Asclepias sp.")
 
 
 # map data
-colors <- c("#AC171E", "#EBAB9A", "#EFC103", "#5B6530", "#9483B1")
+colors <- c("#F9761D","#D6566B", "#822681", "#3D358B")
 pal <- colorFactor(colors, domain = milkweed_yes$milkweed_sp, reverse = TRUE)
 
 

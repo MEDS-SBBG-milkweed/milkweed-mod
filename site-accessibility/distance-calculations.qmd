@@ -80,7 +80,6 @@ model_raster <- terra::rast(here("~/../../capstone/milkweedmod/data/models/allpo
 
 
 ```{r}
-
 plot(model_raster)
 
 # pull out the minimum
@@ -105,9 +104,77 @@ model_template <- terra::classify(model_raster, # original raster
 
 
 plot(model_template)
+```
 
 
-points <- as()
+
+## Extract points 
+
+from centroids of all raster cells as Spatial Points for distance calculations
+
+```{r}
+# read in as RasterLayer (rather than SpatRaster)
+model_raster_layer <- raster::raster(model_template)
+
+# technique 1: convert to "Spatial Points" object 
+points <- as(model_raster_layer, "SpatialPoints")
+
+plot(points)
+
+# points <- points %>% st_transform(crs = st_crs(roads_prep))
+
+# distance_test <- rgeos::gDistance(points, roads_prep, byid = TRUE)
+
+# technique 2: convert raster to Points 
+centroids <- raster::rasterToPoints(model_raster_layer,
+                                    spatial = TRUE) # return a SpatialPointsDataFrame object
+
+# convert centroids to points
+centroid_points <- st_as_sf(centroids, coords = c("x", "y")) %>% 
+  st_transform(crs = st_crs(roads_prep))
+
+# check that CRS match
+st_crs(centroid_points) == st_crs(roads_prep) # returns TRUE
+
+# this takes many minutes to run :) 
+distance_to_points <- st_distance(centroid_points, roads_prep)
+
+# convert to data frame, where each row represents a point (centroid of raster cell) and columns represent the distance to every road (multilinestring in the roads_prep data set)
+roads_distances <- distance_to_points %>% data.frame() 
+
+# for each point (row), take the minimum value, which represents the distance to the nearest road
+min_distances <- apply(roads_distances, 
+                       MARGIN = 1, # margin, 1 = rows
+                       FUN = min # function we're applying
+                       ) %>% 
+  data.frame() # save output (distance to nearest road) as data frame
+
+# bringing geometry column in, saving distance to road as sf object
+min_distances <- bind_cols(centroid_points, min_distances)
+
+# renaming and adding ID column, selecting relevant columns 
+distance_to_roads <- min_distances %>% 
+  rename(distance = ".") %>% 
+  mutate(ID = row_number()) %>% 
+  relocate(ID, .before = distance) %>% 
+  dplyr::select(-allpoints_bioclim_canopy_dem)
+
+
+
+road_dist_raster <- st_rasterize(distance_to_roads)
+
+plot(road_dist_raster)
+
+
+# distance_to_roads <- distance_to_road %>% 
+#   st_as_sf(coords = c("x", "y"),
+#            crs = st_crs(centroid_points))
+
+#heatmap_raster <- raster(model_raster_layer)
+
+# values(heatmap_raster) <- min_distances
+
+# st_write(distance_to_road, here::here(), "distance_to_road.shp")
 ```
 
 
@@ -118,6 +185,13 @@ points <- as()
 # 
 # plot(test_raster)
 
+
+# ggplot() +
+#   geom_sf(data = roads_prep,
+#           aes(),
+#           color = "black") +
+#   geom_sf(data = centroids,
+#           aes)
 
 ```
 
