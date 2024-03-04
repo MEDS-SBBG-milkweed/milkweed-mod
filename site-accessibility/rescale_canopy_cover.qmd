@@ -10,6 +10,7 @@ library(tidyverse)
 library(terra)
 library(here)
 library(stars)
+library(leaflet)
 ```
 
 ## Read in cleaned canopy cover data
@@ -84,7 +85,26 @@ res(lpnf_ownership_resample) == res(canopy_rescaled)
 
 
 ```{r}
-access_test <- lpnf_ownership_resample*canopy_rescaled
+access_test <- 1 -(lpnf_ownership_resample*canopy_rescaled)
+
 plot(access_test)
+```
+# Leaflet
+
+```{r}
+
+access_test_leaflet <- project(x = access_test, "EPSG:3857")
+
+
+leaflet(
+  # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
+        ) %>% 
+  addProviderTiles(provider = providers$Esri.WorldTopoMap) %>% 
+  addRasterImage(x = access_test_leaflet
+              # fillColor = "darkgreen",
+              # color = "darkgreen",
+              # weight = 1.5,
+              # opacity = 0.6
+              )
 ```
 
