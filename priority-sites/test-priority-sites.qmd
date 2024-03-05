@@ -1,0 +1,71 @@
+---
+author: "Anna Ramji"
+date: 2024-03-04
+---
+
+
+Testing out a combination of suitability x random number for plotting for faculty presentatoin
+
+```{r}
+
+# load necessary packages
+library(tidyverse)
+library(janitor)
+library(sf)
+library(ggspatial)
+library(terra)
+library(here)
+library(leaflet)
+
+
+# read in the model output raster data
+model_raster <- terra::rast(here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+
+
+
+
+```
+
+
+
+```{r}
+plot(model_raster)
+```
+
+multiply by random number
+
+
+```{r}
+
+min_max <- minmax(model_raster + 22)
+
+# (value - minimum_vale) / (maximum_value - minimum_value)
+test_rescaled <- ((model_raster + 22) - min_max[1,]) / (min_max[2,] - min_max[1,])
+
+plot(test_rescaled)
+
+
+
+```
+
+
+```{r}
+leaflet() %>% 
+  addProviderTiles(provider = providers$Esri.WorldTerrain) %>% 
+  addRasterImage(x = test_rescaled) %>% 
+  addPolygons(data = lpnf_boundary,
+              fill = FALSE,
+              color = "purple",
+              weight = 3) %>% 
+  addPolylines(data = trails_leaflet,
+               color = "black",
+               weight = 1,
+               opacity =  1
+               ) %>%
+  leaflet::addLegend("bottomleft", values = lpnf_boundary, colors = c("purple"), labels = "LPNF Boundary", opacity = 1) %>%
+  leaflet:: addLegend("bottomleft", values = lpnf_ownership_mask1, colors = c("darkgreen"), labels = "Public Land") %>%
+  leaflet::addLegend("bottomleft", values = trails_leaflet, colors = c("black"), labels = "Trails and Roads", opacity = 1)
+
+```
+
