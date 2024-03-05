@@ -82,19 +82,21 @@ plot(test_masked)
 
 
 ```{r plot-test-masked}
-source("scripts/addLegend_decreasing.R")
+# read in forest boundary for plotting
+
+source(here("scripts", "addLegend_decreasing.R"))
 testVals_Ac <- wallace::getRasterVals(test_masked$lyr1,"cloglog")
 
 rasCols_Ac <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
 
-legendPal <- colorNumeric(rev(rasCols_Ac), testVals_Ac, na.color = 'transparent')
-rasPal_Ac <- colorNumeric(rasCols_Ac, testVals_Ac, na.color = 'transparent')
+legendPal <- colorNumeric(rasCols_Ac, testVals_Ac, na.color = 'transparent', reverse = TRUE)
+rasPal_Ac <- colorNumeric(rasCols_Ac, testVals_Ac, na.color = 'transparent', reverse = FALSE)
 
 leaflet() %>% 
-  addProviderTiles(provider = providers$Esri.WorldTerrain) %>% 
-  addRasterImage(x = test_masked) %>% 
-  addLegend_decreasing("bottomleft", pal = legendPal, values = testVals_Ac, layerId = "xfer",
-            labFormat = reverseLabel(), decreasing = FALSE,
+  addProviderTiles(provider = providers$Esri.WorldTopoMap) %>% 
+  addRasterImage(x = test_masked, colors = rasPal_Ac) %>% 
+  addLegend_decreasing("bottomleft", pal = legendPal,
+                       values = testVals_Ac, decreasing = FALSE, 
             title = "Asclepias sp. <br>Predicted Suitability<br>(Transferred)")
 
 
