@@ -11,13 +11,19 @@ library(terra)
 library(here)
 library(stars)
 library(leaflet)
+source("scripts/addLegend_decreasing.R")
 ```
 
 ## Read in cleaned canopy cover data
 ```{r}
 canopy_cover <- rast(here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
 
 plot(canopy_cover)
+
+temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+temp_rast2 <- rast(temp_raster)
 ```
 
 ## Rescale canopy cover
@@ -29,6 +35,7 @@ canopy_rescaled <- (canopy_cover - min_max[1,]) / (min_max[2,] - min_max[1,])
 
 plot(canopy_rescaled)
 canopy_rescaled
+
 ```
 # mulitply canopy cover by land ownership
 
@@ -47,23 +54,36 @@ lpnf_ownership_mask1 <- lpnf_ownership %>%
   dplyr::select(-OWN_LEVEL)
 
 #rasterize lpnf_ownership
-ownership_rasterize <- st_rasterize(lpnf_ownership_mask1)
+ownership_rasterize <- st_rasterize(lpnf_ownership_mask1, template = temp_raster)
 
 ownership_rast <- rast(ownership_rasterize)
 
 class(ownership_rast)
+
+
+leaflet(
+  # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
+        ) %>% 
+ addProviderTiles(providers$Esri.WorldTopoMap) %>%
+addRasterImage(x = lpnf_ownership_resample,
+              # fillColor = "darkgreen",
+              # color = "darkgreen",
+              # weight = 1.5,
+               opacity = 0.6
+              )
 ```
 
 ```{r}
 plot(ownership_rast)
 plot(canopy_rescaled)
 ```
+
 ```{r}
 st_crs(ownership_rast) == st_crs(canopy_rescaled)
 ext(ownership_rast) == ext(canopy_rescaled)
 res(ownership_rast) == res(canopy_rescaled)
 
-ext(ownership_rast) <- ext(canopy_rescaled)
+ext(ownership_rast) <- ext(temp_rast2)
 # reproject ownership to same CRS, extent, and resolution of canopy_cover
 lpnf_ownership_reproject <- project(ownership_rast,
                                     crs(canopy_rescaled),
@@ -92,19 +112,29 @@ plot(access_test)
 # Leaflet
 
 ```{r}
+#access_test_leaflet <- project(x = access_test, "EPSG:3857")
 
-access_test_leaflet <- project(x = access_test, "EPSG:3857")
+test <- mask(access_test, lpnf_boundary)
 
+mapPredVals_Ac <- getRasterVals(test)
+
+colors <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+
+numPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
+rasPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
 
 leaflet(
   # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
         ) %>% 
-  addProviderTiles(provider = providers$Esri.WorldTopoMap) %>% 
-  addRasterImage(x = access_test_leaflet
+ addProviderTiles(providers$Esri.WorldTopoMap) %>%
+addRasterImage(x = test,
               # fillColor = "darkgreen",
-              # color = "darkgreen",
+               colors = rasPal,
               # weight = 1.5,
               # opacity = 0.6
-              )
+              ) %>%
+  addLegend_decreasing("bottomleft", pal = numPal, values = mapPredVals_Ac, title = "Accessibility Score") %>%
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "darkgreen", opacity = 0.7)
 ```
 
