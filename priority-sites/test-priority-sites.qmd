@@ -93,11 +93,15 @@ legendPal <- colorNumeric(rasCols_Ac, testVals_Ac, na.color = 'transparent', rev
 rasPal_Ac <- colorNumeric(rasCols_Ac, testVals_Ac, na.color = 'transparent', reverse = FALSE)
 
 leaflet() %>% 
-  addProviderTiles(provider = providers$Esri.WorldTopoMap) %>% 
+  addProviderTiles(provider = providers$Esri.WorldTerrain) %>% 
+   addPolygons(data = lpnf_boundary,
+              fill = FALSE,
+              color = "black",
+              weight = 3) %>% 
   addRasterImage(x = test_masked, colors = rasPal_Ac) %>% 
   addLegend_decreasing("bottomleft", pal = legendPal,
                        values = testVals_Ac, decreasing = FALSE, 
-            title = "Asclepias sp. <br>Predicted Suitability<br>(Transferred)")
+            title = "Asclepias sp. <br>Site Priority Index")
 
 
 ```
