@@ -54,7 +54,7 @@ only_roads <- trails_reprojected %>%
 # selecting relevant columns, converting to x,y
 trail_raster_prep <- only_trails %>% 
   dplyr::select(type, geometry) %>% 
-  st_cast("LINESTRING") # convert to linestring (not multilinestring)
+  st_cast("LINESTRING") # convert to linestring (not multilinestring) [come back]
 
 # make it into a raster
 trails_raster <- st_rasterize(trail_raster_prep, field = "type", fun = "constant")
@@ -150,23 +150,93 @@ min_distances <- apply(roads_distances,
   data.frame() # save output (distance to nearest road) as data frame
 
 # bringing geometry column in, saving distance to road as sf object
-min_distances <- bind_cols(centroid_points, min_distances)
+min_distance_with_geom <- bind_cols(centroid_points, min_distances)
 
 # renaming and adding ID column, selecting relevant columns 
-distance_to_roads <- min_distances %>% 
+distance_to_roads <- min_distance_with_geom %>% 
   rename(distance = ".") %>% 
-  mutate(ID = row_number()) %>% 
-  relocate(ID, .before = distance) %>% 
+#  mutate(ID = row_number()) %>% 
+#  relocate(ID, .before = distance) %>% 
   dplyr::select(-allpoints_bioclim_canopy_dem)
+```
+
+
+```{r}
+# the template needs to be a stars object in st_rasterize
+stars_temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+# rasterize sf data frame, then convert to spatRaster
+road_dist_raster <- st_rasterize(distance_to_roads, template = stars_temp_raster) %>% 
+  rast() # convert to spatRaster
+
+# plot to check the output of this step
+#plot(road_dist_raster)
+
+```
+
+
+```{r rescale-roads}
+# rescale distance to roads from 0 to 1
+
+# we'll crop to the LPNF boundary first [change this to southern extent only?]
+lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
+
+cropped_roads_dist <- mask(road_dist_raster, lpnf_boundary_south)
+
+# compute min and max, rescale
+min_max_roads <- minmax(cropped_roads_dist) 
+# returns min and max matrix with min distance in row 1, max as row 2
+
+# rescale: for every cell, 1 - (subtract min value from distance, divide by (max - min)) (so that 1 is closest, 0 is farthest)
+roads_rescaled <- 1 - ((cropped_roads_dist - min_max_roads[1,]) / (min_max_roads[2,] - min_max_roads[1,]))
+
+# plot to check
+plot(roads_rescaled)
+```
+
+
+```{r basic-roads-plot}
+leaflet() %>% 
+  addProviderTiles(provider = providers$Esri.WorldTopoMap) %>% 
+  addRasterImage(x = roads_rescaled,
+              opacity = 0.8)
+
+# leaflet() %>% 
+#   addProviderTiles(provider = providers$Esri.WorldTerrain) %>% 
+#   addRasterImage(x = road_dist_raster,
+#               opacity = 0.8)
+```
+```{r}
+# plot
+source(here("scripts/addLegend_decreasing.R"))
+
+mapPredVals_Ac <- getRasterVals(roads_rescaled)
+
+colors <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+
+numPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
+rasPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
+
+leaflet(
+  # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
+        ) %>% 
+ addProviderTiles(providers$Esri.WorldTopoMap) %>%
+addRasterImage(x = roads_rescaled,
+              # fillColor = "darkgreen",
+               colors = rasPal,
+              # weight = 1.5,
+              # opacity = 0.6
+              ) %>%
+  addLegend_decreasing("bottomleft", pal = numPal, values = mapPredVals_Ac, title = "Accessibility Score") %>%
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "darkgreen", opacity = 0.7)
+```
 
 
 
-road_dist_raster <- st_rasterize(distance_to_roads)
 
-plot(road_dist_raster)
-
-
-# distance_to_roads <- distance_to_road %>% 
+```{r}
+# distance_to_roads <- distance_to_road %>%
 #   st_as_sf(coords = c("x", "y"),
 #            crs = st_crs(centroid_points))
 
@@ -176,6 +246,13 @@ plot(road_dist_raster)
 
 # st_write(distance_to_road, here::here(), "distance_to_road.shp")
 ```
+
+
+```{r}
+ggplot(data = distance_to_roads) + 
+  geom_sf(aes(fill = distance))
+```
+
 
 
 
