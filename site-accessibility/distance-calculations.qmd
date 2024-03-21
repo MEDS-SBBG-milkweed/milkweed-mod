@@ -52,9 +52,13 @@ model_raster_layer <- raster::raster(model_spat_raster)
 # finally, the template needs to be a stars object when we rasterize with st_rasterize(), 
 stars_temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
 
+# optional data exploration/visualization
+# plot(model_spat_raster)
+# head(trails_and_roads)
+# st_crs(model_raster_layer)
 ```
 
-### Wrangle & tidy data
+## Wrangle & tidy data
 
 As we're working with geospatial data, it's important to make sure that our data is projected in the same coordinate reference system (CRS), and that it shares the same resolution and extent when we go to plot or combine multiple geospatial data elements. 
 
@@ -69,7 +73,7 @@ print("The CRS of the model output and the Trails & Roads data match:")
 st_crs(model_spat_raster) == st_crs(trails_and_roads)
 ```
 As the Trails & Roads data is not in the same CRS, we'll start by reprojecting the trails & roads data to match, and then create two subsets for trail data and road data (all in the Southern region of the forest.)
-**[Note: we'll change or omit this part once we have our cleaned data products script working]**
+**[Note: we'll change this part once we have our cleaned data products script working]**
 
 ```{r tidy}
 # ------- tidy trails & roads data -----------------
@@ -88,6 +92,8 @@ st_crs(lpnf_boundary_south) == st_crs(trails_roads_reprojected)
 
 Here we'll separate the trails & roads data into two separate datasets -- trails and roads -- before selecting relevant columns to use when calculating distance.
 
+*Note: we are not taking closed or limited-access roads or trails into account in our model and index creation -- if the trail or road exists, we're counting it. If you want to omit certain types of roads/trails, you can filter out certain variables to make updated subsets using `dplyr::filter(variable_name == "Condition")`, where "Condition" is whatever condition you've identified when `View`ing the dataframe.
+
 ```{r tidy}
 # note: the geometries are MULTILINESTRINGS 
 # (lines that have multiple + different start and end points)
@@ -102,69 +108,86 @@ only_roads <- trails_roads_reprojected %>%
   filter(type == "Road") %>%  # 744 obs
   dplyr::select(type, geometry) # select relevant columns
 
+# optional data exploration/visualization
+# plot(only_trails)
+# plot(only_roads)
 ```
 
 
+## Model Raster
 
-### Setting raster cells to 0 to make a blank template for baseline distance calculations 
+### Raster reclassification: 
+**Make a blank *template* for baseline distance calculations **
 
+(Note: If we were working with a shapefile instead of a raster, we could simply add a column of 0s (or 1s), then rasterize, as we did when working with the land ownership mask).
 
-```{r}
-plot(model_raster)
+First, we'll find the minimum and maximum values of our model raster, then create a reclassification matrix which will have 3 values: min, max, and 0. Then, we'll use that matrix to reclassify the model raster such that all values from min to max are equal to 0.
 
-# pull out the minimum
-min_rast <- min(unique(model_raster$allpoints_bioclim_canopy_dem))
-# and maximum values 
-max_rast <- max(unique(model_raster$allpoints_bioclim_canopy_dem))
+```{r reclassify-raster}
+# pull out the minimum...
+min_rast <- min(unique(model_spat_raster$allpoints_bioclim_canopy_dem))
+# and maximum values from the SpatRaster
+max_rast <- max(unique(model_spat_raster$allpoints_bioclim_canopy_dem))
 
-# set all values between the minimum and maximum to zero (all values!)
+# create reclassification vector: min, max, 0
 reclass_vec <- c(min_rast, max_rast, 0)
 
 # create reclassification matrix
 reclass_matrix <- matrix(reclass_vec, ncol = 3, byrow = TRUE)
-
-# classify(raster, reclassification matrix, include.lowest = true???, right = NA)
+# this will be used to set all values 
+# between (and including) the minimum and maximum to zero
 
 # reclassify raster based on matrix
-model_template <- terra::classify(model_raster, # original raster
+model_template <- terra::classify(model_spat_raster, # original raster
                            reclass_matrix, # reclassification matrix
-                           include.lowest = TRUE,
-                           right = FALSE
+                           include.lowest = TRUE, # include minimum value
+                           right = FALSE # intervals are open on right and 
+                           # closed on left, meaning that we'll include the highest as well
                            )
 
-
+# check to see if this worked through simple visualization
 plot(model_template)
 ```
 
+Note that all values are "0"! 
 
 
-## Extract points 
+### Extract points 
 
-from centroids of all raster cells as Spatial Points for distance calculations
+We're trying to calculate the distance from the centroid of each raster cell to the nearest trail and road.
+To do this, we'll first extract points from the centroids of all raster cells in a RasterLayer as SpatialPoints. 
+
+We will calculate distance using `st_distance()`, so we'll also need to convert the SpatialPoints DataFrame to a simple feature (`sf`) object.
 
 ```{r}
-# read in as RasterLayer (rather than SpatRaster)
-model_raster_layer <- raster::raster(model_template)
+# remember: we also read in our model template as a RasterLayer (rather than SpatRaster)
+# and named it 'model_raster_layer'
 
-# note for later: it would make more sense to crop (mask()) to the smaller extent first (southern LPNF boundary)
+# [come back in spring] note for later: it would make more sense to crop (mask()) to the smaller extent first (southern LPNF boundary)
 
+# [come back in spring] omit in final cleaning of this doc?
 # technique 1: convert to "Spatial Points" object  (scrapped)
 #points <- as(model_raster_layer, "SpatialPoints")
 # plot(points)
 # points <- points %>% st_transform(crs = st_crs(roads_prep))
 # distance_test <- rgeos::gDistance(points, roads_prep, byid = TRUE)
 
+# Extract points from RasterLayer, turn into SpatialPointsDataFrame ----
+
 # technique 2: convert raster to Points (centroids)
 centroids <- raster::rasterToPoints(model_raster_layer,
                                     spatial = TRUE) # return a SpatialPointsDataFrame object
 
-# convert centroids to points ----
+# convert centroids points to sf object ----
 centroid_points <- st_as_sf(centroids, coords = c("x", "y")) %>% 
-  st_transform(crs = st_crs(roads_prep))
+  st_transform(crs = st_crs(only_roads)) # keep in the same CRS: EPSG 4326
 
 # check that CRS match
 #st_crs(centroid_points) == st_crs(roads_prep) # returns TRUE
+```
 
+
+```{r distance-calc}
 # =========== Calculate distances =========================
 # between all raster cell centroids and every line (trail or road) in the multilinestring sf dataframe object (roads_prep, trails_prep), then convert to data frame, where each row represents a point (centroid of raster cell) and columns represent the distance to every road (multilinestring in the roads_prep data set)
 # this may take several minutes to run
