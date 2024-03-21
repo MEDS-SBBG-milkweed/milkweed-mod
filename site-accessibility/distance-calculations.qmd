@@ -3,7 +3,12 @@ author: "Anna Ramji"
 title: "Distance Calculations for Site Accessibility"
 ---
 
+# Calculating distance from raster cell centroids to roads & trails
 
+## Setup
+
+
+### Load Packages
 ```{r library}
 # load necessary packages
 library(tidyverse)
@@ -17,60 +22,85 @@ library(stars)
 library(gdistance)
 ```
 
-
-```{r setup}
+### Read in Data
+```{r data}
 # read in data ----
 
-# ------ LPNF boundary ---------
-boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
+# ------ LPNF boundary shapefiles ---------
+# Southern region
+lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
 
-lpnf_boundary <- boundary %>% 
-  filter(FORESTNAME %in% c("Los Padres National Forest")) %>% 
-  st_transform(crs = "EPSG:4326")
+# Northern region (once we have trail and road data for the North)
+lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp"))
 
 
-# ---- TRAILS & ROADS ----------------
+# ------ Trails & Roads shapefile ----------------
 # read in LPNF trails data 
-trails_data <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+trails_and_roads <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
 
-# reproject trails data
-trails_reprojected <- trails_data %>% 
-  st_transform(crs = st_crs(lpnf_boundary)) %>% 
+
+# -------- Model raster ---------------------------
+# We'll read in a .tif of the species distribution model output 
+# to use as a template when we convert our shapefiles into rasters
+
+# first as a SpatRaster (terra), to perform reclassification 
+model_spat_raster <- terra::rast(here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+# then as a RasterLayer (raster), to extract points in our distance calculation steps
+model_raster_layer <- raster::raster(model_spat_raster)
+
+# finally, the template needs to be a stars object when we rasterize with st_rasterize(), 
+stars_temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+```
+
+### Wrangle & tidy data
+
+As we're working with geospatial data, it's important to make sure that our data is projected in the same coordinate reference system (CRS), and that it shares the same resolution and extent when we go to plot or combine multiple geospatial data elements. 
+
+We are working in World Geodetic System 1984 (WGS 84) **EPSG 4326**. Fortunately, our tidied data (LPNF boundary and model output raster) are already in this CRS. 
+
+```{r check}
+# double-check to see that our data is in the same CRS
+print("The CRS of the LPNF boundary and the model output match:")
+st_crs(lpnf_boundary_south) == st_crs(model_spat_raster)
+
+print("The CRS of the model output and the Trails & Roads data match:")
+st_crs(model_spat_raster) == st_crs(trails_and_roads)
+```
+As the Trails & Roads data is not in the same CRS, we'll start by reprojecting the trails & roads data to match, and then create two subsets for trail data and road data (all in the Southern region of the forest.)
+**[Note: we'll change or omit this part once we have our cleaned data products script working]**
+
+```{r tidy}
+# ------- tidy trails & roads data -----------------
+trails_roads_reprojected <- trails_and_roads %>% 
+  st_transform(crs = st_crs(lpnf_boundary_south)) %>% # reproject CRS to EPSG 4326
   st_zm() %>%  # remove z-dimension
   janitor::clean_names() # tidy up column names
 
-# check that crs match
-# st_crs(lpnf_boundary) == st_crs(trails_reprojected)
 
+# check that crs match
+print("The CRS of the model output and the Trails & Roads data match:")
+st_crs(lpnf_boundary_south) == st_crs(trails_roads_reprojected)
+```
+
+### Create subsets
+
+Here we'll separate the trails & roads data into two separate datasets -- trails and roads -- before selecting relevant columns to use when calculating distance.
+
+```{r tidy}
+# note: the geometries are MULTILINESTRINGS 
+# (lines that have multiple + different start and end points)
 
 # trails subset
-only_trails <- trails_reprojected %>% 
-  filter(type == "Trail")   # 1283 observations
+only_trails <- trails_roads_reprojected %>% 
+  filter(type == "Trail") %>%   # 1283 observations
+  dplyr::select(type, geometry) # select relevant columns
 
 # roads subset
-only_roads <- trails_reprojected %>% 
-  filter(type == "Road") # 744 obs
-
-# selecting relevant columns, converting to x,y
-trails_prep <- only_trails %>% 
-  dplyr::select(type, geometry) 
-#  st_cast("LINESTRING") # convert to linestring (not multilinestring) [come back]
-
-# make it into a raster
-#trails_raster <- st_rasterize(trail_raster_prep, field = "type", fun = "constant")
-
-
-roads_prep <- only_roads %>% 
-  dplyr::select(type, geometry)
-# %>% 
-#   st_cast("LINESTRING")
-
-
-# ------ read in model raster ----------
-# to make it a SpatRaster (terra), not a RasterLayer (raster)
-model_raster <- terra::rast(here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
-
-
+only_roads <- trails_roads_reprojected %>% 
+  filter(type == "Road") %>%  # 744 obs
+  dplyr::select(type, geometry) # select relevant columns
 
 ```
 
@@ -211,7 +241,7 @@ trail_distance_raster <- st_rasterize(trail_distance_sf,
 ```{r rescale-roads}
 # ============= Crop ==============
 
-# we'll crop to the LPNF boundary first [change this to southern extent only?]
+# we'll crop to the LPNF boundary first 
 lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
 
 # use the southern LPNF boundary as a mask to crop the roads and trails rasters ----
