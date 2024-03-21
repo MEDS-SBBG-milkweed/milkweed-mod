@@ -244,6 +244,7 @@ plot(trail_dist_rescaled)
 
 ```
 
+
 ## Plotting
 ```{r basic-roads-plot}
 leaflet() %>% 
@@ -300,4 +301,13 @@ addRasterImage(x = roads_rescaled,
 # st_write(distance_to_road, here::here(), "distance_to_road.shp")
 ```
 
+
+## Saving
+
+Once we've viewed the output of our final rescaling steps, we can save the distance rasters as tifs to the appropriate data storage locations.
+
+```{r saving, eval=FALSE}
+
+
+```
 
