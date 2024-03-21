@@ -147,6 +147,14 @@ model_template <- terra::classify(model_spat_raster, # original raster
 
 # check to see if this worked through simple visualization
 plot(model_template)
+
+# [come back] mask template
+# mask this template area to the southern region of the LPNF to speed up distance calculations
+
+model_template_south <- mask(model_template, # keep values in this raster when
+                             lpnf_boundary_south) # covered by this mask
+
+plot(model_template_south)
 ```
 
 Note that all values are "0"! 
@@ -175,45 +183,129 @@ We will calculate distance using `st_distance()`, so we'll also need to convert 
 # Extract points from RasterLayer, turn into SpatialPointsDataFrame ----
 
 # technique 2: convert raster to Points (centroids)
-centroids <- raster::rasterToPoints(model_raster_layer,
+spatial_points <- raster::rasterToPoints(model_raster_layer,
                                     spatial = TRUE) # return a SpatialPointsDataFrame object
 
+# trying with cropped model raster
+# mask model raster layer
+raster_layer_south <- raster::raster(model_template_south)
+
+spatial_points_south <- raster::rasterToPoints(raster_layer_south,
+                                               spatial = TRUE)
+
 # convert centroids points to sf object ----
-centroid_points <- st_as_sf(centroids, coords = c("x", "y")) %>% 
+centroid_points <- st_as_sf(spatial_points, coords = c("x", "y")) %>% 
+  st_transform(crs = st_crs(only_roads)) # keep in the same CRS: EPSG 4326
+
+# performing this step for masked southern region points
+centroid_points_south <- st_as_sf(spatial_points_south, coords = c("x", "y")) %>% 
   st_transform(crs = st_crs(only_roads)) # keep in the same CRS: EPSG 4326
 
 # check that CRS match
-#st_crs(centroid_points) == st_crs(roads_prep) # returns TRUE
+# st_crs(centroid_points) == st_crs(only_roads) # returns TRUE
 ```
 
 
-```{r distance-calc}
+## Calculate Distance
+
+We will calculate the distance from these centroid points to all lines in the roads and trails subsets.
+
+We'll then select the minimum distance between each point (representing the centroid of a raster cell in our model template raster) and a trail or road. This minimum value will represent the distance between each cell and the nearest road or trail. 
+
+
+```{r masked-distance-calc}
 # =========== Calculate distances =========================
-# between all raster cell centroids and every line (trail or road) in the multilinestring sf dataframe object (roads_prep, trails_prep), then convert to data frame, where each row represents a point (centroid of raster cell) and columns represent the distance to every road (multilinestring in the roads_prep data set)
-# this may take several minutes to run
+# calculate distances between all raster cell centroids and every line (trail or road) in the multilinestring sf dataframe object (roads_prep, trails_prep), then convert to data frame, where each row represents a point (centroid of raster cell) and columns represent the distance to every road (multilinestring in the roads_prep data set)
+
+
+# attempting this with the raster cropped to the southern region 
+system.time(
+distance_to_roads_south <- st_distance(centroid_points_south, only_roads) %>% 
+  data.frame()
+)
+#    user  system elapsed 
+# 57.429   0.474  57.783 
+
+system.time(
+distance_to_trails_south <- st_distance(centroid_points_south, only_trails) %>% 
+  data.frame()
+)
+#    user  system elapsed 
+# 125.401   1.082 126.133
+```
+
+
+Don't run these unless you want to calculate the distance to roads and trails in the whole north + south extent + extra areas around!! (takes a long time and we crop it anyway but could be useful for some application later on)
+
+```{r og-distance-calc}
+# note: these may take several minutes to run
 
 # distance to roads
-distance_to_roads <- st_distance(centroid_points, roads_prep) %>% 
+distance_to_roads <- st_distance(centroid_points, only_roads) %>% 
   data.frame() # convert to data frame where each row represents a raster cell centroid
 
 # distance to trails
-distance_to_trails <- st_distance(centroid_points, trails_prep) %>% 
+distance_to_trails <- st_distance(centroid_points, only_trails) %>% 
   data.frame() # convert to data frame where each row represents a raster cell centroid
+```
 
+Finding distance to nearest road or trail
+
+```{r nearest-distance-south}
 # ========== Find nearest line ===================
 # for each point (row), take the minimum value, which represents the distance to the nearest road or trail
-nearest_road <- apply(distance_to_roads, 
+nearest_road_south <- apply(distance_to_roads_south, 
                        MARGIN = 1, # margin, 1 = rows
                        FUN = min # function we're applying
                        ) %>% 
   data.frame() # save output (distance to nearest road) as data frame
 
 
-nearest_trail <- apply(distance_to_trails, 
+nearest_trail_south <- apply(distance_to_trails_south, 
                        MARGIN = 1, # margin, 1 = rows
                        FUN = min # function we're applying
                        ) %>% 
   data.frame() # save output (distance to nearest trail) as data frame
+
+
+# ======= Join distances and geometries ======================= 
+# bringing geometry column in, saving minimum distance to road as an sf object
+nearest_road_w_geom_south <- bind_cols(centroid_points_south, nearest_road_south)
+
+# bringing geometry column in, saving minimum distance to trail as an sf object
+nearest_trail_w_geom_south <- bind_cols(centroid_points_south, nearest_trail_south)
+
+
+# renaming distance column, removing irrelevant column from sf data frame
+road_distance_sf_south <- nearest_road_w_geom_south %>% 
+  rename(distance = ".") %>% 
+  dplyr::select(-allpoints_bioclim_canopy_dem)
+
+# renaming distance column, removing irrelevant column from sf data frame
+trail_distance_sf_south <- nearest_trail_w_geom_south %>% 
+  rename(distance = ".") %>% 
+  dplyr::select(-allpoints_bioclim_canopy_dem)
+```
+
+
+Again, don't run this chunk unless you want to work with the full area (not cropped to south)
+
+```{r og-nearest-distance, eval=FALSE}
+# ========== Find nearest line ===================
+# for each point (row), take the minimum value, which represents the distance to the nearest road or trail
+nearest_road_south <- apply(distance_to_roads, 
+                       MARGIN = 1, # margin, 1 = rows
+                       FUN = min # function we're applying
+                       ) %>% 
+  data.frame() # save output (distance to nearest road) as data frame
+
+
+nearest_trail_south <- apply(distance_to_trails, 
+                       MARGIN = 1, # margin, 1 = rows
+                       FUN = min # function we're applying
+                       ) %>% 
+  data.frame() # save output (distance to nearest trail) as data frame
+
 
 # ======= Join distances and geometries ======================= 
 # bringing geometry column in, saving minimum distance to road as an sf object
@@ -236,43 +328,79 @@ trail_distance_sf <- nearest_trail_w_geom %>%
 
 ```
 
-## Rasterize: Get raster of distance to nearest line
+
+
+## Rasterize distances
+
+Now we'll make a raster of the distance from each point (centroid of a raster cell, which came from the model output raster we used as a template) to the nearest line (trail or road).
+
+When we rasterize, we'll be using the `stars` object version of our template raster, called `stars_temp_raster` within `st_rasterize()`
+
+[come back in spring]
+Note: I tried to crop/mask the stars object version of the model template to the southern region in a few ways but failed :) 
+
+```{r}
+# crop/mask stars temp raster to southern region of the forest
+# stars_raster_south <- mask(stars_temp_raster,
+#                            lpnf_boundary_south)
+# make a copy of the stars template raster
+# stars_raster_south <- stars_temp_raster
+
+# make lpnf boundary a stars object
+# lpnf_south_stars <- st_as_stars(lpnf_boundary_south)
+
+# set values to NA if NA in the lpnf_boundary_south
+
+# stars_raster_south[is.na(lpnf_boundary_south)] = NA
+```
+
+
 ```{r}
 # we'll rasterize by using a template raster -- the same model output from earlier
 
 # the template needs to be a stars object in st_rasterize
-stars_temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+# the stars_temp_raster object we created earlier 
 
-# rasterize sf data frame, then convert to spatRaster
-road_distance_raster <- st_rasterize(road_distance_sf,
+# roads ----
+# rasterize sf data frame, then convert to SpatRaster
+road_distance_raster <- st_rasterize(road_distance_sf_south,
                                  template = stars_temp_raster) %>% 
-  rast() # convert to spatRaster
+  rast() # convert to SpatRaster
 
-
-# rasterize sf data frame, then convert to spatRaster
-trail_distance_raster <- st_rasterize(trail_distance_sf,
+# trails ----
+# rasterize sf data frame, then convert to SpatRaster
+trail_distance_raster <- st_rasterize(trail_distance_sf_south,
                                  template = stars_temp_raster) %>% 
-  rast() # convert to spatRaster
+  rast() # convert to SpatRaster
 
 
 # plot to check the output of this step
-#plot(road_dist_raster)
+plot(road_distance_raster)
 
 ```
 
-## Rescaling and cropping to southern LPNF buffer
+Shows that we've cropped the distance area but not the full template raster (see earlier note about difficulty cropping/masking stars object)
+
+## Crop & Rescale 
+
+We'll first crop our distance raster to the southern region of the LPNF, then rescale our distances to fit from 0 to 1, with an added step (1 - rescaling) to ensure that 1 indicates high physical accessibility (closer to trails, roads) and 0 indicates low physical accessibility (farther away from trails, roads).
+
+
 ```{r rescale-roads}
 # ============= Crop ==============
+# [come back in spring]: we'll need to update this part to incorporate Northern data
 
-# we'll crop to the LPNF boundary first 
-lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
+# we'll use the southern LPNF boundary as a mask to crop the 
+# roads and trails rasters to the southern region of the LPNF boundary first,
+# using the lpnf_boundary_south object created earlier
 
-# use the southern LPNF boundary as a mask to crop the roads and trails rasters ----
-# crop roads
-road_distance_crop <- mask(road_distance_raster, lpnf_boundary_south)
+# crop roads raster
+road_distance_crop <- mask(road_distance_raster, # keep the values of this raster
+                           lpnf_boundary_south) # where cells are covered by this "mask" 
 
-# crop trails
-trail_distance_crop <- mask(trail_distance_raster, lpnf_boundary_south)
+# crop trails raster
+trail_distance_crop <- mask(trail_distance_raster,
+                            lpnf_boundary_south)
 
 # =========== Rescale ============================
 # rescale each raster of distance to roads and trails from 0 to 1:
@@ -303,6 +431,11 @@ plot(trail_dist_rescaled)
 leaflet() %>% 
   addProviderTiles(provider = providers$Esri.WorldTopoMap) %>% 
   addRasterImage(x = road_dist_rescaled,
+              opacity = 0.8)
+
+leaflet() %>% 
+  addProviderTiles(provider = providers$Esri.WorldTopoMap) %>% 
+  addRasterImage(x = trail_dist_rescaled,
               opacity = 0.8)
 
 # leaflet() %>% 
