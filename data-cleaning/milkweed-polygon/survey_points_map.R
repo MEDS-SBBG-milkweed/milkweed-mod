@@ -2,6 +2,7 @@
 library(tidyverse)
 library(janitor)
 library(sf)
+library(terra)
 library(ggspatial)
 library(here)
 library(leaflet)
@@ -23,7 +24,7 @@ lpnf_boundary <- boundary %>%
 # filter data for mapping
 milkweed_map <- milkweed_data_raw |> 
   janitor::clean_names() |> 
-  st_transform(crs(envs_Ac)) %>%
+  # st_transform(crs(envs_Ac)) %>% 
   dplyr::select(milkweed_p, milkweed_sp) %>%
   st_centroid() %>%
   st_transform("EPSG:4326")
