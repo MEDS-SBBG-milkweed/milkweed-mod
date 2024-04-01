@@ -48,8 +48,5 @@ lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data
 #   st_buffer(dist = 1000) # add buffer if necessary
 
 
-#.............................Land Ownership.............................
-
-
 #.............................Trails and Roads.............................
 

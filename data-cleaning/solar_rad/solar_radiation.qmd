@@ -1,0 +1,37 @@
+---
+title: "Solar Radiation"
+format: html
+---
+
+```{r}
+library(terra)
+```
+
+```{r}
+dem <- rast(here("~/../../capstone/milkweedmod/data/dem/lpnf_dem.tif"))
+slope <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
+aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
+```
+
+“Northness”: Cosine of aspect x sine of slope
+- If facing due south, cosine of aspect = 1
+- As slope gets steeper, sine of slope increases
+- South facing vertical wall has a northness of -1
+- If want to change to “southness” multiply by -1 for positive values
+- North facing vertical wall has a northness of 1
+
+```{r}
+northness <- cos(aspect) * sin(slope)
+```
+
+“eastness” (sine(aspect) x sine(slope))
+- If due east on a vertical wall –> 1
+
+```{r}
+eastness <- sin(aspect) * sin(slope)
+```
+
+Notes from cos/sin documentation:
+- Angles are in radians, not degrees, for the standard versions (i.e., a right angle is π/2), and in ‘half-rotations’ for cospi etc.
+- cospi(x), sinpi(x), and tanpi(x) are accurate for x values which are multiples of a half.
+
