@@ -4,25 +4,21 @@ author: "Amanda Herbst"
 date-created: "Feb 29, 2024"
 ---
 
-## Load packages
-```{r}
-library(tidyverse)
-library(terra)
-library(here)
-library(stars)
-library(leaflet)
-source("scripts/addLegend_decreasing.R")
+## Source Scripts
+```{r, message = FALSE}
+source("../scripts/addLegend_decreasing.R")
+source("../scripts/accessibility_setup.R")
 ```
 
 ## Read in cleaned canopy cover data
 ```{r}
-canopy_cover <- rast(here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
+#canopy_cover <- terra::rast(here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
+#lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
 
 plot(canopy_cover)
 
 temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
-
+plot(temp_raster)
 temp_rast2 <- rast(temp_raster)
 ```
 
@@ -44,9 +40,9 @@ canopy_rescaled
 # lpnf_boundary <-  st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary"))
 
 # read in lpnf land ownership
-lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
+#lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
 
-# make mask
+# make mask where 1 is public land and 0 is private land
 lpnf_ownership_mask1 <- lpnf_ownership %>% 
   # new column of 1s
   mutate(ownership = rep(1, length(lpnf_ownership$OWN_LEVEL))) %>% 
@@ -54,23 +50,40 @@ lpnf_ownership_mask1 <- lpnf_ownership %>%
   dplyr::select(-OWN_LEVEL)
 
 #rasterize lpnf_ownership
-ownership_rasterize <- st_rasterize(lpnf_ownership_mask1, template = temp_raster)
-
+ownership_rasterize<- st_rasterize(lpnf_ownership_mask1, 
+                                   template = temp_raster,
+                                   align=TRUE)
 ownership_rast <- rast(ownership_rasterize)
+## From stackoverflow: "if `template` is a `stars` object, non-NA cells that are not covered by `sf` receive the value in `template`; see also argument `align`."
 
 class(ownership_rast)
+# now the raster has values between 0 and 1, but I want only 0 and 1
+plot(ownership_rast)
 
+# try to rasterize before mask?
+land_owner_rasterize <- st_rasterize(lpnf_ownership, template = temp_raster)
+land_owner_rast <- rast(land_owner_rasterize)
+plot(land_owner_rast)
 
+# check both rasters
 leaflet(
   # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
         ) %>% 
  addProviderTiles(providers$Esri.WorldTopoMap) %>%
-addRasterImage(x = lpnf_ownership_resample,
+addRasterImage(x = ownership_rast,
               # fillColor = "darkgreen",
               # color = "darkgreen",
               # weight = 1.5,
                opacity = 0.6
-              )
+              ) #%>% 
+ # addRasterImage(x = land_owner_rast, opacity = 0.6)
+
+## After reading and plotting different things, it looks like any area in the template that the land ownership DIDN'T cover was kept as the value in the template raster. So I am going to try to replace any values that don't equal 1 to 0
+
+ownership_rast[ownership_rast<1] <- 0
+
+plot(ownership_rast)
+plot(land_owner_rast)
 ```
 
 ```{r}
