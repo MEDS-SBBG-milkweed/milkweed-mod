@@ -25,6 +25,10 @@ library(gdistance)
 # Southern region
 lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
 
+# Northern region 
+lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp"))
+
+
 # ------ Trails & Roads shapefile ----------------
 # read in LPNF trails data 
 trails_and_roads <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
@@ -46,7 +50,7 @@ usgs_trails_reprojected <- usgs_trails %>%
   dplyr::select(trail) # keep just this column for plotting
 
 # ---- make subset for california state parks trails & roads data  ----
-ca_parks_trails <- trails_roads_reprojected %>% 
+forest_watch_trails <- trails_roads_reprojected %>% 
   filter(type == "Trail") %>% # keep only Trails
   dplyr::select(type, geometry) %>%  # select relevant columns
   dplyr::mutate(trail = 1) # adding column of 1s for plotting
@@ -56,8 +60,8 @@ ca_parks_trails <- trails_roads_reprojected %>%
 Crop to LPNF Southern portion & Plot to compare
 
 ```{r}
-# crop California State Parks trails data ----
-cap_trails_south <- ca_parks_trails %>% 
+# crop LPNF Forest Watch trails data ----
+forest_trails_south <- forest_watch_trails %>% 
   st_crop(lpnf_boundary_south) 
 
 # crop USGS trails data ----
@@ -66,7 +70,7 @@ usgs_trails_south <- usgs_trails_reprojected %>%
 
 
 # plot to compare
-plot(cap_trails_south)
+plot(forest_trails_south)
 
 plot(usgs_trails_south)
 
@@ -74,16 +78,80 @@ plot(usgs_trails_south)
 
 ggplot() +
   geom_sf(data = usgs_trails_south, color = "blue") +
-  geom_sf(data = cap_trails_south, color = "green") +
+  geom_sf(data = forest_trails_south, color = "green", alpha = 0.5) +
   theme_bw()
 
 ```
 
 
 
-Plot to compare
+Perform anti-join to see if they line up (wouldn't want to have copies of the same road, as that would potentially double the distance calculation time)
 ```{r}
+# return rows from x without a match in y
+# trail_overlap_check <- st_join(x = cap_trails_south, y = usgs_trails_south,
+#                                join = st_sym_difference)
+
+# stopped because it was taking forever to run (over 15 minutes)
+```
+
+Full join using st_union within st_join
+
+```{r}
+joined_trails <- st_join(x = forest_trails_south,
+                         y = usgs_trails_south,
+                         join = st_union)
+
+```
+
+This took over 28 minutes to run, so I stopped it because I needed to move on and do other work.
+
+Decision point: 
+- keep green (forest watch) trails data for South, use USGS data for North, do the same with the roads data
 
 
+## Roads 
+```{r}
+# make Forest Watch roads data subset ----
+forest_watch_roads <- trails_roads_reprojected %>% 
+  filter(type == "Road") %>% # keep only Trails
+  dplyr::select(type, geometry) %>%  # select relevant columns
+  dplyr::mutate(trail = 1) # adding column of 1s for plotting
+
+
+# ----- Read in USGS Roads Data ----------------
+# (there are 5 tiles... I'll read 1 in at a time and plot because these files are rather large) 
+# because these files are large, it may take a while to read each one in
+usgs_roads_0 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_0.shp")
+usgs_roads_1 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_1.shp")
+
+
+# Plan: reproject and crop to Northern extent, then plot
+
+# ---------- reproject & tidy ---------------------------
+usgs_roads_0_tidy <- usgs_roads_0 %>% 
+  st_transform(crs = st_crs(lpnf_boundary_north)) %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate(road = 1) %>%  # add column of 1s for plotting
+  dplyr::select(road) # keep just this column (and geometries) for plotting
+
+usgs_roads_1_tidy <- usgs_roads_1 %>% 
+  st_transform(crs = st_crs(lpnf_boundary_north)) %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate(road = 1) %>%  # add column of 1s for plotting
+  dplyr::select(road) # keep just this column (and geometries) for plotting
+
+
+# ------------ crop --------------------------
+
+usgs_roads_0_crop <- usgs_roads_0_tidy %>% 
+  st_crop(lpnf_boundary_north)
+
+usgs_roads_1_crop <- usgs_roads_1_tidy %>% 
+  st_crop(lpnf_boundary_north)
+
+# ------------ plot --------------------------
+# plot to see if this tile is in the north
+plot(usgs_roads_0_crop)
+plot(usgs_roads_1_crop)
 ```
 
