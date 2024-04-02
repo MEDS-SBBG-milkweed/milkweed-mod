@@ -4,20 +4,16 @@ author: "Amanda Herbst"
 date-created: "Feb 29, 2024"
 ---
 
-## Load packages
-```{r}
-library(tidyverse)
-library(terra)
-library(here)
-library(stars)
-library(leaflet)
-source("scripts/addLegend_decreasing.R")
+## Source Scripts
+```{r, message = FALSE}
+source("../scripts/addLegend_decreasing.R")
+source("../scripts/accessibility_setup.R")
 ```
 
 ## Read in cleaned canopy cover data
 ```{r}
-canopy_cover <- rast(here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
+#canopy_cover <- terra::rast(here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
+#lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
 
 plot(canopy_cover)
 
@@ -44,9 +40,9 @@ canopy_rescaled
 # lpnf_boundary <-  st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary"))
 
 # read in lpnf land ownership
-lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
+#lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
 
-# make mask
+# make mask where 1 is public land and 0 is private land
 lpnf_ownership_mask1 <- lpnf_ownership %>% 
   # new column of 1s
   mutate(ownership = rep(1, length(lpnf_ownership$OWN_LEVEL))) %>% 
@@ -59,13 +55,13 @@ ownership_rasterize <- st_rasterize(lpnf_ownership_mask1, template = temp_raster
 ownership_rast <- rast(ownership_rasterize)
 
 class(ownership_rast)
-
+plot(ownership_rast)
 
 leaflet(
   # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
         ) %>% 
  addProviderTiles(providers$Esri.WorldTopoMap) %>%
-addRasterImage(x = lpnf_ownership_resample,
+addRasterImage(x = ownership_rast,
               # fillColor = "darkgreen",
               # color = "darkgreen",
               # weight = 1.5,
