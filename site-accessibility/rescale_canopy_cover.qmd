@@ -18,7 +18,7 @@ source("../scripts/accessibility_setup.R")
 plot(canopy_cover)
 
 temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
-
+plot(temp_raster)
 temp_rast2 <- rast(temp_raster)
 ```
 
@@ -50,13 +50,22 @@ lpnf_ownership_mask1 <- lpnf_ownership %>%
   dplyr::select(-OWN_LEVEL)
 
 #rasterize lpnf_ownership
-ownership_rasterize <- st_rasterize(lpnf_ownership_mask1, template = temp_raster)
-
+ownership_rasterize<- st_rasterize(lpnf_ownership_mask1, 
+                                   template = temp_raster,
+                                   align=TRUE)
 ownership_rast <- rast(ownership_rasterize)
+## From stackoverflow: "if `template` is a `stars` object, non-NA cells that are not covered by `sf` receive the value in `template`; see also argument `align`."
 
 class(ownership_rast)
+# now the raster has values between 0 and 1, but I want only 0 and 1
 plot(ownership_rast)
 
+# try to rasterize before mask?
+land_owner_rasterize <- st_rasterize(lpnf_ownership, template = temp_raster)
+land_owner_rast <- rast(land_owner_rasterize)
+plot(land_owner_rast)
+
+# check both rasters
 leaflet(
   # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
         ) %>% 
@@ -66,7 +75,15 @@ addRasterImage(x = ownership_rast,
               # color = "darkgreen",
               # weight = 1.5,
                opacity = 0.6
-              )
+              ) #%>% 
+ # addRasterImage(x = land_owner_rast, opacity = 0.6)
+
+## After reading and plotting different things, it looks like any area in the template that the land ownership DIDN'T cover was kept as the value in the template raster. So I am going to try to replace any values that don't equal 1 to 0
+
+ownership_rast[ownership_rast<1] <- 0
+
+plot(ownership_rast)
+plot(land_owner_rast)
 ```
 
 ```{r}
