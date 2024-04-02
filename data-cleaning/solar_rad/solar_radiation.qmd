@@ -49,4 +49,10 @@ plot(eastness_lpnfS, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "E
 plot(eastness, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Eastness")
 ```
 
+```{r}
+northness_vals <- northness@data@values %>% 
+  data.frame() %>%
+  drop_na()
+head(northness_vals, n = 20)
+```
 

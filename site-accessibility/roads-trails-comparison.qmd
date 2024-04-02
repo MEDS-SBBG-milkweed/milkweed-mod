@@ -1,0 +1,89 @@
+---
+author: "Anna Ramji"
+---
+
+Comparing roads and trails data from USGS and Los Padres National Parks
+
+
+```{r setup}
+library(tidyverse)
+library(here)
+library(janitor)
+
+library(sf)
+library(ggspatial)
+library(terra)
+library(leaflet)
+library(stars)
+library(gdistance)
+```
+
+```{r data}
+# read in data
+
+# ------ LPNF boundary shapefiles ---------
+# Southern region
+lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
+
+# ------ Trails & Roads shapefile ----------------
+# read in LPNF trails data 
+trails_and_roads <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+
+usgs_trails <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_TrailSegment.shp")
+
+# ------- tidy trails & roads data -----------------
+trails_roads_reprojected <- trails_and_roads %>% 
+  st_transform(crs = st_crs(lpnf_boundary_south)) %>% # reproject CRS to EPSG 4326
+  st_zm() %>%  # remove z-dimension
+  janitor::clean_names() # tidy up column names
+
+# st_crs(usgs_trails) # EPSG 4269
+
+usgs_trails_reprojected <- usgs_trails %>% 
+  st_transform(crs = st_crs(lpnf_boundary_south)) %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate(trail = 1) %>%  # add column of 1s for plotting
+  dplyr::select(trail) # keep just this column for plotting
+
+# ---- make subset for california state parks trails & roads data  ----
+ca_parks_trails <- trails_roads_reprojected %>% 
+  filter(type == "Trail") %>% # keep only Trails
+  dplyr::select(type, geometry) %>%  # select relevant columns
+  dplyr::mutate(trail = 1) # adding column of 1s for plotting
+
+```
+
+Crop to LPNF Southern portion & Plot to compare
+
+```{r}
+# crop California State Parks trails data ----
+cap_trails_south <- ca_parks_trails %>% 
+  st_crop(lpnf_boundary_south) 
+
+# crop USGS trails data ----
+usgs_trails_south <- usgs_trails_reprojected %>% 
+  st_crop(lpnf_boundary_south)
+
+
+# plot to compare
+plot(cap_trails_south)
+
+plot(usgs_trails_south)
+
+# plot on top of each other ----
+
+ggplot() +
+  geom_sf(data = usgs_trails_south, color = "blue") +
+  geom_sf(data = cap_trails_south, color = "green") +
+  theme_bw()
+
+```
+
+
+
+Plot to compare
+```{r}
+
+
+```
+
