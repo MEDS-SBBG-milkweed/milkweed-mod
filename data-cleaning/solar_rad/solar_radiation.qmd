@@ -5,12 +5,16 @@ format: html
 
 ```{r}
 library(terra)
+library(tmap)
+library(RColorBrewer)
 ```
 
 ```{r}
 dem <- rast(here("~/../../capstone/milkweedmod/data/dem/lpnf_dem.tif"))
 slope <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
 aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
+
+lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
 ```
 
 “Northness”: Cosine of aspect x sine of slope
@@ -21,17 +25,28 @@ aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.t
 - North facing vertical wall has a northness of 1
 
 ```{r}
-northness <- cos(aspect) * sin(slope)
+northness <- cos(aspect * (180 / pi)) * sin(slope * (180 / pi))
 ```
 
 “eastness” (sine(aspect) x sine(slope))
 - If due east on a vertical wall –> 1
 
 ```{r}
-eastness <- sin(aspect) * sin(slope)
+eastness <- sin(aspect * (180 / pi)) * sin(slope * (180 / pi))
 ```
 
-Notes from cos/sin documentation:
-- Angles are in radians, not degrees, for the standard versions (i.e., a right angle is π/2), and in ‘half-rotations’ for cospi etc.
-- cospi(x), sinpi(x), and tanpi(x) are accurate for x values which are multiples of a half.
+```{r}
+# crop northness to southern ext
+northness_lpnfS <- crop(northness, lpnf_south, mask = TRUE)
+
+plot(northness_lpnfS, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Northness - LPNF South Section")
+plot(northness, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Northness")
+
+# crop eastness to southern ext
+eastness_lpnfS <- crop(eastness, lpnf_south, mask = TRUE)
+
+plot(eastness_lpnfS, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Eastness - LPNF South Section")
+plot(eastness, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Eastness")
+```
+
 
