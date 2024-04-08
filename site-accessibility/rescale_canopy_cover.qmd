@@ -35,6 +35,8 @@ canopy_rescaled
 ```
 # mulitply canopy cover by land ownership
 
+## rasterize lpnf land ownership
+
 ```{r}
 # read in lpnf boundary
 # lpnf_boundary <-  st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary"))
@@ -51,8 +53,9 @@ lpnf_ownership_mask1 <- lpnf_ownership %>%
 
 #rasterize lpnf_ownership
 ownership_rasterize<- st_rasterize(lpnf_ownership_mask1, 
-                                   template = temp_raster,
-                                   align=TRUE)
+                                   template = temp_raster) # align=TRUE supposed to not keep template values but not working
+# align error: "Error in rep_len(x, prod(dim)) : invalid 'length.out' value"
+                            
 ownership_rast <- rast(ownership_rasterize)
 ## From stackoverflow: "if `template` is a `stars` object, non-NA cells that are not covered by `sf` receive the value in `template`; see also argument `align`."
 
@@ -65,7 +68,16 @@ land_owner_rasterize <- st_rasterize(lpnf_ownership, template = temp_raster)
 land_owner_rast <- rast(land_owner_rasterize)
 plot(land_owner_rast)
 
-# check both rasters
+
+## After reading and plotting different things, it looks like any area in the template that the land ownership DIDN'T cover was kept as the value in the template raster. So I am going to try to replace any values that don't equal 1 to 0
+
+ownership_rast[ownership_rast<1] <- 0
+
+# check that that worked by comparing original
+plot(ownership_rast)
+plot(land_owner_rast)
+ 
+# looks good!
 leaflet(
   # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
         ) %>% 
@@ -75,15 +87,7 @@ addRasterImage(x = ownership_rast,
               # color = "darkgreen",
               # weight = 1.5,
                opacity = 0.6
-              ) #%>% 
- # addRasterImage(x = land_owner_rast, opacity = 0.6)
-
-## After reading and plotting different things, it looks like any area in the template that the land ownership DIDN'T cover was kept as the value in the template raster. So I am going to try to replace any values that don't equal 1 to 0
-
-ownership_rast[ownership_rast<1] <- 0
-
-plot(ownership_rast)
-plot(land_owner_rast)
+              )
 ```
 
 ```{r}
@@ -93,8 +97,11 @@ plot(canopy_rescaled)
 
 ```{r}
 st_crs(ownership_rast) == st_crs(canopy_rescaled)
+# TRUE
 ext(ownership_rast) == ext(canopy_rescaled)
+#FALSE
 res(ownership_rast) == res(canopy_rescaled)
+# FALSE FALSE
 
 ext(ownership_rast) <- ext(temp_rast2)
 # reproject ownership to same CRS, extent, and resolution of canopy_cover
@@ -114,22 +121,26 @@ lpnf_ownership_resample <- resample(lpnf_ownership_reproject, canopy_rescaled)
 ext(lpnf_ownership_resample) == ext(canopy_rescaled)
 res(lpnf_ownership_resample) == res(canopy_rescaled)
 
+
 ```
 
 
 ```{r}
-access_test <- 1 -(lpnf_ownership_resample*canopy_rescaled)
+# subract from 1 to reverse scale to 0=least accessible, 1=most accessible
+access_test <- (lpnf_ownership_resample*(1 - canopy_rescaled))
 
+plot(lpnf_ownership_resample)
+plot(canopy_rescaled)
 plot(access_test)
 ```
 # Leaflet
 
 ```{r}
 #access_test_leaflet <- project(x = access_test, "EPSG:3857")
-
+# crop to the lpnf boundary
 test <- mask(access_test, lpnf_boundary)
 
-mapPredVals_Ac <- getRasterVals(test)
+mapPredVals_Ac <- wallace::getRasterVals(test)
 
 colors <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
 
