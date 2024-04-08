@@ -123,7 +123,9 @@ forest_watch_roads <- trails_roads_reprojected %>%
 # because these files are large, it may take a while to read each one in
 usgs_roads_0 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_0.shp")
 usgs_roads_1 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_1.shp")
-
+usgs_roads_2 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_2.shp")
+usgs_roads_3 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_3.shp")
+usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_4.shp")
 
 # Plan: reproject and crop to Northern extent, then plot
 
