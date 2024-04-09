@@ -1,7 +1,7 @@
 ---
 title: "Rescale all layers for accessibility index to 0-1"
 date-created: 04-09-2024
-date-updated: 04-09-2024
+date-last-updated: 04-09-2024
 ---
 
 This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.
@@ -20,7 +20,9 @@ temp_rast <- read_stars(here::here("~/../../capstone/milkweedmod/data/models/all
 temp_rast2 <- rast(temp_rast)
 ```
 
-# Canopy Cover
+# Rescale Layers
+
+## Canopy Cover
 ```{r}
 min_max_cc <- minmax(canopy_cover) 
 # (value - minimum_vale) / (maximum_value - minimum_value)
@@ -28,7 +30,7 @@ canopy_rescaled <- (canopy_cover - min_max_cc[1,]) / (min_max_cc[2,] - min_max_c
 plot(canopy_rescaled)
 ```
 
-# Slope
+## Slope
 ```{r}
 min_max_slope <- minmax(slope) 
 # (value - minimum_vale) / (maximum_value - minimum_value)
@@ -36,7 +38,19 @@ slope_rescaled <- (slope - min_max_slope[1,]) / (min_max_slope[2,] - min_max_slo
 plot(slope_rescaled)
 ```
 
-# Land Ownership
+## Distance from Trails
+```{r}
+
+```
+
+
+## Distance from Roads
+```{r}
+
+```
+
+
+## Land Ownership
 
 For land ownership, we want a mask where 0 indicates private land and 1 indicates public land.
 
@@ -66,3 +80,111 @@ ownership_rast[ownership_rast<1] <- 0
 
 plot(ownership_rast)
 ```
+
+# Set everything to same resolution, extent, and CRS
+
+CRS: EPSG 4326
+
+```{r}
+# this are the resolution, extent, and crs we want from the template
+res(temp_rast2) # 0.008333333 0.008333333
+ext(temp_rast2) # -121.921574664303, -118.696574664303, 34.3630771668103, 36.4380771668103 (xmin, xmax, ymin, ymax)
+crs(temp_rast2) # 4326
+```
+
+
+## Initial Check
+
+
+### CRS
+```{r}
+# canopy cover
+print("Does canopy_rescaled have correct CRS?")
+st_crs(canopy_rescaled) == st_crs(temp_rast2)
+
+# slope
+print("Does slope_rescaled have correct CRS?")
+st_crs(slope_rescaled) == st_crs(temp_rast2)
+
+# distance from trails
+print("Does distance_trails_rescaled have correct CRS?")
+#st_crs(canopy_rescaled) == st_crs(temp_rast2)
+
+# distance from roads
+print("Does distance_raods_rescaled have correct CRS?")
+#st_crs(canopy_rescaled) == st_crs(temp_rast2)
+
+# land ownership
+print("Does ownership_rast have correct CRS?")
+st_crs(ownership_rast) == st_crs(temp_rast2)
+```
+
+#### Reproject
+```{r}
+slope_rescaled <- project(slope_rescaled,
+                          crs(temp_rast2))
+# verify
+print("Does slope_rescaled have correct CRS?")
+st_crs(slope_rescaled) == st_crs(temp_rast2)
+```
+
+### Resolution
+```{r}
+# canopy
+print("Does canopy_rescaled have the correct resolution?")
+res(canopy_rescaled) == res(temp_rast2)
+
+# slope
+print("Does slope_rescaled have the correct resolution?")
+res(slope_rescaled) == res(temp_rast2)
+
+# distance from trails
+print("Does canopy_rescaled have the correct resolution?")
+#res(canopy_rescaled) == res(temp_rast2)
+
+# distance from roads
+print("Does canopy_rescaled have the correct resolution?")
+#res(canopy_rescaled) == res(temp_rast2)
+
+# land ownership
+print("Does ownership_rast have the correct resolution?")
+res(ownership_rast) == res(temp_rast2)
+```
+#### Update any resolutions
+```{r}
+res(canopy_rescaled)
+res(temp_rast2)
+
+```
+
+
+### Extent
+```{r}
+# canopy 
+print("Does canpy_rescaled have the correct extent?")
+ext(canopy_rescaled) == ext(temp_rast2)
+
+# slope 
+print("Does canpy_rescaled have the correct extent?")
+ext(slope_rescaled) == ext(temp_rast2)
+
+# distance from trails 
+print("Does canpy_rescaled have the correct extent?")
+#ext(canopy_rescaled) == ext(temp_rast2)
+
+# distance from roads 
+print("Does canpy_rescaled have the correct extent?")
+#ext(canopy_rescaled) == ext(temp_rast2)
+
+# land ownership 
+print("Does ownership_rast have the correct extent?")
+ext(ownership_rast) == ext(temp_rast2)
+```
+
+```{r}
+# need to look closely at these plots, slope looks more zoomed out than template even when same crs and extent
+plot(temp_rast2)
+plot(canopy_rescaled)
+plot(slope_rescaled)
+```
+
