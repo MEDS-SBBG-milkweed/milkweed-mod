@@ -26,7 +26,11 @@ library(gdistance)
 lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
 
 # Northern region 
-lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp"))
+lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp")) %>% 
+  janitor::clean_names() %>% 
+  mutate(region = "North") %>% 
+  dplyr::select(region, geometry)
+  
 
 
 # ------ Trails & Roads shapefile ----------------
@@ -123,9 +127,9 @@ forest_watch_roads <- trails_roads_reprojected %>%
 # because these files are large, it may take a while to read each one in
 usgs_roads_0 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_0.shp")
 usgs_roads_1 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_1.shp")
-usgs_roads_2 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_2.shp")
-usgs_roads_3 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_3.shp")
-usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_4.shp")
+# usgs_roads_2 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_2.shp")
+# usgs_roads_3 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_3.shp")
+# usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/data/CA_transportation/Trans_RoadSegment_4.shp")
 
 # Plan: reproject and crop to Northern extent, then plot
 
@@ -142,18 +146,102 @@ usgs_roads_1_tidy <- usgs_roads_1 %>%
   dplyr::mutate(road = 1) %>%  # add column of 1s for plotting
   dplyr::select(road) # keep just this column (and geometries) for plotting
 
+usgs_roads_2_tidy <- usgs_roads_2 %>%
+  st_transform(crs = st_crs(lpnf_boundary_north)) %>%
+  janitor::clean_names() %>%
+  dplyr::mutate(road = 1) %>%  # add column of 1s for plotting
+  dplyr::select(road) # keep just this column (and geometries) for plotting
 
-# ------------ crop --------------------------
+usgs_roads_3_tidy <- usgs_roads_3 %>%
+  st_transform(crs = st_crs(lpnf_boundary_north)) %>%
+  janitor::clean_names() %>%
+  dplyr::mutate(road = 1) %>%  # add column of 1s for plotting
+  dplyr::select(road) # keep just this column (and geometries) for plotting
+
+usgs_roads_4_tidy <- usgs_roads_4 %>%
+  st_transform(crs = st_crs(lpnf_boundary_north)) %>%
+  janitor::clean_names() %>%
+  dplyr::mutate(road = 1) %>%  # add column of 1s for plotting
+  dplyr::select(road) # keep just this column (and geometries) for plotting
+
+# ------------ crop to northern region of LPNF --------------------------
 
 usgs_roads_0_crop <- usgs_roads_0_tidy %>% 
-  st_crop(lpnf_boundary_north)
+  st_intersection(lpnf_boundary_north)
 
 usgs_roads_1_crop <- usgs_roads_1_tidy %>% 
-  st_crop(lpnf_boundary_north)
+  st_intersection(lpnf_boundary_north)
+
+# these roads did not share any geometries with the forest
+# usgs_roads_2_crop <- usgs_roads_2_tidy %>%
+#   st_crop(lpnf_boundary_north)
+# 
+# usgs_roads_3_crop <- usgs_roads_3_tidy %>%
+#   st_crop(lpnf_boundary_north)
+# 
+# usgs_roads_4_crop <- usgs_roads_4_tidy %>%
+#   st_crop(lpnf_boundary_north)
 
 # ------------ plot --------------------------
 # plot to see if this tile is in the north
-plot(usgs_roads_0_crop)
-plot(usgs_roads_1_crop)
+#plot(usgs_roads_0_crop)
+#plot(usgs_roads_1_crop)
+
+ggplot() +
+  geom_sf(data = usgs_roads_0_crop, color = "yellow") +
+  geom_sf(data = usgs_roads_1_crop, color = "red") +
+  geom_sf(data = lpnf_boundary_north,color = "blue", fill = "transparent", size = 8) +
+  theme_classic()
+
+
+# ---------- combine road files 0 and 1 -----------
+usgs_roads_north <- rbind(usgs_roads_0_crop, usgs_roads_1_crop)
+
+
+# ------ Plot to check ------------
+ggplot() +
+  geom_sf(data = lpnf_boundary_north, color = "seagreen",
+          fill = "transparent", linewidth = 1) +
+  geom_sf(data = usgs_roads_north, color = "black", linewidth = 0.5) +
+  theme_bw()
+```
+
+
+```{r}
+# ============ repeat steps to compare USGS data in South to Forest Watch data ============
+
+# ----------- Crop to South --------------------
+
+# yields 2310 observations
+usgs_roads_0_south <- usgs_roads_0_tidy %>% 
+  st_intersection(lpnf_boundary_south)
+
+# yields 3204 observations
+usgs_roads_1_south <- usgs_roads_1_tidy %>% 
+  st_intersection(lpnf_boundary_south)
+
+# this yields 0 observations of 2 variables
+# usgs_roads_2_south <- usgs_roads_2_tidy %>%
+#   st_intersection(lpnf_boundary_south)
+
+# yields 16 observations
+usgs_roads_3_south <- usgs_roads_3_tidy %>%
+  st_intersection(lpnf_boundary_south)
+
+# yields 7 observations
+usgs_roads_4_south <- usgs_roads_4_tidy %>%
+  st_intersection(lpnf_boundary_south)
+
+
+# ---------- Plot -----------
+ggplot() +
+  geom_sf(data = usgs_roads_0_south, color = "yellow", linewidth = 1) +
+  geom_sf(data = usgs_roads_1_south, color = "red", linewidth = 1) +
+#  geom_sf(data = usgs_roads_2_south, color = "lightblue") +
+  geom_sf(data = usgs_roads_3_south, color = "green", linewidth = 1) +
+  geom_sf(data = usgs_roads_4_south, color = "lightblue", linewidth = 1) +
+  geom_sf(data = lpnf_boundary_south,color = "black", fill = "transparent", linewidth = 1) +
+  theme_classic()
+
 ```
 
