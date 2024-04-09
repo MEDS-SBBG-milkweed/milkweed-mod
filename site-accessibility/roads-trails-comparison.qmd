@@ -66,23 +66,23 @@ Crop to LPNF Southern portion & Plot to compare
 ```{r}
 # crop LPNF Forest Watch trails data ----
 forest_trails_south <- forest_watch_trails %>% 
-  st_crop(lpnf_boundary_south) 
+  st_intersection(lpnf_boundary_south) 
 
 # crop USGS trails data ----
 usgs_trails_south <- usgs_trails_reprojected %>% 
-  st_crop(lpnf_boundary_south)
+  st_intersection(lpnf_boundary_south)
 
 
 # plot to compare
-plot(forest_trails_south)
-
-plot(usgs_trails_south)
+#plot(forest_trails_south)
+#plot(usgs_trails_south)
 
 # plot on top of each other ----
 
 ggplot() +
   geom_sf(data = usgs_trails_south, color = "blue") +
   geom_sf(data = forest_trails_south, color = "green", alpha = 0.5) +
+  geom_sf(data = lpnf_boundary_south, color = "black", linewidth = 1, fill = "transparent") +
   theme_bw()
 
 ```
@@ -243,5 +243,65 @@ ggplot() +
   geom_sf(data = lpnf_boundary_south,color = "black", fill = "transparent", linewidth = 1) +
   theme_classic()
 
+
+# ----- Combine road sections ------------
+
+usgs_roads_south <- rbind(usgs_roads_0_south, usgs_roads_1_south,
+                         # usgs_roads_2_south,
+                          usgs_roads_3_south, usgs_roads_4_south)
+
+
+# ------ Plot to check ------------
+ggplot() +
+  geom_sf(data = lpnf_boundary_south, color = "seagreen",
+          fill = "transparent", linewidth = 1) +
+  geom_sf(data = usgs_roads_south, color = "black", linewidth = 0.5) +
+  theme_bw()
 ```
 
+
+## Compare USGS vs. Forest Watch Roads Data in South
+
+```{r}
+# making subset of roads data ----
+forest_watch_roads <- trails_roads_reprojected %>% 
+  filter(type == "Road") %>% # keep only Trails
+  dplyr::select(type, geometry) %>%  # select relevant columns
+  dplyr::mutate(road = 1) # adding column of 1s for plotting
+
+# crop forest watch roads to southern border ----
+forest_roads_south <- forest_watch_roads %>% 
+  st_intersection(lpnf_boundary_south)
+```
+
+
+```{r}
+# ------ Plot to check ------------
+ggplot() +
+  geom_sf(data = lpnf_boundary_south, color = "black",
+          fill = "transparent", linewidth = 1) +
+  geom_sf(data = usgs_roads_south, color = "blue", alpha = 0.7, linewidth = 0.5) +
+  geom_sf(data = forest_roads_south, color = "green", alpha = 0.5, linewidth = 0.5) + 
+  scale_color_manual(values = c("blue", "green"), labels = c("USGS", "Forest Watch")) +
+  # geom_sf(data = usgs_trails_south, color = "red", alpha = 0.7) +
+  # geom_sf(data = forest_trails_south, color = "yellow", alpha = 0.5) +
+  theme_bw() +
+  labs(title = "Road Data Comparison",
+       subtitle = "USGS (blue), Forest Watch (green), both (turquoise)")
+
+ggplot() +
+  geom_sf(data = lpnf_boundary_south, color = "black",
+          fill = "transparent", linewidth = 1) +
+  # geom_sf(data = usgs_roads_south, color = "blue", alpha = 0.7, linewidth = 0.5) +
+  # geom_sf(data = forest_roads_south, color = "green", alpha = 0.5, linewidth = 0.5) + 
+  geom_sf(data = usgs_trails_south, color = "blue", alpha = 0.7) +
+  geom_sf(data = forest_trails_south, color = "green", alpha = 0.5) +
+  theme_bw() +
+  labs(title = "Trail Data Comparison",
+       subtitle = "USGS (blue), Forest Watch (green), both (turquoise)")
+
+
+```
+
+
+Publication date of USGS data is February 15th 2024
