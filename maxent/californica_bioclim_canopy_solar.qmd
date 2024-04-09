@@ -11,19 +11,9 @@ library(sf)
 library(ENMeval)
 library(wallace)
 library(tidyverse)
+library(here)
 source("scripts/addLegend_decreasing.R")
 source("scripts/setup.R")
-```
-
-## Adding northness and eastness to stack
-
-```{r}
-slope <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
-aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
-northness <- cos(aspect * (180 / pi)) * sin(slope * (180 / pi)) 
-eastness <- sin(aspect * (180 / pi)) * sin(slope * (180 / pi))
-
-envs_Ac_full <- stack(envs_Ac, northness)
 ```
 
 ## Analysis
@@ -32,17 +22,14 @@ envs_Ac_full <- stack(envs_Ac, northness)
 
 ```{r}
 # rename milkweed occurrence data
- occs_Ac <- milkweed_points # all species
+ occs_Ac <- californica_points
 ```
 
 ### Obtain environmental data
 
-Using WorldClim (<http://www.worldclim.org/>) bioclimatic dataset at
-resolution of 0.5 arcmin.
-
 ```{r}
 occs_geom_Ac <- occs_Ac[c("longitude", "latitude")]
-occs_vals_Ac <- as.data.frame(raster::extract(envs_Ac, occs_geom_Ac, cellnumbers = TRUE))
+occs_vals_Ac <- as.data.frame(raster::extract(envs_Ac2, occs_geom_Ac, cellnumbers = TRUE))
 
 # add columns for env variable values for each occurrence record
 occs_Ac <- cbind(occs_Ac, occs_vals_Ac)
@@ -73,13 +60,13 @@ bgExt_Ac <- lpnf_south
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
   occs = occs_Ac,
-  envs = envs_Ac,
+  envs = envs_Ac2,
   bgExt = bgExt_Ac)
 # Sample background points from the provided area
 bgSample_Ac <- penvs_bgSample(
   occs = occs_Ac,
   bgMask =  bgMask_Ac,
-  bgPtsNum = 10000)
+  bgPtsNum = 9000)
 # Extract values of environmental layers for each background point
 bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
 ##Add extracted values to background points table
@@ -127,19 +114,6 @@ model_Ac <- model_maxent(
   numCores = 7)
 
 # we can run the other models at the same time, but for now I'm just using 'L' (linear) just so it goes a bit faster while we're getting everything sorted out
-
-# Warning: model fc.H_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.H_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.1 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQH_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# Warning: model fc.LQHP_rm.2 has more non-zero coefficients (ncoef) than occurrence records for training, so AIC cannot be calculated.
-# ENMevaluate completed in 20 minutes 41.3 seconds.
-# Maxent ran successfully and output evaluation results for 10 models (Regularization multiplier values: [1, 2]; Feature classes: [L, LQ, H, LQH, LQHP]), using maxnet with clamping off.
 ```
 
 https://jamiemkass.github.io/ENMeval/articles/ENMeval-2.0-vignette.html#different-parameterizations
@@ -192,13 +166,13 @@ m  %>%
 xfer_area_Ac <- xfer_area(
   evalOut = model_Ac,
   curModel = "fc.L_rm.1",
-  envs = envs_north , 
+  envs = envs_north2, 
   outputType = "cloglog",
   alg = "maxnet",
   clamp = FALSE,
   xfExt = lpnf_north) 
 # store the cropped transfer variables
-xferExt_Ac <- xfer_area_Ac$envs_north
+xferExt_Ac <- xfer_area_Ac$envs_north2
 
 #map result
 mapXferVals_Ac <- getRasterVals(xfer_area_Ac$xferArea,"cloglog")
@@ -248,6 +222,30 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
-dismo::response(model_Ac@models[[1]], data = envs_Ac)
+merge(xfer_area_Ac$xferArea, predSel_Ac)
+```
+
+```{r}
+leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = FALSE,
+            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+# map model prediction raster and transfer polygon
+  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
+  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
+                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')  %>%
+  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
+                   fillOpacity = 0.2, weight = 2) %>% 
+  ##Add model prediction
+  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+                 group = 'vis', layerId = 'mapPred', method = "ngb") %>%
+  addPolygons(data = lpnf_south,
+              fill = FALSE,
+              color = "black",
+              weight = 2)
 ```
 

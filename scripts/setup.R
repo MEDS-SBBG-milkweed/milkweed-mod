@@ -29,6 +29,7 @@ vestita_points <- read_csv("~/../../capstone/milkweedmod/data/clean_data/milkwee
 
 # Stacked rasters
 envs_Ac <- brick(here::here(("~/../../capstone/milkweedmod/data/clean_data/env_rasters/env_stack.tif")))
+envs_Ac2 <- brick(here::here(("~/../../capstone/milkweedmod/data/clean_data/env_rasters/env_stack2.tif")))
 envs_north <- brick(here::here(("~/../../capstone/milkweedmod/data/clean_data/env_rasters/env_stack_north.tif")))
 
 # Individual Layers
