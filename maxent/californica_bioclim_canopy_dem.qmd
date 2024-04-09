@@ -299,3 +299,38 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 dismo::response(model_Ac@models[[1]], data = envs_Ac)
 ```
 
+```{r}
+merged <- merge(xfer_area_Ac$xferArea, predSel_Ac)
+#plot(merged)
+merged <- rast(merged)
+writeRaster(merged, here::here("~/../../capstone/milkweedmod/data/models/californica_bioclim_canopy_dem.tif"))
+```
+
+```{r}
+mapmergeVals_Ac <- getRasterVals(merged)
+rasCols_Ac <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+# if no threshold specified
+legendPal <- colorNumeric(rev(rasCols_Ac), mapmergeVals_Ac, na.color = 'transparent')
+rasPal_Ac <- colorNumeric(rasCols_Ac, mapmergeVals_Ac, na.color = 'transparent')
+
+leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
+  # addLegend_decreasing("bottomleft", pal = legendPal, values = mapmergeVals_Ac,
+  #           labFormat = reverseLabel(), decreasing = FALSE,
+  #           title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+ ##add transfer polygon (user drawn area)
+  # addPolygons(data = lpnf_north, fill = FALSE,
+  #             weight = 2, color = "black")  %>%
+  # addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+  #                  radius = 2, color = 'black', fill = TRUE, fillColor = "black",
+  #                  fillOpacity = 0.2, weight = 2) %>% 
+  ##Add model prediction
+  addRasterImage(merged, colors = rasPal_Ac, opacity = 0.7,
+                 group = 'vis', layerId = 'mapPred', method = "ngb") 
+# %>%
+#   addPolygons(data = lpnf_south,
+#               fill = FALSE,
+#               color = "black",
+#               weight = 2)
+```
+
+

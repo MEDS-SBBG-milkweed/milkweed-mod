@@ -1,0 +1,68 @@
+---
+title: "Rescale all layers for accessibility index to 0-1"
+date-created: 04-09-2024
+date-updated: 04-09-2024
+---
+
+This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.
+
+# Set up
+
+## Source Scripts
+```{r}
+source("../scripts/accessibility_setup.R")
+```
+
+### Read in Templates
+```{r}
+temp_rast <- read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
+
+temp_rast2 <- rast(temp_rast)
+```
+
+# Canopy Cover
+```{r}
+min_max_cc <- minmax(canopy_cover) 
+# (value - minimum_vale) / (maximum_value - minimum_value)
+canopy_rescaled <- (canopy_cover - min_max_cc[1,]) / (min_max_cc[2,] - min_max_cc[1,])
+plot(canopy_rescaled)
+```
+
+# Slope
+```{r}
+min_max_slope <- minmax(slope) 
+# (value - minimum_vale) / (maximum_value - minimum_value)
+slope_rescaled <- (slope - min_max_slope[1,]) / (min_max_slope[2,] - min_max_slope[1,])
+plot(slope_rescaled)
+```
+
+# Land Ownership
+
+For land ownership, we want a mask where 0 indicates private land and 1 indicates public land.
+
+The data is a shape file with each row indicating geometry of public land, so I am first creating a column of 1s to indicate public land, then rasterizing using a template raster. 
+```{r}
+# make mask where 1 is public land and 0 is private land
+lpnf_ownership_mask1 <- lpnf_ownership %>% 
+  # new column of 1s
+  mutate(ownership = rep(1, length(lpnf_ownership$OWN_LEVEL))) %>% 
+  # remove original ownership level column
+  dplyr::select(-OWN_LEVEL)
+
+#rasterize lpnf_ownership
+ownership_rasterize<- st_rasterize(lpnf_ownership_mask1, 
+                                   template = temp_rast) # align=TRUE supposed to not keep template values but not working
+# align error: "Error in rep_len(x, prod(dim)) : invalid 'length.out' value"
+
+ownership_rast <- rast(ownership_rasterize)
+## From stackoverflow: "if `template` is a `stars` object, non-NA cells that are not covered by `sf` receive the value in `template`; see also argument `align`."
+
+# now the raster has values between 0 and 1, but I want only 0 and 1
+plot(ownership_rast)
+
+## After reading and plotting different things, it looks like any area in the template that the land ownership DIDN'T cover was kept as the value in the template raster. So I am going to try to replace any values that don't equal 1 to 0
+
+ownership_rast[ownership_rast<1] <- 0
+
+plot(ownership_rast)
+```
