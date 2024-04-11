@@ -32,9 +32,14 @@ plot(canopy_rescaled)
 
 ## Slope
 ```{r}
+# convert crs
+slope_4326 <- project(slope, "EPSG:4326")
+
 min_max_slope <- minmax(slope) 
 # (value - minimum_vale) / (maximum_value - minimum_value)
 slope_rescaled <- (slope - min_max_slope[1,]) / (min_max_slope[2,] - min_max_slope[1,])
+
+slope_rescaled_reproject <- project(slope_rescaled, temp_rast2)
 plot(slope_rescaled)
 ```
 
@@ -165,7 +170,7 @@ print("Does canpy_rescaled have the correct extent?")
 ext(canopy_rescaled) == ext(temp_rast2)
 
 # slope 
-print("Does canpy_rescaled have the correct extent?")
+print("Does slope_rescaled have the correct extent?")
 ext(slope_rescaled) == ext(temp_rast2)
 
 # distance from trails 
@@ -183,8 +188,13 @@ ext(ownership_rast) == ext(temp_rast2)
 
 ```{r}
 # need to look closely at these plots, slope looks more zoomed out than template even when same crs and extent
+ext(slope_rescaled) <- ext(temp_rast2)
+ext(canopy_rescaled) <- ext(temp_rast2)
 plot(temp_rast2)
+plot(slope_rescaled_reproject)
 plot(canopy_rescaled)
 plot(slope_rescaled)
 ```
 
+4/11/24
+Noticed some funky things going on with the slope raster: After rescaling, then manually converting crs and extent to match that of the template raster (`project(slope_rescaled, crs(temp_rast2))` and `ext(slope_rescaled <- ext(temp_rast2))`), the coastline of slope looked way more zoomed out than that of the template raster (like if I were to plot them on top of each other it would not line up). However, if I instead rescale slope and then `project(slope_rescaled, temp_rast2)`, therefore converting CRS, resolution, and extent of slope to that of the temp raster all in one, the coastline match up. The problem with this is that we are downsampling (?) slope becuase it is a much higher resolution than that of the template raster, and we end up with a scale of 0 to 0.6 instead of 0 to 1. **So now I need to look at the method downsampling and choose which one--nearest neighbor, sum, mode, mean?**
