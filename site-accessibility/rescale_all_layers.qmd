@@ -40,7 +40,9 @@ min_max_slope <- minmax(slope)
 slope_rescaled <- (slope - min_max_slope[1,]) / (min_max_slope[2,] - min_max_slope[1,])
 
 slope_rescaled_reproject <- project(slope_rescaled, temp_rast2)
+# maybe maximum for accessibility so we're not losing the high slopes?
 plot(slope_rescaled)
+plot(slope_rescaled_reproject)
 ```
 
 ## Distance from Trails
