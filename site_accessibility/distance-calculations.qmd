@@ -36,7 +36,7 @@ lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boun
 
 # ------ Trails & Roads shapefile ----------------
 # read in LPNF trails data 
-trails_and_roads <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+trails_and_roads <- st_read(here("~/../../capstone/milkweedmod/raw_data/trails_and_roads/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
 
 
 # -------- Model raster ---------------------------
