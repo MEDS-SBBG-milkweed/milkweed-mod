@@ -19,15 +19,11 @@ library(stars)
 Read in LPNF Boundary Shapefiles
 ```{r}
 # ------ LPNF boundary shapefiles ---------
-# Southern region
+# Southern region (buffered)
 lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"))
 
-# Northern region 
-lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp")) %>% 
-  janitor::clean_names() %>% 
-  mutate(region = "North") %>% 
-  dplyr::select(region, geometry)
-
+# Northern region (buffered)
+lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp")) 
 ```
 
 
@@ -50,9 +46,84 @@ usgs_trails <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/C
 # Roads
 usgs_roads_0 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_0.shp")
 usgs_roads_1 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_1.shp")
+# this layer ends up not being in either the northern or southern sections
 usgs_roads_2 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_2.shp")
 usgs_roads_3 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_3.shp")
-usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/CA_transportation/Trans_RoadSegment_4.shp")
+usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_4.shp")
+
+
+```
+
+
+
+## Tidy & Clean Data
+
+### Forest Watch
+
+```{r}
+# tidy column names
+# select relevant columns
+# reproject to same CRS as (EPSG 4326)
+fw_trails_roads_clean <- trails_and_roads %>% 
+  janitor::clean_names() %>% # sets col names to lower_snake_case
+  dplyr::select(type, geometry) %>% # select columns of interest
+  st_zm() %>% # remove z-dimension (we only wany 2D)
+  st_transform(crs = st_crs(lpnf_boundary_south))
+
+# note: we don't need to crop these since they are already to the extent of the southern region of the forest
+
+# make distinct trails and roads subsets to save as clean .shp files
+fw_trails <- fw_trails_roads_clean %>% 
+  dplyr::filter(type == "Trail")
+
+fw_roads <- fw_trails_roads_clean %>% 
+  dplyr::filter(type == "Road")
+
+```
+
+### USGS
+
+```{r}
+# North: Trails
+# combine data into one df with rbind
+
+
+# clean & tidy
+
+
+
+# crop to 
+
+
+
+# North: Roads
+
+
+```
+
+ 
+ 
+## Save output 
+Save output (write to `clean_data` folder in data repository)
+
+### Forest Watch
+
+Write output from Forest Watch to `clean_data` folder
+
+```{r}
+
+# write files to clean_data folder ----
+# st_write(fw_trails, "~/../../capstone/milkweedmod/clean_data/trails_roads/forest_watch/forest_trails_south.shp")
+
+#st_write(fw_roads, "~/../../capstone/milkweedmod/clean_data/trails_roads/forest_watch/forest_roads_south.shp")
+
+```
+
+
+### USGS
+
+```{r}
+
 
 
 ```
