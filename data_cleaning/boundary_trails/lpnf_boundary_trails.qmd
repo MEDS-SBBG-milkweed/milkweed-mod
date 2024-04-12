@@ -55,7 +55,8 @@ bbox_north <- st_bbox(c(xmin = -122, ymin = 35.5, xmax = -121, ymax = 36.5),  cr
 # Crop boundary
 lpnf_south <- st_crop(lpnf_boundary, bbox_south) %>%
   select(SHAPE)
-lpnf_north <- st_crop(lpnf_boundary, bbox_north)
+lpnf_north <- st_crop(lpnf_boundary, bbox_north) %>% 
+  select(SHAPE)
 
 # create boundary buffer
 lpnf_south_buffered <- lpnf_south %>%
