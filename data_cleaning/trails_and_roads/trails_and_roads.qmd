@@ -1,0 +1,59 @@
+---
+title: "Cleaning Trails & Roads Data"
+---
+
+## Setup
+
+Load required packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(sf)
+library(terra)
+library(stars)
+```
+
+
+Read in LPNF Boundary Shapefiles
+```{r}
+# ------ LPNF boundary shapefiles ---------
+# Southern region
+lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"))
+
+# Northern region 
+lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp")) %>% 
+  janitor::clean_names() %>% 
+  mutate(region = "North") %>% 
+  dplyr::select(region, geometry)
+
+```
+
+
+Read in Raw data from Forest Watch and USGS
+
+```{r}
+# ------------ Forest Watch ----------------
+# this data is only from the southern region
+
+# read in LPNF trails data 
+trails_and_roads <- st_read(here("~/../../capstone/milkweedmod/raw_data/trails_and_roads/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+
+
+# ----------- USGS ------------------------
+
+# Trails
+usgs_trails <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_TrailSegment.shp")
+
+
+# Roads
+usgs_roads_0 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_0.shp")
+usgs_roads_1 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_1.shp")
+usgs_roads_2 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_2.shp")
+usgs_roads_3 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_3.shp")
+usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/CA_transportation/Trans_RoadSegment_4.shp")
+
+
+```
+
