@@ -73,6 +73,17 @@ eri_centroids <- eriocarpa |>
          geometry) |> # associated geometries (geometries are automatically retained whenever you manipulate a special feature, but I'm specifying it to be overly clear for reproducibility )
   st_centroid() # creates one point in the center of each geometry 
 
+erosa_centroids <- erosa |> 
+  select(milkweed_sp, # species name
+         milkweed_pl, # number of plants
+         geometry) |> # associated geometries (geometries are automatically retained whenever you manipulate a special feature, but I'm specifying it to be overly clear for reproducibility )
+  st_centroid() # creates one point in the center of each geometry 
+
+vestitia_centroids <- vestita |> 
+  select(milkweed_sp, # species name
+         milkweed_pl, # number of plants
+         geometry) |> # associated geometries (geometries are automatically retained whenever you manipulate a special feature, but I'm specifying it to be overly clear for reproducibility )
+  st_centroid() 
 
 # st_crs(all_spec_centroids)
 # epsg 3857
