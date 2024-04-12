@@ -72,6 +72,11 @@ forest_trails_south <- forest_watch_trails %>%
 usgs_trails_south <- usgs_trails_reprojected %>% 
   st_intersection(lpnf_boundary_south)
 
+# save to clean_data folder ----
+#st_write(usgs_trails_south, "~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_trails_south.shp")
+
+
+
 
 # plot to compare
 #plot(forest_trails_south)
@@ -197,6 +202,9 @@ ggplot() +
 # ---------- combine road files 0 and 1 -----------
 usgs_roads_north <- rbind(usgs_roads_0_crop, usgs_roads_1_crop)
 
+# ----- save file ----
+# st_write(usgs_roads_north, "~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_north.shp")
+
 
 # ------ Plot to check ------------
 ggplot() +
@@ -220,7 +228,7 @@ ggplot() +
   geom_sf(data = usgs_trails_north, color = "black", linewidth = 0.5) +
   theme_bw()
 
-st_write(usgs_trails_north, "~/../../capstone/milkweedmod/data/clean_data/trails_roads/", "usgs_trails_south.shp")
+# st_write(usgs_trails_north, "~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_trails_north.shp")
 
 ```
 
@@ -269,6 +277,9 @@ usgs_roads_south <- rbind(usgs_roads_0_south, usgs_roads_1_south,
                          # usgs_roads_2_south,
                           usgs_roads_3_south, usgs_roads_4_south)
 
+
+# save to clean_data folder
+# st_write(usgs_roads_south, "~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_south.shp")
 
 # ------ Plot to check ------------
 ggplot() +

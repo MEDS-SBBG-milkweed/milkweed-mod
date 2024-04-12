@@ -111,6 +111,12 @@ only_roads <- trails_roads_reprojected %>%
 # optional data exploration/visualization
 # plot(only_trails)
 # plot(only_roads)
+
+# write files to clean_data folder ----
+# st_write(only_trails, "~/../../capstone/milkweedmod/data/clean_data/trails_roads/forest_trails_south.shp")
+
+#st_write(only_roads, "~/../../capstone/milkweedmod/data/clean_data/trails_roads/forest_roads_south.shp")
+
 ```
 
 

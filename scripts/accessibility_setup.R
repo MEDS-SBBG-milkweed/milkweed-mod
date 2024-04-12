@@ -44,6 +44,28 @@ lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/lpn
 
 #.............................Trails & Roads.............................
 
-# Forest Watch 
+# .................... Forest Watch ...............
 
-# USGS
+# Trails (South Only)
+forest_trails_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/forest_trails_south.shp"))
+
+# Roads (South Only)
+forest_roads_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/forest_roads_south.shp"))
+
+# ........................ USGS ...................
+
+# .... Trails ....
+
+# North
+usgs_trails_north <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_trails_north.shp"))
+
+# South
+usgs_trails_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_trails_south.shp"))
+
+# .... Roads ....
+
+# North
+usgs_roads_north <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_north.shp"))
+
+# South
+usgs_roads_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_south.shp"))
