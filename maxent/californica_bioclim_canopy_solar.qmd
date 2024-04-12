@@ -18,7 +18,7 @@ source("scripts/setup.R")
 
 ## Analysis
 
-### Obtain Occurrence Data
+### Obtain occurrence data for A. californica
 
 ```{r}
 # rename milkweed occurrence data
@@ -38,10 +38,8 @@ occs_Ac <- cbind(occs_Ac, occs_vals_Ac)
 
 ### Process Occurrence Data
 
-Thinning the occurrences to 0.05 km
-
 ```{r}
-# Thin occurrences 
+# Thin occurrences to 0.05 km
 occs_Ac <- poccs_thinOccs(
   occs = occs_Ac, 
   thinDist = 0.05) # adjust this value if needed
@@ -49,9 +47,7 @@ occs_Ac <- poccs_thinOccs(
 
 ### Process environmental data
 
-Sampling of 5000 background points and corresponding environmental data
-using a “minimum convex polygon” method with a 1.1 degree buffer.
-
+Sampling background points and corresponding environmental data for the southern lpnf boundary.
 
 ```{r}
 # Generate background extent
@@ -82,7 +78,7 @@ Partition occurrences and background points for model training and
 validation using block, a spatial partition method.
 
 ```{r}
-# R code to get partitioned data
+# Partitioned data
 groups_Ac <- part_partitionOccs(
   occs = occs_Ac ,
   bg =  bgSample_Ac, 
