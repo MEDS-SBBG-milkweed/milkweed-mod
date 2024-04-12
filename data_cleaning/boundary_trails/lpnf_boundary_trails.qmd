@@ -14,9 +14,9 @@ library(mapdata)
 Read in data
 ```{r}
 # California National Forest boundaries
-boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/S_USA_AdministrativeForest.gdb/"))
+boundary <- st_read(here("~/../../capstone/milkweedmod/raw_data/S_USA_AdministrativeForest.gdb/"))
 
-trails <- st_read(here("~/../../capstone/milkweedmod/data/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+trails <- st_read(here("~/../../capstone/milkweedmod/raw_data/trails_and_roads/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
 ```
 
 Filter boundaries to Los Padres National Forest
@@ -30,10 +30,10 @@ forest_buffer <- lpnf_boundary  %>%
 
 
 # st_write(lpnf_boundary,
-#          here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"),
+#          here("~/../../capstone/milkweedmod/cleandata/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
 #          append = FALSE)
 # st_write(forest_buffer,
-#         here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
+#         here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
 #         append = FALSE)
  
 ```
@@ -57,12 +57,15 @@ lpnf_south <- st_crop(lpnf_boundary, bbox_south) %>%
   select(SHAPE)
 lpnf_north <- st_crop(lpnf_boundary, bbox_north)
 
+# create boundary buffer
+lpnf_south_buffered <- lpnf_south %>%
+  st_buffer(dist = 1000)
+lpnf_north_buffered <- lpnf_north %>%
+  st_buffer(dist = 1000)
+
 lpnf_south_df <- lpnf_south %>%
   st_coordinates() %>%
   data.frame()
-
-
-write_csv(lpnf_south_df, here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.csv"))
 
 ggplot(lpnf_south_df) +
   geom_polygon(aes(x = X, y = Y))
@@ -70,13 +73,11 @@ ggplot(lpnf_south_df) +
 ggplot() +
   geom_sf(data = lpnf_south, color = "green4")
 
-# write the two polygons
-# st_write(lpnf_north,
-#          here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp"),
-#          append = FALSE)
-st_write(lpnf_south,
-        here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"),
-        append = FALSE)
+# write the forest boundaries
+# st_write(lpnf_north, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp"), append = FALSE)
+# st_write(lpnf_south, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp"), append = FALSE)
+st_write(lpnf_north_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"), append = FALSE)
+st_write(lpnf_south_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"), append = FALSE)
 ```
 
 

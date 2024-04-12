@@ -22,50 +22,35 @@ library(leaflet)
 
 #.............................LPNF Boundary.............................
 
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
-lpnf_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp")) 
-# %>%
-#   st_buffer(dist = 1000) # add buffer if necessary
-lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
-# %>%
-#   st_buffer(dist = 1000) # add buffer if necessary
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"))
+lpnf_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp")) 
+lpnf_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp"))
 
 #.............................Canopy Cover.............................
 
-canopy_cover <- rast(here("~/../../capstone/milkweedmod/data/clean_data/canopy_cover_cleaned.tif"))
+canopy_cover <- rast(here("~/../../capstone/milkweedmod/clean_data/canopy_cover/canopy_cover_cleaned.tif"))
 
 #.................................Slope.................................
 
-slope <- rast(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
+slope <- rast(here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"))
 
 #.............................Land Ownership.............................
 
-lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
+lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
 
-#.............................Trails & Roads.............................
-
-# .................... Forest Watch ...............
-
-# Trails (South Only)
-forest_trails_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/forest_trails_south.shp"))
-
-# Roads (South Only)
-forest_roads_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/forest_roads_south.shp"))
-
-# ........................ USGS ...................
-
-# .... Trails ....
-
-# North
-usgs_trails_north <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_trails_north.shp"))
+#..........................Distance from Roads...........................
 
 # South
-usgs_trails_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_trails_south.shp"))
-
-# .... Roads ....
 
 # North
-usgs_roads_north <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_north.shp"))
+
+#..........................Distance from Trails...........................
 
 # South
-usgs_roads_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_south.shp"))
+
+# North
+
+#............................Template Raster..............................
+# temp_rast_stars <- read_stars(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+
+# temp_rast <- rast(temp_rast_stars)

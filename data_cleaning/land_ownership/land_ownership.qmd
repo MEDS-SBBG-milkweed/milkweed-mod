@@ -1,0 +1,50 @@
+---
+title: "Cleaning CA landownership"
+---
+
+# Load packages
+```{r}
+library(tidyverse)
+library(terra)
+library(sf)
+```
+
+# Read in raw data
+```{r}
+land_ownership <- st_read(here("~/../../capstone/milkweedmod/raw_data/California_Land_Ownership/ownership23_1.shp"))
+```
+
+# Read in LPNF boundary
+```{r}
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"))
+
+# save the lpnf boundary as a polygon
+lpnf_polygon <- lpnf_boundary$geometry
+```
+
+
+# crop to LPNF boundary
+```{r}
+# reproject CRS
+ownership_reprojected <- land_ownership %>%
+  st_transform(crs = st_crs(lpnf_boundary))
+
+# select ownership level and geometry columns (only necessary columns)
+ownership_own_level <- ownership_reprojected %>% 
+  dplyr::select(OWN_LEVEL, geometry)
+
+# had a problem cropping but this line below fixed the issue thanks to:
+# https://github.com/r-spatial/sf/issues/1762
+# sf_use_s2(FALSE)
+lpnf_ownership <- ownership_own_level[lpnf_polygon,]
+
+# check
+plot(lpnf_ownership)
+```
+# Save file
+```{r}
+# st_write(lpnf_ownership,
+#          here("~/../../capstone/milkweedmod/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"),
+#          append = FALSE)
+```
+
