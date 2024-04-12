@@ -23,7 +23,7 @@ Filter boundaries to Los Padres National Forest
 ```{r}
 lpnf_boundary <- boundary %>% 
   filter(FORESTNAME %in% c("Los Padres National Forest")) %>%
-  st_transform(forest_buffer, crs = st_crs("EPSG:4326"))
+  st_transform(crs = st_crs("EPSG:4326"))
 
 forest_buffer <- lpnf_boundary  %>%
   st_buffer(dist = 1000)
@@ -37,8 +37,8 @@ forest_buffer <- lpnf_boundary  %>%
 #         append = FALSE)
  
 ```
-## Finding max-y for southern section
 
+## Finding max-y for southern section
 ```{r}
 
 ggplot() +
@@ -77,8 +77,8 @@ ggplot() +
 # write the forest boundaries
 # st_write(lpnf_north, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp"), append = FALSE)
 # st_write(lpnf_south, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp"), append = FALSE)
-st_write(lpnf_north_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"), append = FALSE)
-st_write(lpnf_south_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"), append = FALSE)
+# st_write(lpnf_north_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"), append = FALSE)
+# st_write(lpnf_south_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"), append = FALSE)
 ```
 
 

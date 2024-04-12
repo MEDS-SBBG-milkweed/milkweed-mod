@@ -10,9 +10,8 @@ library(RColorBrewer)
 ```
 
 ```{r}
-dem <- rast(here("~/../../capstone/milkweedmod/data/dem/lpnf_dem.tif"))
-slope <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
-aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
+slope <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"))
+aspect <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_aspect.tif"))
 
 lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
 ```
@@ -34,6 +33,13 @@ northness <- cos(aspect * (180 / pi)) * sin(slope * (180 / pi))
 ```{r}
 eastness <- sin(aspect * (180 / pi)) * sin(slope * (180 / pi))
 ```
+
+Write rasters
+```{r}
+writeRaster(northness, here::here("~/../../capstone/milkweedmod/clean_data/dem/northness.tif"))
+writeRaster(eastness, here::here("~/../../capstone/milkweedmod/clean_data/dem/eastness.tif"))
+```
+
 
 ```{r}
 # crop northness to southern ext
