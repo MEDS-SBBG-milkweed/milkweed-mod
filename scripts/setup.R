@@ -1,6 +1,6 @@
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                                                                            --
-##----------------------------- MILKWEEDMOD SETUP-------------------------------
+##----------------------------- MILKWEEDMOD SDM SETUP---------------------------
 ##                                                                            --
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -41,14 +41,9 @@ aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.t
 #.............................LPNF Boundary.............................
 
 lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
-
 lpnf_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp")) 
-# %>%
-#   st_buffer(dist = 1000) # add buffer if necessary
+lpnf_north_buffered <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp")) %>%
+   st_buffer(dist = 1000) # add buffer if necessary
 lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
-# %>%
-#   st_buffer(dist = 1000) # add buffer if necessary
-
-
-#.............................Trails and Roads.............................
-
+lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp")) %>%
+   st_buffer(dist = 1000) # add buffer if necessary
