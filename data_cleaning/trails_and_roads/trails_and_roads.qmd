@@ -58,7 +58,7 @@ usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/
 
 ## Tidy & Clean Data
 
-Forest Watch: Trails & Roads Data
+### Forest Watch
 
 ```{r}
 # tidy column names
@@ -80,9 +80,33 @@ fw_roads <- fw_trails_roads_clean %>%
   dplyr::filter(type == "Road")
 
 ```
+
+### USGS
+
+```{r}
+# North: Trails
+# combine data into one df with rbind
+
+
+# clean & tidy
+
+
+
+# crop to 
+
+
+
+# North: Roads
+
+
+```
+
  
  
 ## Save output 
+Save output (write to `clean_data` folder in data repository)
+
+### Forest Watch
 
 Write output from Forest Watch to `clean_data` folder
 
@@ -96,9 +120,7 @@ Write output from Forest Watch to `clean_data` folder
 ```
 
 
-
-
-Save output (write to `clean_data` folder in data repository)
+### USGS
 
 ```{r}
 
