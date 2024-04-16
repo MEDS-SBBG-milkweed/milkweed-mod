@@ -98,30 +98,93 @@ open_roads <- fw_roads %>%
 
 ```
 
-### USGS
+## USGS
 
-```{r}
+### Trails
+
+Here we'll reproject the USGS trails data to EPSG 4326 (to match the LPNF boundary CRS), clean/tidy the data, crop it to the northern LPNF boundary, and save the output (write to `clean_data` folder in data repository)
+
+```{r usgs-trails-north}
 # North: Trails
-# combine data into one df with rbind
+
+print("The CRS of the LPNF Boundary and the USGS Trails data match:")
+st_crs(lpnf_boundary_north) == st_crs(usgs_trails)
+
+# We'll need to reproject and clean/tidy our data before moving forward!
+
+# Clean & tidy ----
+usgs_trails_clean <- usgs_trails %>% 
+  st_transform(crs = st_crs(lpnf_boundary_south)) %>% # reproject (EPSG 4326)
+  janitor::clean_names() %>% # set column names to lower_snake_case
+  dplyr::mutate(trail = 1) %>%  # add column of 1s for plotting
+  dplyr::select(trail, geometry) # keep just these column for plotting
 
 
-# clean & tidy
+# Crop to northern LPNF boundary ----
+usgs_trails_north <- usgs_trails_clean %>% 
+  st_intersection(lpnf_boundary_north) %>%  # does not preserve geometries (cuts off trails at the boundary instead of fully removing any trails that go outside of the boundary)
+  dplyr::select(-FID) # remove this column
+
+# optional: plot to see output ----
+# ggplot() +
+#   geom_sf(data = usgs_trails_north, color = "black") +
+#   geom_sf(data = lpnf_boundary_north, color = "forestgreen", fill = "transparent", linewidth = 1.5) +
+#   theme_classic()
+
+# Save output to clean_data folder ----
+#st_write(usgs_trails_north, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_trails_north.shp",
+ #        append = FALSE) # replace existing file that shares the same name (if appropriate)
+```
+
+### Roads
+
+Here we'll bind all rows from the 5 USGS roads datasets, reproject to EPSG 4326 (to match the LPNF boundary CRS), clean/tidy the data, crop it to the northern LPNF boundary, and save the output (write to `clean_data` folder in data repository)
 
 
-
-# crop to 
-
-
-
+```{r usgs-roads-north}
 # North: Roads
+
+# combine data into one df with rbind (doing this step may take a few minutes, as these have 550 thousand rows each)
+usgs_roads <- rbind(usgs_roads_0, usgs_roads_1, usgs_roads_2, usgs_roads_3, usgs_roads_4)
+
+
+print("The CRS of the LPNF Boundary and the USGS Roads data match:")
+st_crs(lpnf_boundary_north) == st_crs(usgs_roads)
+
+# We'll need to reproject and clean/tidy our data before cropping to the northern LPNF boundary!
+
+# Clean & tidy ----
+# this step may also take a few minutes
+usgs_roads_clean <- usgs_roads %>% 
+  st_transform(crs = st_crs(lpnf_boundary_north)) %>%
+  janitor::clean_names() %>%
+  dplyr::mutate(road = 1) %>%  # add column of 1s for plotting
+  dplyr::select(road, geometry) # keep just this column (and geometries) for plotting
+
+
+
+# Crop to northern LPNF boundary ----
+# this step takes the longest (up to several minutes depending on your computing power)
+usgs_roads_north <- usgs_roads_clean %>% 
+  st_intersection(lpnf_boundary_north) %>%  # crop to northern LPNF boundary
+  dplyr::select(-FID) # remove irrelevant column
+
+
+# optional: plot to see output ----
+# ggplot() +
+#   geom_sf(data = usgs_roads_north, color = "black") +
+#   geom_sf(data = lpnf_boundary_north, color = "forestgreen", fill = "transparent", linewidth = 1.5) +
+#   theme_classic()
+
+# Save output to clean_data folder ----
+# st_write(usgs_roads_north, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_roads_north.shp",
+#         append = FALSE) # replace existing file that shares the same name (if appropriate)
 
 
 ```
 
  
- 
-## Save output 
-Save output (write to `clean_data` folder in data repository)
+
 
 ### Forest Watch
 
