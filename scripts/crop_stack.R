@@ -4,16 +4,16 @@ library(terra)
 library(sf)
 
 # Read in bioclim, canopy, slope, and aspect data
-bioclim <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
-canopy <- raster(here::here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
-slope <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
-aspect <- raster(here::here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
-northness <- cos(aspect * (180 / pi)) * sin(slope * (180 / pi)) 
-eastness <- sin(aspect * (180 / pi)) * sin(slope * (180 / pi))
+bioclim <- brick(here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
+canopy <- raster(here::here("~/../../capstone/milkweedmod/clean_data/canopy_cover/canopy_cover_cleaned.tif"))
+slope <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"))
+aspect <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_aspect.tif"))
+northness <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/northness.tif"))
+eastness <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/eastness.tif"))
 
 # California National Forest boundaries
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary/lpnf_boundary.shp"))
-lpnf_north <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_north/lpnf_boundary_north.shp")) %>%
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"))
+lpnf_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp")) %>%
   st_buffer(dist = 1000)
 
 # Resample
@@ -43,4 +43,4 @@ envs_north2 <- crop(envs_Ac2, lpnf_north)
 
 # Write rasters
 # writeRaster(envs_Ac2, here::here(("~/../../capstone/milkweedmod/data/clean_data/env_rasters/env_stack2.tif")))
-# writeRaster(envs_north, here::here(("~/../../capstone/milkweedmod/data/clean_data/env_rasters/env_stack_north.tif")))
+# writeRaster(envs_north2, here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack_north2.tif")))

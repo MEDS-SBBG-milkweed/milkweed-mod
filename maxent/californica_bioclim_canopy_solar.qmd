@@ -62,7 +62,7 @@ bgMask_Ac <- penvs_bgMask(
 bgSample_Ac <- penvs_bgSample(
   occs = occs_Ac,
   bgMask =  bgMask_Ac,
-  bgPtsNum = 9000)
+  bgPtsNum = 5000)
 # Extract values of environmental layers for each background point
 bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
 ##Add extracted values to background points table
@@ -101,15 +101,13 @@ model_Ac <- model_maxent(
   bg = bgEnvsVals_Ac,
   user.grp = groups_Ac, 
   bgMsk = bgMask_Ac,
-  rms = c(1, 2), 
+  rms = c(1, 3), 
   rmsStep =  1,
   fcs = c('L', 'LQ'),
   clampSel = FALSE,
   algMaxent = "maxnet",
   parallel = FALSE,
   numCores = 7)
-
-# we can run the other models at the same time, but for now I'm just using 'L' (linear) just so it goes a bit faster while we're getting everything sorted out
 ```
 
 https://jamiemkass.github.io/ENMeval/articles/ENMeval-2.0-vignette.html#different-parameterizations
@@ -124,7 +122,7 @@ Generate a map of the maxnet generated model with no threshold
 
 ```{r}
 # Select current model and obtain raster prediction
-m_Ac <- model_Ac@models[["fc.L_rm.2"]] # change this for different models
+m_Ac <- model_Ac@models[["fc.LQ_rm.1"]] # change this for different models
 predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
@@ -161,7 +159,7 @@ m  %>%
 # Generate a transfer of the model to the desired area
 xfer_area_Ac <- xfer_area(
   evalOut = model_Ac,
-  curModel = "fc.L_rm.1",
+  curModel = "fc.LQ_rm.1",
   envs = envs_north2, 
   outputType = "cloglog",
   alg = "maxnet",
