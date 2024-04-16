@@ -1,5 +1,5 @@
 ---
-title: "Californica: Bioclim, canopy, northness, eastness"
+title: "Eriocarpa: Bioclim, canopy, northness, eastness"
 format: html
 ---
 
@@ -22,7 +22,7 @@ source("scripts/setup.R")
 
 ```{r}
 # rename milkweed occurrence data
- occs_Ac <- californica_points
+ occs_Ac <- eriocarpa_points
 ```
 
 ### Obtain environmental data
@@ -122,7 +122,7 @@ Generate a map of the maxnet generated model with no threshold
 
 ```{r}
 # Select current model and obtain raster prediction
-m_Ac <- model_Ac@models[["fc.LQ_rm.1"]] # change this for different models
+m_Ac <- model_Ac@models[["fc.L_rm.1"]] # change this for different models
 predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
@@ -146,7 +146,7 @@ m  %>%
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias californica.<br>Predicted Suitability") %>%
+            title = "Asclepias eriocarpa<br>Predicted Suitability") %>%
   addPolygons(data = lpnf_south,
               fill = FALSE,
               color = "black",
@@ -159,7 +159,7 @@ m  %>%
 # Generate a transfer of the model to the desired area
 xfer_area_Ac <- xfer_area(
   evalOut = model_Ac,
-  curModel = "fc.LQ_rm.1",
+  curModel = "fc.L_rm.1",
   envs = envs_Ac2, 
   outputType = "cloglog",
   alg = "maxnet",
@@ -178,7 +178,7 @@ m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
 m %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+            title = "Asclepias eriocarpa<br>Predicted Suitability<br>(Transferred)") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -195,7 +195,7 @@ m %>%
 leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+            title = "<em>Asclepias eriocarpa</em><br>Predicted Suitability<br>") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -222,8 +222,8 @@ merge(xfer_area_Ac$xferArea, predSel_Ac)
 ```{r}
 leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
-            labFormat = reverseLabel(), decreasing = FALSE,
-            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+            labFormat = reverseLabel(), decreasing = TRUE,
+            title = "<em>Asclepias eriocarpa</em><br>Predicted Suitability<br>") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
