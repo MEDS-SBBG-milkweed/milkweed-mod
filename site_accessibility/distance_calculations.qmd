@@ -4,40 +4,198 @@ title: "Calculating Distances from Trails & Roads"
 
 ## Setup
 
+```{r setup}
+# load necessary packages (note: this file is intended to be run before the accessibility_setup.R script, as the outputs saved from this file (distance rasters) are read in within that script)
+library(tidyverse)
+library(here)
+library(janitor) # for data cleaning
+library(leaflet) # for plotting (optional)
+
+
+# for geospatial operations, manipulation, distance calculations
+library(sf)
+library(terra)
+library(stars)
+library(ggspatial) 
+library(gdistance)
+```
+
 
 Read in cleaned trails & roads data 
 
 - data was cleaned in the `data_cleaning/trails_and_roads` folder `trails_and_roads.qmd` notebook, and outputs were written to the `clean_data` folder
 
 
-```{r}
+```{r t-n-r-data}
 # ------------------- Forest Watch -------------------------
 
 # Trails (South Only)
-forest_trails_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_roads/forest_trails_south.shp"))
+forest_trails_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_trails_south.shp")) # note: this file contains trails that have been filtered to "OPEN" status
 
 # Roads (South Only)
-forest_roads_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_roads/forest_roads_south.shp"))
+forest_roads_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_roads_south.shp")) # note: this file contains roads that have been filtered to "OPEN" status
 
 # ---------------------- USGS -----------------------------
 
 # ........... Trails ................
 
 # North
-usgs_trails_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_roads/usgs_trails_north.shp"))
+usgs_trails_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_trails_north.shp"))
 
 # South
-usgs_trails_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs_trails_south.shp"))
+# uncomment this line and use this object if you want to use the USGS data instead of the Forest Watch data for the southern portion of the LPNF
+# usgs_trails_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_trails_south.shp"))
 
 # ............. Roads .................
 
 # North
-usgs_roads_north <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_north.shp"))
+usgs_roads_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_roads_north.shp"))
 
-# South
-usgs_roads_south <- st_read(here("~/../../capstone/milkweedmod/data/clean_data/trails_roads/usgs_roads_south.shp"))
+
+# South 
+# uncomment this line and use this object if you want to use the USGS data instead of the Forest Watch data for the southern portion of the LPNF
+# usgs_roads_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_roads_north.shp"))
 
 ```
 
+Read in Model Raster (used as template raster for distance calculations)
 
+
+```{r model-raster-tif}
+
+# -------- Model raster ---------------------------
+# We'll read in a .tif of the species distribution model output 
+# to use as a template when we convert our shapefiles into rasters
+
+# the template needs to be a stars object when we rasterize with st_rasterize(), 
+stars_temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+
+# we also need it as a SpatRaster (terra), to perform reclassification 
+model_spat_raster_template <- terra::rast(here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+
+# and as a RasterLayer (raster), to extract points in our distance calculation steps
+#model_raster_layer <- raster::raster(here::here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_bioclim_canopy_dem.tif")) 
+
+# optional data exploration/visualization
+# plot(model_spat_raster)
+# head(trails_and_roads)
+# st_crs(model_raster_layer)
+
+# ------ LPNF boundary shapefiles ---------
+# Southern region (buffered)
+lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"))
+
+# Northern region (buffered)
+lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp")) 
+
+
+# Check: Coordinate Reference System (CRS) of all objects need to match (they should already, since all objects are cleaned data products):
+print("The CRS of the model raster and the Forest Watch Trails & Roads data match:")
+st_crs(stars_temp_raster) == st_crs(forest_trails_south) & st_crs(forest_trails_south) == st_crs(forest_roads_south)
+
+print("The CRS of the model raster and the USGS Trails & Roads data match:")
+st_crs(stars_temp_raster) == st_crs(usgs_roads_north) & st_crs(usgs_roads_north) == st_crs(usgs_trails_north)
+
+print("The CRS of the model raster and the LPNF boundaries data match:")
+st_crs(stars_temp_raster) == st_crs(lpnf_boundary_north) & st_crs(stars_temp_raster) == st_crs(lpnf_boundary_south)
+```
+
+Note: Come back and replace model template with template that Amanda and I create
+
+nrow(raster) 389 rows 544 columns (wow!)
+
+## Raster Template
+
+We'll want to mask the model raster template to the northern and southern regions of the LPNF before we run any distance calculations. We'll use the RasterLayer (terra) for this.
+
+```{r}
+# mask template ----
+# mask this template area to the southern and northern regions of the LPNF (separately, which further helps to speed up distance calculations)
+
+model_template_south <- mask(model_spat_raster_template, # keep values in this raster when
+                             lpnf_boundary_south) # covered by this mask
+
+model_template_north <- mask(model_spat_raster_template, # keep values in this raster when
+                             lpnf_boundary_north) # covered by this mask
+
+# optional: plot to see output of these steps (should be two rasters where values of northern and southern regions are 0 and extent for entire area is preserved from original template raster)
+plot(model_template_south)
+plot(model_template_north)
+
+```
+
+```{r}
+#terra_points_north <- terra::extract(model_template_north, xy = TRUE)
+```
+
+
+### Extract points 
+
+We're trying to calculate the distance from the centroid of each raster cell to the nearest trail and road.
+To do this, we'll first extract points from the centroids of all raster cells in a RasterLayer as SpatialPoints. 
+
+We will calculate distance using `st_distance()`, so we'll also need to convert the SpatialPoints DataFrame to a simple feature (`sf`) object.
+
+```{r}
+
+# Mask template raster to north and south ----
+
+# mask model raster layer to southern...
+raster_layer_south <- raster::raster(model_template_south)
+# and northern regions
+raster_layer_north <- raster::raster(model_template_north)
+
+
+# Extract points from RasterLayer, turn into SpatialPointsDataFrame ----
+# convert raster to Points (centroids of raster cells)
+spatial_points_south <- raster::rasterToPoints(raster_layer_south,
+                                               spatial = TRUE)
+
+spatial_points_north <- raster::rasterToPoints(raster_layer_north,
+                                               spatial = TRUE)
+
+# convert centroids points to sf object ----
+
+# performing this step for masked southern region points
+centroid_points_south <- st_as_sf(spatial_points_south, coords = c("x", "y")) %>% 
+  st_transform(crs = st_crs(lpnf_boundary_south)) # keep in the same CRS: EPSG 4326
+
+# check that CRS match between raster template and forest watch roads data
+st_crs(centroid_points_south) == st_crs(forest_roads_south) # returns TRUE
+
+
+
+```
+
+## Calculate Distance
+
+We will calculate the distance from these centroid points to all lines in the roads and trails subsets (USGS for northern region, Forest watch for southern region).
+
+We'll then select the minimum distance between each point (representing the centroid of a raster cell in our model template raster) and a trail or road. This minimum value will represent the distance between each cell and the nearest road or trail. 
+
+```{r}
+# =========== Calculate distances =========================
+# calculate distances between all raster cell centroids and every line (trail or road) in the multilinestring sf dataframe object (roads_prep, trails_prep), then convert to data frame, where each row represents a point (centroid of raster cell) and columns represent the distance to every road (multilinestring in the roads_prep data set)
+
+
+# SOUTHERN REGION ----------------
+
+# attempting this with the raster cropped to the southern region 
+system.time(
+distance_to_roads_south <- st_distance(centroid_points_south, forest_roads_south) %>% 
+  data.frame() # convert to data frame to store distance calculations, used in algebraic operation later
+)
+# here's how long it took for me:
+#   user  system elapsed 
+# 63.822   0.647  64.175 
+
+system.time(
+distance_to_trails_south <- st_distance(centroid_points_north, forest_trails_south) %>% 
+  data.frame()
+)
+#    user  system elapsed 
+# 125.401   1.082 126.133
+
+
+```
 
