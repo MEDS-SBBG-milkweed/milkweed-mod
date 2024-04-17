@@ -9,15 +9,10 @@ This document's purpose is to rescale all layers for our accessibility raster to
 # Set up
 
 ## Source Scripts
-```{r}
+```{r, message = FALSE}
+# reads in all data we need
+# takes a minute because reprojects slope to correct CRS
 source("../scripts/accessibility_setup.R")
-```
-
-### Read in Templates
-```{r}
-temp_rast <- read_stars(here::here("~/../../capstone/milkweedmod/data/models/allpoints_bioclim_canopy_dem.tif"))
-
-temp_rast2 <- rast(temp_rast)
 ```
 
 # Rescale Layers
@@ -27,22 +22,21 @@ temp_rast2 <- rast(temp_rast)
 min_max_cc <- minmax(canopy_cover) 
 # (value - minimum_vale) / (maximum_value - minimum_value)
 canopy_rescaled <- (canopy_cover - min_max_cc[1,]) / (min_max_cc[2,] - min_max_cc[1,])
+
+# check that max = 1 and min = 0
 plot(canopy_rescaled)
 ```
 
 ## Slope
 ```{r}
-# convert crs
-slope_4326 <- project(slope, "EPSG:4326")
-
 min_max_slope <- minmax(slope) 
 # (value - minimum_vale) / (maximum_value - minimum_value)
 slope_rescaled <- (slope - min_max_slope[1,]) / (min_max_slope[2,] - min_max_slope[1,])
 
-slope_rescaled_reproject <- project(slope_rescaled, temp_rast2)
+#slope_rescaled_reproject <- project(slope_rescaled, temp_rast4)
 # maybe maximum for accessibility so we're not losing the high slopes?
 plot(slope_rescaled)
-plot(slope_rescaled_reproject)
+#plot(slope_rescaled_reproject)
 ```
 
 ## Distance from Trails
@@ -72,20 +66,26 @@ lpnf_ownership_mask1 <- lpnf_ownership %>%
 
 #rasterize lpnf_ownership
 ownership_rasterize<- st_rasterize(lpnf_ownership_mask1, 
-                                   template = temp_rast) # align=TRUE supposed to not keep template values but not working
+                                   template = temp_rast_stars) # align=TRUE supposed to not keep template values but not working
 # align error: "Error in rep_len(x, prod(dim)) : invalid 'length.out' value"
 
 ownership_rast <- rast(ownership_rasterize)
-## From stackoverflow: "if `template` is a `stars` object, non-NA cells that are not covered by `sf` receive the value in `template`; see also argument `align`."
-
-# now the raster has values between 0 and 1, but I want only 0 and 1
-plot(ownership_rast)
-
-## After reading and plotting different things, it looks like any area in the template that the land ownership DIDN'T cover was kept as the value in the template raster. So I am going to try to replace any values that don't equal 1 to 0
-
-ownership_rast[ownership_rast<1] <- 0
 
 plot(ownership_rast)
+```
+
+When I was using the model output as a template, the rasterize function kept values from the template when rasterizing and I had to do an extra step, but now that I am using the template that is all 0s, the extra step is no longer needed.
+```{r}
+# ## From stackoverflow: "if `template` is a `stars` object, non-NA cells that are not covered by `sf` receive the value in `template`; see also argument `align`."
+# 
+# # now the raster has values between 0 and 1, but I want only 0 and 1
+# plot(ownership_rast)
+# 
+# ## After reading and plotting different things, it looks like any area in the template that the land ownership DIDN'T cover was kept as the value in the template raster. So I am going to try to replace any values that don't equal 1 to 0
+# 
+# ownership_rast[ownership_rast<1] <- 0
+# 
+# plot(ownership_rast)
 ```
 
 # Set everything to same resolution, extent, and CRS
@@ -94,9 +94,18 @@ CRS: EPSG 4326
 
 ```{r}
 # this are the resolution, extent, and crs we want from the template
-res(temp_rast2) # 0.008333333 0.008333333
-ext(temp_rast2) # -121.921574664303, -118.696574664303, 34.3630771668103, 36.4380771668103 (xmin, xmax, ymin, ymax)
-crs(temp_rast2) # 4326
+res(temp_rast) # 0.008333333 0.008333333
+ext(temp_rast) # -122.01324133097, -117.47990817897, 33.679743833477, 36.921410370477 (xmin, xmax, ymin, ymax)
+crs(temp_rast) # 4326
+origin(temp_rast) # 0.003420455, -0.003588153
+```
+
+```{r}
+# this are the resolution, extent, and crs we want from the template
+res(temp_rast4) # 0.008333333 0.008333333
+ext(temp_rast4) # -122.01324133097, -117.479907997637, 33.679743833477, 36.9214105001436 (xmin, xmax, ymin, ymax)
+crs(temp_rast4) # 4326
+origin(temp_rast4) # 0.003425336 -0.003589500
 ```
 
 
@@ -129,7 +138,7 @@ st_crs(ownership_rast) == st_crs(temp_rast2)
 #### Reproject
 ```{r}
 slope_rescaled <- project(slope_rescaled,
-                          crs(temp_rast2))
+                          crs(temp_rast))
 # verify
 print("Does slope_rescaled have correct CRS?")
 st_crs(slope_rescaled) == st_crs(temp_rast2)

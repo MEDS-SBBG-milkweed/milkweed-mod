@@ -1,0 +1,46 @@
+---
+title: "Making a template raster for site accessibility data preparation"
+date_created: "2024-17-04"
+author: "Amanda Herbst"
+---
+```{r}
+library(tidyverse)
+library(terra)
+library(here)
+```
+
+We have been using a template raster based on the SDM output, but wanted to create a template from scratch so we are not dependent on the model output.
+
+Currently basing this template on `outputs/sdm_outputs/californica_bioclim_dem.tif` in Taylor (4/17/24).
+
+- CRS: EPSG:4326
+- Resolution: 0.008333333 x 0.008333333
+- Extent: -122.01324133097, -117.479907997637, 33.679743833477, 36.9214105001436 (xmin, xmax, ymin, ymax)
+- Origin: 0.003425336, -0.003589500
+- number of rows: 389
+- Number of columns: 544
+
+## Build template
+```{r}
+# define resolution and corners of the extent
+res <- c(0.008333333, 0.008333333)
+xmin <- -122.01324133097
+xmax <- -117.479907997637
+ymin <- 33.679743833477
+ymax <- 36.9214105001436
+crs <- "EPSG:4326"
+  
+temp_rast <- rast(nrow = 389, ncol = 544, resolution = res,
+                  xmin = xmin, xmax = xmax,
+                  ymin = ymin, ymax = ymax,
+                  vals = 0, crs = crs)
+# plot to verify
+plot(temp_rast)
+```
+
+## Write to csv
+```{r}
+# writeRaster(temp_rast, 
+#             here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+```
+
