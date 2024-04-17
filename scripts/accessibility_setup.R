@@ -22,12 +22,18 @@ library(leaflet)
 
 #.............................LPNF Boundary.............................
 
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"))
-lpnf_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp")) 
-lpnf_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp"))
-lpnf_boundary_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"))
-lpnf_boundary_north_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"))
-lpnf_boundary_south_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"))
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+                         quiet = TRUE)
+lpnf_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp"),
+                      quiet = TRUE) 
+lpnf_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp"),
+                      quiet = TRUE)
+lpnf_boundary_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
+                                  quiet = TRUE)
+lpnf_boundary_north_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"),
+                                        quiet = TRUE)
+lpnf_boundary_south_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"),
+                                        quiet = TRUE)
 
 #.............................Canopy Cover.............................
 
@@ -35,11 +41,13 @@ canopy_cover <- rast(here("~/../../capstone/milkweedmod/clean_data/canopy_cover/
 
 #.................................Slope.................................
 
-slope <- rast(here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"))
+slope <- rast(here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif")) %>% 
+  project("EPSG:4326")
 
 #.............................Land Ownership.............................
 
-lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"))
+lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"),
+                          quiet = TRUE)
 
 #..........................Distance from Roads...........................
 
@@ -54,6 +62,6 @@ lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_lan
 # North
 
 #............................Template Raster..............................
-# temp_rast_stars <- read_stars(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+temp_rast_stars <- read_stars(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
 
-# temp_rast <- rast(temp_rast_stars)
+temp_rast <- rast(temp_rast_stars)
