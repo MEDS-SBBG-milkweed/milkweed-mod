@@ -19,7 +19,7 @@ source("maxent/milkweed_maxent.R")
 
 ### Run species distribution model
 ```{r}
-calmod <- milkweed_maxent(californica_points, envs_Ac2, lpnf_south_buffered)
+calmod <- milkweed_maxent(californica_points, "a. californica", envs_Ac2, lpnf_south_buffered, lpnf_north_buffered)
 ```
 
 ### Evaluate 

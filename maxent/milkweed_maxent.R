@@ -103,7 +103,7 @@ milkweed_maxent <- function(df, species, env_stack, pred_area, transfer_area) {
  merge(xfer_area_Ac$xferArea, predSel_Ac)
  
  # plot
- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
+mod_plot <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
    addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
                         labFormat = reverseLabel(), decreasing = FALSE,
                         title = paste(species, "<br>Predicted Suitability<br>")) %>%
@@ -124,6 +124,8 @@ milkweed_maxent <- function(df, species, env_stack, pred_area, transfer_area) {
                fill = FALSE,
                color = "black",
                weight = 2)
+ 
+ return(mod_plot)
  
 }
 
