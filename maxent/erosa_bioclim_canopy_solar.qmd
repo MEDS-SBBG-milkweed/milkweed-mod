@@ -1,0 +1,245 @@
+---
+title: "erosa: Bioclim, canopy, northness, eastness"
+format: html
+---
+
+```{r}
+library(spocc)
+library(spThin)
+library(dismo)
+library(sf)
+library(ENMeval)
+library(wallace)
+library(tidyverse)
+library(here)
+source("scripts/addLegend_decreasing.R")
+source("scripts/setup.R")
+```
+
+## Analysis
+
+### Obtain occurrence data for A. californica
+
+```{r}
+# rename milkweed occurrence data
+ occs_Ac <- erosa_points
+```
+
+### Obtain environmental data
+
+```{r}
+occs_geom_Ac <- occs_Ac[c("longitude", "latitude")]
+occs_vals_Ac <- as.data.frame(raster::extract(envs_Ac2, occs_geom_Ac, cellnumbers = TRUE))
+
+# add columns for env variable values for each occurrence record
+occs_Ac <- cbind(occs_Ac, occs_vals_Ac)
+```
+
+
+### Process Occurrence Data
+
+```{r}
+# Thin occurrences to 0.05 km
+occs_Ac <- poccs_thinOccs(
+  occs = occs_Ac, 
+  thinDist = 0.001) # adjust this value if needed
+```
+
+### Process environmental data
+
+Sampling background points and corresponding environmental data for the southern lpnf boundary.
+
+```{r}
+# Generate background extent
+bgExt_Ac <- lpnf_south
+
+# Mask environmental data to provided extent
+bgMask_Ac <- penvs_bgMask(
+  occs = occs_Ac,
+  envs = envs_Ac2,
+  bgExt = bgExt_Ac)
+# Sample background points from the provided area
+bgSample_Ac <- penvs_bgSample(
+  occs = occs_Ac,
+  bgMask =  bgMask_Ac,
+  bgPtsNum = 5000)
+# Extract values of environmental layers for each background point
+bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
+##Add extracted values to background points table
+bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias eriocarpa"), bgSample_Ac,
+                            occID = NA, year = NA, institution_code = NA, country = NA,
+                            state_province = NA, locality = NA, elevation = NA,
+                            record_type = NA, bgEnvsVals_Ac)
+```
+
+### Partition occurrence data
+
+Partition occurrences and background points for model training and
+validation using block, a spatial partition method.
+
+```{r}
+# Partitioned data
+groups_Ac <- part_partitionOccs(
+  occs = occs_Ac ,
+  bg =  bgSample_Ac, 
+  method = "jack") 
+```
+
+
+### Build and Evaluate Niche Model
+
+Generating a species distribution model using the maxnet algorithm as
+implemented in ENMeval V2.0 (with clamping = FALSE). For tuning using L,
+LQ, H, LQH, LQHP feature classes and regularization multipliers in the
+1, 2 range increasing by 1. Not using any categorical predictor
+variables.
+
+```{r}
+# Run maxent model for the selected species
+model_Ac <- model_maxent(
+  occs = occs_Ac,
+  bg = bgEnvsVals_Ac,
+  user.grp = groups_Ac, 
+  bgMsk = bgMask_Ac,
+  rms = c(0.5, 4), 
+  rmsStep =  0.5,
+  fcs = c('L', 'LQ'),
+  clampSel = FALSE,
+  algMaxent = "maxnet",
+  parallel = FALSE,
+  numCores = 7)
+```
+
+https://jamiemkass.github.io/ENMeval/articles/ENMeval-2.0-vignette.html#different-parameterizations
+```{r}
+model_Ac@results %>%
+  gt::gt()
+```
+
+### Visualize
+
+Generate a map of the maxnet generated model with no threshold
+
+```{r}
+# Select current model and obtain raster prediction
+m_Ac <- model_Ac@models[["fc.LQ_rm.1"]] # change this for different models
+predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
+                                          type = "cloglog", # change for different types
+                                          clamp = FALSE)
+#Get values of prediction
+mapPredVals_Ac <- getRasterVals(predSel_Ac, "cloglog") # change for different types
+
+#Define colors and legend  
+rasCols <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+
+legendPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
+rasPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
+
+#Generate map
+m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) 
+m  %>%
+  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
+                   fillOpacity = 0.2, weight = 2) %>% 
+  ##Add model prediction
+  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+                 group = 'vis', layerId = 'mapPred', method = "ngb") %>%
+  leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
+            labFormat = reverseLabel(),
+            title = "Asclepias californica.<br>Predicted Suitability") %>%
+  addPolygons(data = lpnf_south,
+              fill = FALSE,
+              color = "black",
+              weight = 2)
+```
+
+## Model Transfer
+
+```{r}
+# Generate a transfer of the model to the desired area
+xfer_area_Ac <- xfer_area(
+  evalOut = model_Ac,
+  curModel = "fc.LQ_rm.1",
+  envs = envs_Ac2, 
+  outputType = "cloglog",
+  alg = "maxnet",
+  clamp = FALSE,
+  xfExt = lpnf_north_buffered) 
+# store the cropped transfer variables
+xferExt_Ac <- xfer_area_Ac$envs_north2
+
+#map result
+mapXferVals_Ac <- getRasterVals(xfer_area_Ac$xferArea,"cloglog")
+rasCols_Ac <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+# if no threshold specified
+legendPal <- colorNumeric(rev(rasCols_Ac), mapXferVals_Ac, na.color = 'transparent')
+rasPal_Ac <- colorNumeric(rasCols_Ac, mapXferVals_Ac, na.color = 'transparent')
+m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
+m %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = FALSE,
+            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+# map model prediction raster and transfer polygon
+  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
+  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
+                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')
+```
+
+
+# Plot both together
+
+```{r}
+leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = FALSE,
+            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+# map model prediction raster and transfer polygon
+  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
+  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
+                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')  %>%
+  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
+                   fillOpacity = 0.2, weight = 2) %>% 
+  ##Add model prediction
+  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+                 group = 'vis', layerId = 'mapPred', method = "ngb") %>%
+  addPolygons(data = lpnf_south,
+              fill = FALSE,
+              color = "black",
+              weight = 2)
+```
+
+```{r}
+merge(xfer_area_Ac$xferArea, predSel_Ac)
+```
+
+```{r}
+leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = FALSE,
+            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+# map model prediction raster and transfer polygon
+  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
+  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
+                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')  %>%
+  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
+                   fillOpacity = 0.2, weight = 2) %>% 
+  ##Add model prediction
+  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+                 group = 'vis', layerId = 'mapPred', method = "ngb") %>%
+  addPolygons(data = lpnf_south,
+              fill = FALSE,
+              color = "black",
+              weight = 2)
+```
+
