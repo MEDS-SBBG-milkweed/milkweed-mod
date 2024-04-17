@@ -191,6 +191,5 @@ usgs_roads_north <- usgs_roads_clean %>%
 # st_write(usgs_roads_north, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_roads_north.shp",
 #         append = FALSE) # replace existing file that shares the same name (if appropriate)
 
-
 ```
 
