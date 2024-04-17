@@ -1,5 +1,5 @@
 ---
-title: "erosa: Bioclim, canopy, northness, eastness"
+title: "vestita: Bioclim, canopy, northness, eastness"
 format: html
 ---
 
@@ -22,7 +22,7 @@ source("scripts/setup.R")
 
 ```{r}
 # rename milkweed occurrence data
- occs_Ac <- erosa_points
+ occs_Ac <- vestita_points
 ```
 
 ### Obtain environmental data
@@ -62,7 +62,7 @@ bgMask_Ac <- penvs_bgMask(
 bgSample_Ac <- penvs_bgSample(
   occs = occs_Ac,
   bgMask =  bgMask_Ac,
-  bgPtsNum = 5000)
+  bgPtsNum = 7000)
 # Extract values of environmental layers for each background point
 bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
 ##Add extracted values to background points table
@@ -146,7 +146,7 @@ m  %>%
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
-            title = "Asclepias californica.<br>Predicted Suitability") %>%
+            title = "Asclepias vestita<br>Predicted Suitability") %>%
   addPolygons(data = lpnf_south,
               fill = FALSE,
               color = "black",
@@ -178,7 +178,7 @@ m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
 m %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+            title = "Asclepias vestita<br>Predicted Suitability<br>(Transferred)") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -195,7 +195,7 @@ m %>%
 leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+            title = "<em>Asclepias vestita</em><br>Predicted Suitability<br>") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -223,7 +223,7 @@ merge(xfer_area_Ac$xferArea, predSel_Ac)
 leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "<em>Asclepias erosa</em><br>Predicted Suitability<br>") %>%
+            title = "<em>Asclepias vestita</em><br>Predicted Suitability<br>") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,

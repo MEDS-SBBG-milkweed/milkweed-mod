@@ -1,0 +1,39 @@
+---
+title: "Streamline document to run milkweed SDMs"
+format: html
+---
+
+```{r}
+library(spocc)
+library(spThin)
+library(dismo)
+library(sf)
+library(ENMeval)
+library(wallace)
+library(tidyverse)
+library(here)
+source("scripts/addLegend_decreasing.R")
+source("scripts/setup.R")
+source("maxent/milkweed_maxent.R")
+```
+
+### Run species distribution model
+```{r}
+calmod <- milkweed_maxent(californica_points, "a. californica", envs_Ac2, lpnf_south_buffered, lpnf_north_buffered)
+```
+
+### Evaluate 
+```{r}
+calmod@results %>%
+  select(auc.train) %>%
+  summarise(max(auc.train))
+```
+
+### Select model based on AUC evaluation
+```{r}
+m_Ac <- model_Ac@models[["fc.LQ_rm.1"]] # change this for different models
+predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
+                                          type = "cloglog", # change for different types
+                                          clamp = FALSE)
+```
+
