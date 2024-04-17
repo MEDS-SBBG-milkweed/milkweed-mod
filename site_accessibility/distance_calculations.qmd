@@ -160,9 +160,13 @@ spatial_points_north <- raster::rasterToPoints(raster_layer_north,
 centroid_points_south <- st_as_sf(spatial_points_south, coords = c("x", "y")) %>% 
   st_transform(crs = st_crs(lpnf_boundary_south)) # keep in the same CRS: EPSG 4326
 
-# check that CRS match between raster template and forest watch roads data
+centroid_points_north <- st_as_sf(spatial_points_north, coords = c("x", "y")) %>% 
+  st_transform(crs = st_crs(lpnf_boundary_north)) # keep in the same CRS: EPSG 4326
+
+# check that CRS match between raster template and forest watch / USGS roads data
 st_crs(centroid_points_south) == st_crs(forest_roads_south) # returns TRUE
 
+st_crs(centroid_points_north) == st_crs(usgs_roads_north) # returns TRUE
 
 
 ```
@@ -177,10 +181,12 @@ We'll then select the minimum distance between each point (representing the cent
 # =========== Calculate distances =========================
 # calculate distances between all raster cell centroids and every line (trail or road) in the multilinestring sf dataframe object (roads_prep, trails_prep), then convert to data frame, where each row represents a point (centroid of raster cell) and columns represent the distance to every road (multilinestring in the roads_prep data set)
 
+# Note: These will all take a while (can take several mintues+ depending on your system. I've included my system time for a sanity check)
+
 
 # SOUTHERN REGION ----------------
 
-# attempting this with the raster cropped to the southern region 
+# Distance from Roads
 system.time(
 distance_to_roads_south <- st_distance(centroid_points_south, forest_roads_south) %>% 
   data.frame() # convert to data frame to store distance calculations, used in algebraic operation later
@@ -189,13 +195,75 @@ distance_to_roads_south <- st_distance(centroid_points_south, forest_roads_south
 #   user  system elapsed 
 # 63.822   0.647  64.175 
 
+# Distance from Trails
 system.time(
-distance_to_trails_south <- st_distance(centroid_points_north, forest_trails_south) %>% 
+distance_to_trails_south <- st_distance(centroid_points_south, forest_trails_south) %>% 
+  data.frame()
+)
+#   user  system elapsed 
+# 155.120   1.805 156.217 
+
+
+
+# NORTHERN REGION ----------------
+
+# Distance from Roads
+system.time(
+distance_to_roads_north <- st_distance(centroid_points_north, usgs_roads_north) %>% 
+  data.frame() # convert to data frame to store distance calculations, used in algebraic operation later
+)
+# here's how long it took for me:
+#   user  system elapsed 
+# 63.822   0.647  64.175 
+
+# Distance from Trails
+system.time(
+distance_to_trails_north <- st_distance(centroid_points_north, usgs_trails_north) %>% 
   data.frame()
 )
 #    user  system elapsed 
 # 125.401   1.082 126.133
 
+```
 
+
+
+
+```{r}
+
+
+# ========== Find nearest line ===================
+# for each point (row), take the minimum value, which represents the distance to the nearest road or trail
+nearest_road_south <- apply(distance_to_roads_south, 
+                       MARGIN = 1, # margin, 1 = rows
+                       FUN = min # function we're applying
+                       ) %>% 
+  data.frame() # save output (distance to nearest road) as data frame
+
+
+nearest_trail_south <- apply(distance_to_trails_south, 
+                       MARGIN = 1, # margin, 1 = rows
+                       FUN = min # function we're applying
+                       ) %>% 
+  data.frame() # save output (distance to nearest trail) as data frame
+
+
+# ======= Join distances and geometries ======================= 
+# bringing geometry column in, saving minimum distance to road as an sf object
+nearest_road_w_geom_south <- bind_cols(centroid_points_south, nearest_road_south)
+
+# bringing geometry column in, saving minimum distance to trail as an sf object
+nearest_trail_w_geom_south <- bind_cols(centroid_points_south, nearest_trail_south)
+
+
+# renaming distance column, removing irrelevant column from sf data frame
+road_distance_sf_south <- nearest_road_w_geom_south %>% 
+  rename(distance = ".") %>% 
+  dplyr::select(-allpoints_bioclim_canopy_dem)
+
+# renaming distance column, removing irrelevant column from sf data frame
+trail_distance_sf_south <- nearest_trail_w_geom_south %>% 
+  rename(distance = ".") %>% 
+  dplyr::select(-allpoints_bioclim_canopy_dem)
 ```
 
