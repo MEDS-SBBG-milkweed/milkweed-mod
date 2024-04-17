@@ -46,6 +46,4 @@ lpnf_boundary_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/
 lpnf_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp")) 
 lpnf_north_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"))
 lpnf_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp")) 
-# %>%
-#   st_buffer(dist = 500)
-lpnf_south_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"))
+lpnf_south_buffered <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp")) 
