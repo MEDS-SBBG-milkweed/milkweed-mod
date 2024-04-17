@@ -51,7 +51,7 @@ Sampling background points and corresponding environmental data for the southern
 
 ```{r}
 # Generate background extent
-bgExt_Ac <- lpnf_south
+bgExt_Ac <- lpnf_south_buffered
 
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
@@ -82,7 +82,7 @@ validation using block, a spatial partition method.
 groups_Ac <- part_partitionOccs(
   occs = occs_Ac ,
   bg =  bgSample_Ac, 
-  method = "jack") 
+  method = "block") 
 ```
 
 
