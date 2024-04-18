@@ -227,12 +227,13 @@ distance_to_trails_north <- st_distance(centroid_points_north, usgs_trails_north
 ```
 
 
-
+## Find distance to nearest line, save as data frame
 
 ```{r}
 
 
 # ========== Find nearest line ===================
+# ----------------- South --------------------------
 # for each point (row), take the minimum value, which represents the distance to the nearest road or trail
 nearest_road_south <- apply(distance_to_roads_south, 
                        MARGIN = 1, # margin, 1 = rows
@@ -242,6 +243,20 @@ nearest_road_south <- apply(distance_to_roads_south,
 
 
 nearest_trail_south <- apply(distance_to_trails_south, 
+                       MARGIN = 1, # margin, 1 = rows
+                       FUN = min # function we're applying
+                       ) %>% 
+  data.frame() # save output (distance to nearest trail) as data frame
+
+# ----------------- North --------------------------
+nearest_road_north <- apply(distance_to_roads_north, 
+                       MARGIN = 1, # margin, 1 = rows
+                       FUN = min # function we're applying
+                       ) %>% 
+  data.frame() # save output (distance to nearest road) as data frame
+
+
+nearest_trail_north <- apply(distance_to_trails_north, 
                        MARGIN = 1, # margin, 1 = rows
                        FUN = min # function we're applying
                        ) %>% 
@@ -266,4 +281,20 @@ trail_distance_sf_south <- nearest_trail_w_geom_south %>%
   rename(distance = ".") %>% 
   dplyr::select(-allpoints_bioclim_canopy_dem)
 ```
+
+
+## Rasterize distance calculations
+
+
+
+## Crop & Rescale (put this in rescale doc)
+
+We'll first crop our distance raster to the southern region of the LPNF, then rescale our distances to fit from 0 to 1, with an added step (1 - rescaling) to ensure that 1 indicates high physical accessibility (closer to trails, roads) and 0 indicates low physical accessibility (farther away from trails, roads).
+
+
+
+
+## Save output to outputs folder
+
+
 

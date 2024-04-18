@@ -63,6 +63,8 @@ usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/
 Tidy, clean, and filter the Forest Watch trails and roads data, then save the output to the clean_data folder.
 
 
+Note: Add in a way to filter out trails and roads by names (input would be a list of trails, roads, marked as "closed" from some other data source.)
+
 ```{r}
 # tidy column names
 # select relevant columns
