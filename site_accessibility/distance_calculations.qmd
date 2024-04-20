@@ -173,9 +173,7 @@ st_crs(centroid_points_north) == st_crs(usgs_roads_north) # returns TRUE
 
 ## Calculate Distance
 
-We will calculate the distance from these centroid points to all lines in the roads and trails subsets (USGS for northern region, Forest watch for southern region).
-
-We'll then select the minimum distance between each point (representing the centroid of a raster cell in our model template raster) and a trail or road. This minimum value will represent the distance between each cell and the nearest road or trail. 
+We will first calculate the distance from these centroid points to all lines in the roads and trails subsets (USGS for northern region, Forest watch for southern region) using `st_distance`: 
 
 ```{r}
 # =========== Calculate distances =========================
@@ -206,6 +204,7 @@ distance_to_trails_south <- st_distance(centroid_points_south, forest_trails_sou
 
 
 # NORTHERN REGION ----------------
+# these should be a bit faster, as the northern region is smaller than the southern region.
 
 # Distance from Roads
 system.time(
@@ -213,26 +212,28 @@ distance_to_roads_north <- st_distance(centroid_points_north, usgs_roads_north) 
   data.frame() # convert to data frame to store distance calculations, used in algebraic operation later
 )
 # here's how long it took for me:
-#   user  system elapsed 
-# 63.822   0.647  64.175 
+#     user  system elapsed 
+# 11.530   0.140  11.644 
 
 # Distance from Trails
 system.time(
 distance_to_trails_north <- st_distance(centroid_points_north, usgs_trails_north) %>% 
   data.frame()
 )
-#    user  system elapsed 
-# 125.401   1.082 126.133
+#   user  system elapsed 
+#  5.949   0.031   5.969 
 
 ```
 
 
-## Find distance to nearest line, save as data frame
+### Find distance to nearest line, select minimum distance, save as data frame
+
+Now we'll use the distances dataframe created in the code chunk above find the minimum distance to a road or trail from the centroid of each raster cell. We'll then bind those minimum values with the centroid points from our raster template and save that output as a data frame, so each row represents a raster cell centroid and associated geometry, as well as the geometric identity of that raster cell (where it belongs in the template).
 
 ```{r}
 
-
 # ========== Find nearest line ===================
+
 # ----------------- South --------------------------
 # for each point (row), take the minimum value, which represents the distance to the nearest road or trail
 nearest_road_south <- apply(distance_to_roads_south, 
@@ -264,26 +265,86 @@ nearest_trail_north <- apply(distance_to_trails_north,
 
 
 # ======= Join distances and geometries ======================= 
+
+#  ---------------- South -------------------
+
 # bringing geometry column in, saving minimum distance to road as an sf object
-nearest_road_w_geom_south <- bind_cols(centroid_points_south, nearest_road_south)
+nearest_road_geom_south <- bind_cols(centroid_points_south, nearest_road_south)
 
 # bringing geometry column in, saving minimum distance to trail as an sf object
-nearest_trail_w_geom_south <- bind_cols(centroid_points_south, nearest_trail_south)
+nearest_trail_geom_south <- bind_cols(centroid_points_south, nearest_trail_south)
 
+#  ---------------- North -------------------
+
+# bringing geometry column in, saving minimum distance to road as an sf object
+nearest_road_geom_north <- bind_cols(centroid_points_north, nearest_road_north)
+
+# bringing geometry column in, saving minimum distance to trail as an sf object
+nearest_trail_geom_north <- bind_cols(centroid_points_north, nearest_trail_north)
+
+
+# ============== Rename & Select Relevant Columns =============================
+
+# -------------------------- South --------------------------------------------
 
 # renaming distance column, removing irrelevant column from sf data frame
-road_distance_sf_south <- nearest_road_w_geom_south %>% 
+road_distance_sf_south <- nearest_road_geom_south %>% 
+  # in the format newname = oldname
   rename(distance = ".") %>% 
-  dplyr::select(-allpoints_bioclim_canopy_dem)
+  dplyr::select(-"lyr.1") # deselecting the inherited column of 0s from our template raster
+
+# if you view the output of this table
+#head(road_distance_sf_south) # you should see a table with two columns:
+# "distance" (contains values representing the distance to the nearest road (in meters) from each raster cell
+# and "geometry" (contains the geometry associated with each raster cell centroid)
 
 # renaming distance column, removing irrelevant column from sf data frame
-trail_distance_sf_south <- nearest_trail_w_geom_south %>% 
+trail_distance_sf_south <- nearest_trail_geom_south %>% 
   rename(distance = ".") %>% 
-  dplyr::select(-allpoints_bioclim_canopy_dem)
+  dplyr::select(-"lyr.1") # deselecting the inherited column of 0s from our template raster
+
+# -------------------------- North --------------------------------------------
+
+# renaming distance column, removing irrelevant column from sf data frame
+road_distance_sf_north <- nearest_road_geom_north %>% 
+  # in the format newname = oldname
+  rename(distance = ".") %>% 
+  dplyr::select(-"lyr.1") # deselecting the inherited column of 0s from our template raster
+
+# renaming distance column, removing irrelevant column from sf data frame
+trail_distance_sf_north <- nearest_trail_geom_north %>% 
+  rename(distance = ".") %>% 
+  dplyr::select(-"lyr.1") # deselecting the inherited column of 0s from our template raster
+
+# uncomment to see a very preliminary plot of what this data looks like
+#plot(road_distance_sf_north)
+
+
 ```
 
 
 ## Rasterize distance calculations
+
+
+Now we'll make a raster of the distance from each point (centroid of a raster cell, which came from the model output raster we used as a template) to the nearest line (trail or road).
+
+When we rasterize, we'll be using the `stars` object version of our template raster, called `stars_temp_raster` within `st_rasterize()`
+
+
+```{r}
+# trying to do this with terra instead
+trail_north_vect <- terra::vect(trail_distance_sf_north)
+
+
+trail_north_rast <- terra::rasterize(trail_north_vect, model_template_north,
+                                     field = "distance", update = TRUE)
+# did not work :(
+
+
+plot(trail_north_rast, col = terrain.colors(100))
+
+```
+
 
 
 

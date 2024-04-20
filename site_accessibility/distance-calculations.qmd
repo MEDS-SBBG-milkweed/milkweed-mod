@@ -369,10 +369,8 @@ Note: I tried to crop/mask the stars object version of the model template to the
 
 # roads ----
 # rasterize sf data frame, then convert to SpatRaster
-road_distance_raster <- st_rasterize(road_distance_sf_south,
-                                 template = stars_temp_raster) %>% 
-  rast() # convert to SpatRaster
-
+road_distance_raster <- terra::rasterize(x = road_distance_sf_south,
+                                         y = model_template) # object of class SpatRaster
 # trails ----
 # rasterize sf data frame, then convert to SpatRaster
 trail_distance_raster <- st_rasterize(trail_distance_sf_south,
