@@ -19,7 +19,7 @@ source("scripts/setup.R")
 
 ## Analysis
 
-### Obtain occurrence data for A. californica
+### Obtain occurrence data for A. erosa
 
 ```{r}
 # rename milkweed occurrence data
