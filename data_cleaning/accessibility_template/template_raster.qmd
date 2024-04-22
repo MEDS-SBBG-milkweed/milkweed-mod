@@ -22,20 +22,20 @@ Currently basing this template on `outputs/sdm_outputs/californica_bioclim_dem.t
 
 ## Build template
 ```{r}
-# define resolution and corners of the extent
-res <- c(0.008333333, 0.008333333)
-xmin <- -122.01324133097
-xmax <- -117.479907997637
-ymin <- 33.679743833477
-ymax <- 36.9214105001436
-crs <- "EPSG:4326"
-  
-temp_rast <- rast(nrow = 389, ncol = 544, resolution = res,
-                  xmin = xmin, xmax = xmax,
-                  ymin = ymin, ymax = ymax,
-                  vals = 0, crs = crs)
-# plot to verify
-plot(temp_rast)
+# # define resolution and corners of the extent
+# res <- c(0.008333333, 0.008333333)
+# xmin <- -122.01324133097
+# xmax <- -117.479907997637
+# ymin <- 33.679743833477
+# ymax <- 36.9214105001436
+# crs <- "EPSG:4326"
+#   
+# temp_rast <- rast(nrow = 389, ncol = 544, resolution = res,
+#                   xmin = xmin, xmax = xmax,
+#                   ymin = ymin, ymax = ymax,
+#                   vals = 0, crs = crs)
+# # plot to verify
+# plot(temp_rast)
 ```
 
 ## Write to csv
@@ -44,3 +44,41 @@ plot(temp_rast)
 #             here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
 ```
 
+# 4.21.24 
+
+The origin of the above template is slightly off from the origin of the model raster, so instead of going off the exact values of the model raster, I am going to define similar values. The problem seems to come from the resolution that R prints out with 6 repeating 3s, but I believe are infinite repeating 3s. This adjusted template will be used for all accessibility calculations and then then model output will be adjusted to the same resolution/extent before combining for final high-priority sites.
+
+New values: 
+- CRS: EPSG:4326 (same)
+- Resolution: 0.0083 x 0.0083 (new)
+- Extent: -122.0, -117.5, 33.6, 36.9 (xmin, xmax, ymin, ymax)
+- Origin: 0.0017, 0.0016
+- number of rows: 389
+- Number of columns: 544
+
+
+```{r}
+# define resolution and corners of the extent
+res <- c(0.0083, 0.0083)
+xmin <- -122.0
+xmax <- -117.5
+ymin <- 33.6
+ymax <- 36.9
+crs <- "EPSG:4326"
+  
+temp_rast <- rast(nrow = 389, ncol = 544, resolution = res,
+                  xmin = xmin, xmax = xmax,
+                  ymin = ymin, ymax = ymax,
+                  vals = 0, crs = crs)
+# plot to verify
+plot(temp_rast)
+
+# check origin
+origin(temp_rast)
+```
+
+```{r}
+# writeRaster(temp_rast,
+#             here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"),
+#             overwrite = TRUE)
+```
