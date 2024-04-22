@@ -1,7 +1,7 @@
 ---
 title: "Rescale all layers for accessibility index to 0-1"
 date-created: 04-09-2024
-date-last-updated: 04-09-2024
+date-last-updated: 04-22-2024
 ---
 
 This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.
@@ -11,7 +11,7 @@ This document's purpose is to rescale all layers for our accessibility raster to
 ## Source Scripts
 ```{r, message = FALSE}
 # reads in all data we need
-# takes a minute because reprojects slope to correct CRS
+# takes a minute because it reprojects slope to correct CRS
 source("../scripts/accessibility_setup.R")
 ```
 

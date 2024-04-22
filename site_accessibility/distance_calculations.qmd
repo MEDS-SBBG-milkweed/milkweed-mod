@@ -331,20 +331,6 @@ Now we'll make a raster of the distance from each point (centroid of a raster ce
 When we rasterize, we'll be using the `stars` object version of our template raster, called `stars_temp_raster` within `st_rasterize()`
 
 
-```{r}
-# trying to do this with terra instead
-trail_north_vect <- terra::vect(trail_distance_sf_north)
-
-
-trail_north_rast <- terra::rasterize(trail_north_vect, model_template_north,
-                                     field = "distance", update = TRUE)
-# did not work :(
-
-
-#plot(trail_north_rast, col = terrain.colors(100))
-
-```
-
 Using stars
 
 ```{r}
@@ -399,7 +385,7 @@ st_crs(trail_north_raster) == st_crs(trail_south_raster)
 
 ## Combine as one raster layer (north + south)
 
-
+Crop & Merge
 
 ```{r}
 
@@ -453,38 +439,64 @@ plot(roads_merge)
 
 
 
-## Rescale (put this in rescale doc)
+## Rescale (no need to run this since it's in the rescale_all_layers notebook)
 
 We'll first crop our distance raster to the southern region of the LPNF, then rescale our distances to fit from 0 to 1, with an added step (1 - rescaling) to ensure that 1 indicates high physical accessibility (closer to trails, roads) and 0 indicates low physical accessibility (farther away from trails, roads).
 
 
 ```{r}
-
 # =========== Rescale ============================
 # rescale each raster of distance to roads and trails from 0 to 1:
 
 # first, compute min and max
-min_max_road <- minmax(road_distance_crop) 
-min_max_trail <- minmax(trail_distance_crop) 
+min_max_road <- minmax(roads_merge) 
+min_max_trail <- minmax(trails_merge) 
 # returns min and max matrix with min distance in row 1, max as row 2
 
 # rescale: 
 # for every raster cell:
 # 1 - (subtract min value from distance, divide by (max - min)) 
 # so that 1 is closest, 0 is farthest 
-road_dist_rescaled <- 1 - ((road_distance_crop - min_max_road[1,]) / (min_max_road[2,] - min_max_road[1,]))
+road_dist_rescaled <- 1 - ((roads_merge - min_max_road[1,]) / (min_max_road[2,] - min_max_road[1,]))
 
 # perform same rescaling for trails
-trail_dist_rescaled <- 1 - ((trail_distance_crop - min_max_trail[1,]) / (min_max_trail[2,] - min_max_trail[1,]))
+trail_dist_rescaled <- 1 - ((trails_merge - min_max_trail[1,]) / (min_max_trail[2,] - min_max_trail[1,]))
 
 # plot to check
 plot(road_dist_rescaled)
 plot(trail_dist_rescaled)
+```
+
+# COME BACK: REMOVE THIS OR ASK IN WORK SESSION
+```{r, eval=FALSE}
+# SCRAPPED --------- MAPS REVERSE, NOT WANTED ----------------
+source(here("scripts/addLegend_decreasing.R"))
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+                         quiet = TRUE)
+
+mapPredVals_Ac <- wallace::getRasterVals(road_dist_rescaled)
+
+colors <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+
+numPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
+rasPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
+
+leaflet(
+  # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
+        ) %>% 
+ addProviderTiles(providers$Esri.WorldTopoMap) %>%
+addRasterImage(x = road_dist_rescaled,
+              # fillColor = "darkgreen",
+               colors = rasPal,
+              # weight = 1.5,
+              # opacity = 0.6
+              ) %>%
+  addLegend_decreasing("bottomleft", pal = numPal, values = mapPredVals_Ac, title = "Accessibility Score") %>%
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "darkgreen", opacity = 0.7)
 
 ```
 
-
-## Save output to outputs folder
 
 
 

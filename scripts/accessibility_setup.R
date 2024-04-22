@@ -50,16 +50,12 @@ lpnf_ownership <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_lan
                           quiet = TRUE)
 
 #..........................Distance from Roads...........................
-
-# South
-
-# North
+# SpatRaster
+roads <- terra::rast(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/roads_distance_raster.tif"))
 
 #..........................Distance from Trails...........................
 
-# South
-
-# North
+trails <- terra::rast(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/trails_distance_raster.tif"))
 
 #............................Template Raster..............................
 temp_rast_stars <- read_stars(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
