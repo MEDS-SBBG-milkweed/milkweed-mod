@@ -1,0 +1,12 @@
+---
+title: "Creating the final accessibility index"
+---
+
+Creating the final index by multiplying together all the individual, rescaled layers
+
+```{r}
+access_index <- canopy_final * slope_final * ownership_rast
+                # * trails_final * roads_final
+plot(access_index)
+```
+
