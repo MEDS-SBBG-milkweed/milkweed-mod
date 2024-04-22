@@ -41,13 +41,17 @@ plot(slope_rescaled)
 
 ## Distance from Trails
 ```{r}
-
+min_max_trails <- minmax(trails) 
+# (value - minimum_vale) / (maximum_value - minimum_value)
+trails_rescaled <- (trails - min_max_trails[1,]) / (min_max_trails[2,] - min_max_trails[1,])
 ```
 
 
 ## Distance from Roads
 ```{r}
-
+min_max_roads <- minmax(roads) 
+# (value - minimum_vale) / (maximum_value - minimum_value)
+roads_rescaled <- (roads - min_max_roads[1,]) / (min_max_roads[2,] - min_max_roads[1,])
 ```
 
 
@@ -94,20 +98,11 @@ CRS: EPSG 4326
 
 ```{r}
 # this are the resolution, extent, and crs we want from the template
-res(temp_rast) # 0.008333333 0.008333333
-ext(temp_rast) # -122.01324133097, -117.47990817897, 33.679743833477, 36.921410370477 (xmin, xmax, ymin, ymax)
+res(temp_rast) # 0.0083 0.0083
+ext(temp_rast) # -122.0, -117.5014, 33.6, 36.9034 (xmin, xmax, ymin, ymax)
 crs(temp_rast) # 4326
-origin(temp_rast) # 0.003420455, -0.003588153
+origin(temp_rast) # 0.0017, 0.0016
 ```
-
-```{r}
-# this are the resolution, extent, and crs we want from the template
-res(temp_rast4) # 0.008333333 0.008333333
-ext(temp_rast4) # -122.01324133097, -117.479907997637, 33.679743833477, 36.9214105001436 (xmin, xmax, ymin, ymax)
-crs(temp_rast4) # 4326
-origin(temp_rast4) # 0.003425336 -0.003589500
-```
-
 
 ## Initial Check
 
@@ -116,60 +111,60 @@ origin(temp_rast4) # 0.003425336 -0.003589500
 ```{r}
 # canopy cover
 print("Does canopy_rescaled have correct CRS?")
-st_crs(canopy_rescaled) == st_crs(temp_rast2)
+st_crs(canopy_rescaled) == st_crs(temp_rast)
 
 # slope
 print("Does slope_rescaled have correct CRS?")
-st_crs(slope_rescaled) == st_crs(temp_rast2)
+st_crs(slope_rescaled) == st_crs(temp_rast)
 
 # distance from trails
 print("Does distance_trails_rescaled have correct CRS?")
-#st_crs(canopy_rescaled) == st_crs(temp_rast2)
+#st_crs(canopy_rescaled) == st_crs(temp_rast)
 
 # distance from roads
 print("Does distance_raods_rescaled have correct CRS?")
-#st_crs(canopy_rescaled) == st_crs(temp_rast2)
+#st_crs(canopy_rescaled) == st_crs(temp_rast)
 
 # land ownership
 print("Does ownership_rast have correct CRS?")
-st_crs(ownership_rast) == st_crs(temp_rast2)
+st_crs(ownership_rast) == st_crs(temp_rast)
 ```
 
-#### Reproject
+#### Reproject if necessary
 ```{r}
-#slope_rescaled <- project(slope_rescaled,
-                          #crs(temp_rast))
-# verify
-print("Does slope_rescaled have correct CRS?")
-st_crs(slope_rescaled) == st_crs(temp_rast2)
+# #slope_rescaled <- project(slope_rescaled,
+#                           #crs(temp_rast))
+# # verify
+# print("Does slope_rescaled have correct CRS?")
+# st_crs(slope_rescaled) == st_crs(temp_rast2)
 ```
 
 ### Resolution
 ```{r}
 # canopy
 print("Does canopy_rescaled have the correct resolution?")
-res(canopy_rescaled) == res(temp_rast2)
+res(canopy_rescaled) == res(temp_rast)
 
 # slope
 print("Does slope_rescaled have the correct resolution?")
-res(slope_rescaled) == res(temp_rast2)
+res(slope_rescaled) == res(temp_rast)
 
 # distance from trails
 print("Does canopy_rescaled have the correct resolution?")
-#res(canopy_rescaled) == res(temp_rast2)
+#res(canopy_rescaled) == res(temp_rast)
 
 # distance from roads
 print("Does canopy_rescaled have the correct resolution?")
-#res(canopy_rescaled) == res(temp_rast2)
+#res(canopy_rescaled) == res(temp_rast)
 
 # land ownership
 print("Does ownership_rast have the correct resolution?")
-res(ownership_rast) == res(temp_rast2)
+res(ownership_rast) == res(temp_rast)
 ```
 #### Update any resolutions
 ```{r}
 res(canopy_rescaled)
-res(temp_rast2)
+res(slope_rescaled)
 
 ```
 
@@ -178,24 +173,69 @@ res(temp_rast2)
 ```{r}
 # canopy 
 print("Does canpy_rescaled have the correct extent?")
-ext(canopy_rescaled) == ext(temp_rast2)
+ext(canopy_rescaled) == ext(temp_rast)
 
 # slope 
 print("Does slope_rescaled have the correct extent?")
-ext(slope_rescaled) == ext(temp_rast2)
+ext(slope_rescaled) == ext(temp_rast)
 
 # distance from trails 
 print("Does canpy_rescaled have the correct extent?")
-#ext(canopy_rescaled) == ext(temp_rast2)
+#ext(canopy_rescaled) == ext(temp_rast)
 
 # distance from roads 
 print("Does canpy_rescaled have the correct extent?")
-#ext(canopy_rescaled) == ext(temp_rast2)
+#ext(canopy_rescaled) == ext(temp_rast)
 
 # land ownership 
 print("Does ownership_rast have the correct extent?")
-ext(ownership_rast) == ext(temp_rast2)
+ext(ownership_rast) == ext(temp_rast)
 ```
+## Update with template raster
+```{r}
+canopy_reproject <- project(canopy_rescaled,temp_rast)
+
+slope_reproject_max <- project(slope_rescaled, temp_rast, method = "max")
+slope_reproject_avg <- project(slope_rescaled, temp_rast, method = "average")
+```
+
+## Final Checks
+```{r}
+origin(ownership_rast) == origin(temp_rast)
+
+origin(canopy_reproject)==origin(temp_rast)
+
+origin(slope_reproject_max)==origin(temp_rast)
+```
+
+## Final rescaling (flipping scale) and cropping to LPNF boundary
+
+Currently, all the continuous layers are rescaled where 1 is least accessible and 0 is most accessible (e.g. highest slope = 1) so, the last step is to flip the scale so that 1 = most accessible and 0 = least accessible
+
+```{r}
+canopy_final <- 1- (mask(canopy_reproject, lpnf_boundary_buffered))
+
+slope_final <- 1 - (mask(slope_reproject_max, lpnf_boundary_buffered))
+
+# trails_final <- 1 - (mask(trails_reproject, lpnf_boundary_buffered))
+
+# raods_final <- 1 - (mask(roads_reproject, lpnf_boundary_buffered))
+```
+
+
+# Save everything in milkweedmod/clean_data/site_accessibility
+
+```{r}
+# writeRaster(canopy_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/canopy_rescale.tif"))
+# writeRaster(slope_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/slope_rescale.tif"))
+# writeRaster(trails_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/trails_rescale.tif"))
+# writeRaster(roads_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/raods_rescale.tif"))
+# writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/ownership_rescale.tif"))
+```
+
+
+-------------------------------------------------------------------------------
+
 
 ```{r}
 # need to look closely at these plots, slope looks more zoomed out than template even when same crs and extent
@@ -209,6 +249,8 @@ plot(slope_rescaled)
 
 4/11/24
 Noticed some funky things going on with the slope raster: After rescaling, then manually converting crs and extent to match that of the template raster (`project(slope_rescaled, crs(temp_rast2))` and `ext(slope_rescaled <- ext(temp_rast2))`), the coastline of slope looked way more zoomed out than that of the template raster (like if I were to plot them on top of each other it would not line up). However, if I instead rescale slope and then `project(slope_rescaled, temp_rast2)`, therefore converting CRS, resolution, and extent of slope to that of the temp raster all in one, the coastline match up. The problem with this is that we are downsampling (?) slope becuase it is a much higher resolution than that of the template raster, and we end up with a scale of 0 to 0.6 instead of 0 to 1. **So now I need to look at the method downsampling and choose which one--nearest neighbor, sum, mode, mean?**
+
+- billinear is the default and is good for continuous data but causes some smoothing
 
 ```{r}
 # look at the different ways of sampling
