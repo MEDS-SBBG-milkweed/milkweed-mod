@@ -341,18 +341,147 @@ trail_north_rast <- terra::rasterize(trail_north_vect, model_template_north,
 # did not work :(
 
 
-plot(trail_north_rast, col = terrain.colors(100))
+#plot(trail_north_rast, col = terrain.colors(100))
+
+```
+
+Using stars
+
+```{r}
+
+# ================ South ==================================
+# roads ----
+# rasterize sf data frame, then convert to SpatRaster
+road_south_raster <- st_rasterize(road_distance_sf_south,
+                                 template = stars_temp_raster) %>% # using stars template raster
+  terra::rast() # convert to SpatRaster
+
+# trails ----
+# rasterize sf data frame, then convert to SpatRaster
+trail_south_raster <- st_rasterize(trail_distance_sf_south,
+                                 template = stars_temp_raster) %>% 
+  terra::rast() # convert to SpatRaster
+
+
+
+# ================ North =======================================
+
+# roads ----
+# rasterize sf data frame, then convert to SpatRaster
+road_north_raster <- st_rasterize(road_distance_sf_north,
+                                 template = stars_temp_raster) %>% 
+  rast() # convert to SpatRaster
+
+# trails ----
+# rasterize sf data frame, then convert to SpatRaster
+trail_north_raster <- st_rasterize(trail_distance_sf_north,
+                                 template = stars_temp_raster) %>% 
+  rast() # convert to SpatRaster
+
+
+# plot to check the output of this step
+plot(road_north_raster)
+plot(trail_north_raster)
+
+plot(road_south_raster)
+plot(trail_south_raster)
+# note: there seems to be a vertical line through the southern region?
+# distances are in meters (on legend)
+
+# check that everything is in the same CRS:
+
+st_crs(road_north_raster) == st_crs(road_south_raster)
+st_crs(trail_north_raster) == st_crs(trail_south_raster)
+
+```
+
+
+
+## Combine as one raster layer (north + south)
+
+
+
+```{r}
+
+# =========== trails ================
+# crop trails raster (north)
+trail_north_crop <- mask(trail_north_raster, # keep the values of this raster
+                           lpnf_boundary_north) # where cells are covered by this "mask" 
+
+
+# crop trails raster (south)
+trail_south_crop <- mask(trail_south_raster, # keep the values of this raster
+                           lpnf_boundary_south) # where cells are covered by this "mask" 
+
+
+# =========== roads ================
+
+# crop roads raster (north)
+road_north_crop <- mask(road_north_raster,
+                            lpnf_boundary_north)
+
+
+# crop roads raster (north)
+road_south_crop <- mask(road_south_raster,
+                            lpnf_boundary_south)
+
+
+# ============== Merge ====================================
+# merge trails
+trails_merge <- terra::merge(trail_north_crop, trail_south_crop)
+
+# merge roads
+roads_merge <- terra::merge(road_north_crop, road_south_crop)
+
+# Plot output to check
+plot(trails_merge)
+plot(roads_merge)
+
+```
+
+## Save output to outputs folder
+
+```{r}
+#terra::writeRaster(trails_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/trails_distance_raster.tif"))
+#terra::writeRaster(roads_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/roads_distance_raster.tif"))
 
 ```
 
 
 
 
-## Crop & Rescale (put this in rescale doc)
+
+
+
+## Rescale (put this in rescale doc)
 
 We'll first crop our distance raster to the southern region of the LPNF, then rescale our distances to fit from 0 to 1, with an added step (1 - rescaling) to ensure that 1 indicates high physical accessibility (closer to trails, roads) and 0 indicates low physical accessibility (farther away from trails, roads).
 
 
+```{r}
+
+# =========== Rescale ============================
+# rescale each raster of distance to roads and trails from 0 to 1:
+
+# first, compute min and max
+min_max_road <- minmax(road_distance_crop) 
+min_max_trail <- minmax(trail_distance_crop) 
+# returns min and max matrix with min distance in row 1, max as row 2
+
+# rescale: 
+# for every raster cell:
+# 1 - (subtract min value from distance, divide by (max - min)) 
+# so that 1 is closest, 0 is farthest 
+road_dist_rescaled <- 1 - ((road_distance_crop - min_max_road[1,]) / (min_max_road[2,] - min_max_road[1,]))
+
+# perform same rescaling for trails
+trail_dist_rescaled <- 1 - ((trail_distance_crop - min_max_trail[1,]) / (min_max_trail[2,] - min_max_trail[1,]))
+
+# plot to check
+plot(road_dist_rescaled)
+plot(trail_dist_rescaled)
+
+```
 
 
 ## Save output to outputs folder
