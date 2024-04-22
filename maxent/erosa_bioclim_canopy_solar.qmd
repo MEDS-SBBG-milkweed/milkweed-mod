@@ -12,6 +12,7 @@ library(ENMeval)
 library(wallace)
 library(tidyverse)
 library(here)
+library(rgbif)
 source("scripts/addLegend_decreasing.R")
 source("scripts/setup.R")
 ```
@@ -24,6 +25,34 @@ source("scripts/setup.R")
 # rename milkweed occurrence data
  occs_Ac <- erosa_points
 ```
+
+```{r}
+# download GBIF occurrence data for this species; this takes time if there are many data points!
+gbif_data <- occ_data(scientificName = "Asclepias erosa", hasCoordinate = TRUE, limit = 300000) 
+occs_Ac <- gbif_data$data %>%
+  filter(stateProvince == "California",
+         decimalLongitude < -118.8, 
+         decimalLatitude < 34.9) %>%
+  select(decimalLongitude, decimalLatitude, scientificName) %>%
+  rename(longitude = decimalLongitude,
+         latitude = decimalLatitude,
+         scientific_name = scientificName) %>%
+  mutate(occID = row_number(),
+         scientific_name = "Asclepias erosa") %>%
+  rbind(erosa_points)
+
+# ggplot() + 
+#   geom_point(data = occs_Ac, aes(x = longitude, y = latitude), size = 0.5) + 
+#   geom_sf(data = lpnf_south_buffered, alpha = 0.5)
+
+# # map the occurrence data:
+# library(maptools)
+# data(wrld_simpl)
+# plot(wrld_simpl, axes=TRUE, col="light yellow")
+# # add the points
+# points(gbif_erosa$decimalLongitude, gbif_erosa$decimalLatitude, col='red', pch=20, cex=0.75)
+```
+
 
 ### Obtain environmental data
 
@@ -42,7 +71,7 @@ occs_Ac <- cbind(occs_Ac, occs_vals_Ac)
 # Thin occurrences to 0.05 km
 occs_Ac <- poccs_thinOccs(
   occs = occs_Ac, 
-  thinDist = 0.001) # adjust this value if needed
+  thinDist = 0.01) # adjust this value if needed
 ```
 
 ### Process environmental data
@@ -66,7 +95,7 @@ bgSample_Ac <- penvs_bgSample(
 # Extract values of environmental layers for each background point
 bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
 ##Add extracted values to background points table
-bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias eriocarpa"), bgSample_Ac,
+bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias erosa"), bgSample_Ac,
                             occID = NA, year = NA, institution_code = NA, country = NA,
                             state_province = NA, locality = NA, elevation = NA,
                             record_type = NA, bgEnvsVals_Ac)
@@ -147,7 +176,7 @@ m  %>%
   leaflet::addLegend("bottomright", pal = legendPal, values = mapPredVals_Ac, layerId = "train",
             labFormat = reverseLabel(),
             title = "Asclepias californica.<br>Predicted Suitability") %>%
-  addPolygons(data = lpnf_south,
+  addPolygons(data = lpnf_south_buffered,
               fill = FALSE,
               color = "black",
               weight = 2)
@@ -178,7 +207,7 @@ m <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap)
 m %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "Asclepias californica<br>Predicted Suitability<br>(Transferred)") %>%
+            title = "Asclepias erosa<br>Predicted Suitability<br>(Transferred)") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -195,7 +224,7 @@ m %>%
 leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
             labFormat = reverseLabel(), decreasing = FALSE,
-            title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+            title = "<em>Asclepias erosa</em><br>Predicted Suitability<br>") %>%
 # map model prediction raster and transfer polygon
   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
@@ -229,7 +258,7 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
                  layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
  ##add transfer polygon (user drawn area)
-  addPolygons(data = lpnf_north, fill = FALSE,
+  addPolygons(data = lpnf_north_buffered, fill = FALSE,
               weight = 2, color = "black", group = 'xfer')  %>%
   addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
                    radius = 2, color = 'black', fill = TRUE, fillColor = "black",
@@ -237,7 +266,7 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
   ##Add model prediction
   addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
-  addPolygons(data = lpnf_south,
+  addPolygons(data = lpnf_south_buffered,
               fill = FALSE,
               color = "black",
               weight = 2)
