@@ -237,7 +237,8 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
-merge(xfer_area_Ac$xferArea, predSel_Ac)
+vestita_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)
+writeRaster(vestita_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"))
 ```
 
 ```{r}
