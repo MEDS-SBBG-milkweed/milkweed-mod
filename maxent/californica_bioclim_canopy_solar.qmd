@@ -101,8 +101,8 @@ model_Ac <- model_maxent(
   bg = bgEnvsVals_Ac,
   user.grp = groups_Ac, 
   bgMsk = bgMask_Ac,
-  rms = c(1, 3), 
-  rmsStep =  1,
+  rms = c(0.5, 4), 
+  rmsStep =  0.5,
   fcs = c('L', 'LQ'),
   clampSel = FALSE,
   algMaxent = "maxnet",
@@ -122,7 +122,7 @@ Generate a map of the maxnet generated model with no threshold
 
 ```{r}
 # Select current model and obtain raster prediction
-m_Ac <- model_Ac@models[["fc.LQ_rm.1"]] # change this for different models
+m_Ac <- model_Ac@models[["fc.LQ_rm.0.5"]] # change this for different models
 predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
@@ -159,7 +159,7 @@ m  %>%
 # Generate a transfer of the model to the desired area
 xfer_area_Ac <- xfer_area(
   evalOut = model_Ac,
-  curModel = "fc.LQ_rm.1",
+  curModel = "fc.LQ_rm.0.5",
   envs = envs_Ac2, 
   outputType = "cloglog",
   alg = "maxnet",
@@ -216,7 +216,9 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
-merge(xfer_area_Ac$xferArea, predSel_Ac)
+californica_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)
+writeRaster(californica_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"))
+write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.rda"))
 ```
 
 ```{r}
