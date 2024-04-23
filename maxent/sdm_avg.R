@@ -24,8 +24,8 @@ rasCols <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
 legendPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
 rasPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
 
-leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
-  addLegend_decreasing("bottomleft", pal = legendPal, values = mapPredVals_Ac, layerId = "xfer",
+leaflet() %>% addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = mapPredVals_Ac,
                        labFormat = reverseLabel(), decreasing = TRUE,
                        title = "<em>Asclepias sp.</em> Maximum<br> Predicted Suitability<br>") %>%
   addRasterImage(max_suitable, colors = rasPal, opacity = 0.7,
@@ -34,6 +34,8 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
               fill = FALSE,
               color = "black",
               weight = 2)
+
+#Esri.WorldTerrain
 
 
 writeRaster(max_suitable, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/max_suitable_sdm.tif"))
