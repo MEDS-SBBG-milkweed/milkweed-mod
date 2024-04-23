@@ -1,0 +1,120 @@
+---
+title: "Identify Priority Sites"
+date: "Last Updated: 2024-04-23"
+---
+
+```{r setup}
+library(terra)
+
+```
+
+# Read in Habitat Suitability Maps, Accessibility Index, Template Raster
+
+```{r}
+# ---- Template Raster ----
+template_rast <- rast(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+
+# ---- Accessibility Index ----
+access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
+
+
+# ---- Habitat Suitability Maps ----
+
+# Californica
+californica <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"))
+
+# Eriocarpa
+eriocarpa <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"))
+
+# Erosa
+erosa <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.tif"))
+
+# Vestita
+vestita <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"))
+
+```
+
+
+## Check compatibility 
+
+```{r}
+print("Do the habitat suitability maps have the same origin as the template raster?")
+origin(californica) == origin(template_rast)
+
+
+print("Does the accessibility index have the same origin as the template raster?")
+origin(access_index) == origin(template_rast)
+
+```
+
+
+# Reproject Suitability Rasters
+
+```{r}
+californica_reproject <- project(californica, template_rast) # default method is bilinear interpolation, which is fine for this case
+eriocarpa_reproject <- project(eriocarpa, template_rast)
+erosa_reproject <- project(erosa, template_rast)
+vestita_reproject <- project(vestita, template_rast)
+
+
+print("Do the habitat suitability maps have the same origin as the template raster?")
+origin(californica_reproject) == origin(template_rast)
+
+
+```
+
+
+# Multiply Suitability Maps and Accessibility Index to find Priority Sites
+
+
+```{r}
+# make priority sites index 
+
+californica_priority <- californica_reproject * access_index
+eriocarpa_priority <- eriocarpa_reproject * access_index
+erosa_priority <- erosa_reproject * access_index
+vestita_priority <- vestita_reproject * access_index
+
+
+
+
+plot(californica_priority)
+
+```
+
+
+# Rescale to make Priority Index from 0-1
+
+Lowest priority: 0
+Highest priority: 1
+
+```{r}
+# Source rescale raster function from scripts folder
+source(here("scripts/rescale_raster.R"))
+
+# Rescale priority for each species of milkweed
+
+californica_rescaled <- rescale_raster(californica_priority)
+eriocarpa_rescaled <- rescale_raster(eriocarpa_priority)
+erosa_rescaled <- rescale_raster(erosa_priority)
+vestita_rescaled <- rescale_raster(vestita_priority)
+
+
+# Plot to check output
+plot(californica_rescaled)
+
+
+```
+
+
+# Save outputs to outputs folder
+
+```{r}
+#writeRaster(californica_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/californica_priority.tif"))
+#writeRaster(eriocarpa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/eriocarpa_priority.tif"))
+#writeRaster(erosa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/erosa_priority.tif"))
+#writeRaster(vestita_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"))
+
+
+```
+
