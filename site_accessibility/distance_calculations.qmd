@@ -428,8 +428,8 @@ plot(roads_merge)
 ## Save output to outputs folder
 
 ```{r}
-#terra::writeRaster(trails_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/trails_distance_raster.tif"))
-#terra::writeRaster(roads_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/roads_distance_raster.tif"))
+#terra::writeRaster(trails_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/trails_distance_raster.tif"), overwrite = TRUE)
+#terra::writeRaster(roads_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/roads_distance_raster.tif"), overwrite = TRUE)
 
 ```
 
