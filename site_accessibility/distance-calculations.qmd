@@ -501,3 +501,18 @@ Once we've viewed the output of our final rescaling steps, we can save the dista
 
 ```
 
+
+
+```{r}
+# trying to do this with terra instead
+trail_north_vect <- terra::vect(trail_distance_sf_north)
+
+
+#trail_north_rast <- terra::rasterize(trail_north_vect, model_template_north,
+                                     field = "distance", update = TRUE)
+# did not work :(
+
+
+#plot(trail_north_rast, col = terrain.colors(100))
+
+```

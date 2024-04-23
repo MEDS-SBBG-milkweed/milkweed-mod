@@ -1,7 +1,7 @@
 ---
 title: "Rescale all layers for accessibility index to 0-1"
 date-created: 04-09-2024
-date-last-updated: 04-09-2024
+date-last-updated: 04-23-2024
 ---
 
 This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.
@@ -11,7 +11,7 @@ This document's purpose is to rescale all layers for our accessibility raster to
 ## Source Scripts
 ```{r, message = FALSE}
 # reads in all data we need
-# takes a minute because reprojects slope to correct CRS
+# takes a minute because it reprojects slope to correct CRS
 source("../scripts/accessibility_setup.R")
 ```
 
@@ -44,6 +44,7 @@ plot(slope_rescaled)
 min_max_trails <- minmax(trails) 
 # (value - minimum_vale) / (maximum_value - minimum_value)
 trails_rescaled <- (trails - min_max_trails[1,]) / (min_max_trails[2,] - min_max_trails[1,])
+plot(trails_rescaled)
 ```
 
 
@@ -52,6 +53,7 @@ trails_rescaled <- (trails - min_max_trails[1,]) / (min_max_trails[2,] - min_max
 min_max_roads <- minmax(roads) 
 # (value - minimum_vale) / (maximum_value - minimum_value)
 roads_rescaled <- (roads - min_max_roads[1,]) / (min_max_roads[2,] - min_max_roads[1,])
+plot(roads_rescaled)
 ```
 
 
@@ -118,12 +120,12 @@ print("Does slope_rescaled have correct CRS?")
 st_crs(slope_rescaled) == st_crs(temp_rast)
 
 # distance from trails
-print("Does distance_trails_rescaled have correct CRS?")
-#st_crs(canopy_rescaled) == st_crs(temp_rast)
+print("Does trails_rescaled have correct CRS?")
+st_crs(trails_rescaled) == st_crs(temp_rast)
 
 # distance from roads
-print("Does distance_raods_rescaled have correct CRS?")
-#st_crs(canopy_rescaled) == st_crs(temp_rast)
+print("Does roads_rescaled have correct CRS?")
+st_crs(roads_rescaled) == st_crs(temp_rast)
 
 # land ownership
 print("Does ownership_rast have correct CRS?")
@@ -150,24 +152,17 @@ print("Does slope_rescaled have the correct resolution?")
 res(slope_rescaled) == res(temp_rast)
 
 # distance from trails
-print("Does canopy_rescaled have the correct resolution?")
-#res(canopy_rescaled) == res(temp_rast)
+print("Does trails_rescaled have the correct resolution?")
+res(trails_rescaled) == res(temp_rast)
 
 # distance from roads
-print("Does canopy_rescaled have the correct resolution?")
-#res(canopy_rescaled) == res(temp_rast)
+print("Does roads_rescaled have the correct resolution?")
+res(roads_rescaled) == res(temp_rast)
 
 # land ownership
 print("Does ownership_rast have the correct resolution?")
 res(ownership_rast) == res(temp_rast)
 ```
-#### Update any resolutions
-```{r}
-res(canopy_rescaled)
-res(slope_rescaled)
-
-```
-
 
 ### Extent
 ```{r}
@@ -180,12 +175,12 @@ print("Does slope_rescaled have the correct extent?")
 ext(slope_rescaled) == ext(temp_rast)
 
 # distance from trails 
-print("Does canpy_rescaled have the correct extent?")
-#ext(canopy_rescaled) == ext(temp_rast)
+print("Does trails_rescaled have the correct extent?")
+ext(trails_rescaled) == ext(temp_rast)
 
 # distance from roads 
-print("Does canpy_rescaled have the correct extent?")
-#ext(canopy_rescaled) == ext(temp_rast)
+print("Does roads_rescaled have the correct extent?")
+ext(roads_rescaled) == ext(temp_rast)
 
 # land ownership 
 print("Does ownership_rast have the correct extent?")
@@ -195,8 +190,11 @@ ext(ownership_rast) == ext(temp_rast)
 ```{r}
 canopy_reproject <- project(canopy_rescaled,temp_rast)
 
+# going forward (4/23) trying mode
 slope_reproject_max <- project(slope_rescaled, temp_rast, method = "max")
-slope_reproject_avg <- project(slope_rescaled, temp_rast, method = "average")
+slope_reproject_mode <- project(slope_rescaled, temp_rast, method = "mode")
+plot(slope_reproject_max)
+plot(slope_reproject_mode)
 ```
 
 ## Final Checks
@@ -205,7 +203,11 @@ origin(ownership_rast) == origin(temp_rast)
 
 origin(canopy_reproject)==origin(temp_rast)
 
-origin(slope_reproject_max)==origin(temp_rast)
+origin(slope_reproject_mode)==origin(temp_rast)
+
+origin(trails_rescaled) == origin(temp_rast)
+
+origin(roads_rescaled) == origin(temp_rast)
 ```
 
 ## Final rescaling (flipping scale) and cropping to LPNF boundary
@@ -215,22 +217,22 @@ Currently, all the continuous layers are rescaled where 1 is least accessible an
 ```{r}
 canopy_final <- 1- (mask(canopy_reproject, lpnf_boundary_buffered))
 
-slope_final <- 1 - (mask(slope_reproject_max, lpnf_boundary_buffered))
+slope_final <- 1 - (mask(slope_reproject_mode, lpnf_boundary_buffered))
 
-# trails_final <- 1 - (mask(trails_reproject, lpnf_boundary_buffered))
+trails_final <- 1 - (mask(trails_rescaled, lpnf_boundary_buffered))
 
-# raods_final <- 1 - (mask(roads_reproject, lpnf_boundary_buffered))
+roads_final <- 1 - (mask(roads_rescaled, lpnf_boundary_buffered))
 ```
 
 
-# Save everything in milkweedmod/clean_data/site_accessibility
+# Save everything in milkweedmod/ouputs/site_accessibility_outputs/
 
 ```{r}
-# writeRaster(canopy_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/canopy_rescale.tif"))
-# writeRaster(slope_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/slope_rescale.tif"))
-# writeRaster(trails_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/trails_rescale.tif"))
-# writeRaster(roads_final, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/raods_rescale.tif"))
-# writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/clean_data/site_accessibility/ownership_rescale.tif"))
+# writeRaster(canopy_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"))
+# writeRaster(slope_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"))
+# writeRaster(trails_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"))
+# writeRaster(roads_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"))
+# writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"))
 ```
 
 

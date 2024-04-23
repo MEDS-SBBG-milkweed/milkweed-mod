@@ -2,11 +2,38 @@
 title: "Creating the final accessibility index"
 ---
 
-Creating the final index by multiplying together all the individual, rescaled layers
+```{r}
+library(terra)
+```
+
+
+# Creating the final index by multiplying together all the individual, rescaled layers
+
+## Read in layers
+```{r}
+canopy <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"))
+slope <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"))
+trails <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"))
+roads <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"))
+ownership <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"))
+```
+
 
 ```{r}
-access_index <- canopy_final * slope_final * ownership_rast
-                # * trails_final * roads_final
+access_index <- canopy * slope * ownership * trails * roads
 plot(access_index)
+```
+
+# Rescale accessibility index for a final index from 0 - 1
+
+```{r}
+min_max_access <- minmax(access_index) 
+# (value - minimum_vale) / (maximum_value - minimum_value)
+access_index_final <- (access_index - min_max_access[1,]) / (min_max_access[2,] - min_max_access[1,])
+plot(access_index_final)
+```
+# Save final accessibility index
+```{r}
+# writeRaster(access_index_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
 ```
 
