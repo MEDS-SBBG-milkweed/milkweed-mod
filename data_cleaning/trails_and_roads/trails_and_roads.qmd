@@ -1,10 +1,11 @@
 ---
 title: "Cleaning Trails & Roads Data"
+date: "2024-04-24"
 ---
 
 ## Setup
 
-Load required packages
+### Load required packages
 
 ```{r}
 library(tidyverse)
@@ -16,7 +17,7 @@ library(stars)
 ```
 
 
-Read in LPNF Boundary Shapefiles
+### Read in LPNF Boundary Shapefiles
 ```{r}
 # ------ LPNF boundary shapefiles ---------
 # Southern region (buffered)
@@ -27,7 +28,7 @@ lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpn
 ```
 
 
-Read in Raw data from Forest Watch and USGS
+### Read in raw data from Forest Watch and USGS
 
 ```{r}
 # ------------ Forest Watch ----------------
@@ -46,7 +47,7 @@ usgs_trails <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/C
 # Roads
 usgs_roads_0 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_0.shp")
 usgs_roads_1 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_1.shp")
-# this layer ends up not being in either the northern or southern sections
+# this layer ends up not being in either the northern or southern sections, but I'm including it in case this data is updated and re-downloaded
 usgs_roads_2 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_2.shp")
 usgs_roads_3 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_3.shp")
 usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_4.shp")
@@ -58,9 +59,9 @@ usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/
 
 ## Forest Watch
 
-### Tidy, Clean, Filter 
+### Tidy, Clean, Filter & Save
 
-Tidy, clean, and filter the Forest Watch trails and roads data, then save the output to the clean_data folder.
+Tidy, clean, and filter the Forest Watch trails and roads data, then save the output to the `clean_data` folder.
 
 
 Note: Add in a way to filter out trails and roads by names (input would be a list of trails, roads, marked as "closed" from some other data source.)
@@ -108,8 +109,58 @@ open_roads <- fw_roads %>%
 # st_write(fw_trails, "~/../../capstone/milkweedmod/clean_data/trails_roads/forest_watch/forest_trails_south.shp")
 
 #st_write(fw_roads, "~/../../capstone/milkweedmod/clean_data/trails_roads/forest_watch/forest_roads_south.shp")
+```
+
+#### *Requested filtering option:* Filter out specific trails and roads by name
+
+(i.e., you have a name of a trail or road that you know is closed and would like to filter them out)
+
+For example, let's say I checked out this website: [Forest Service: Monterey Ranger District](https://www.fs.usda.gov/detail/lpnf/recreation/?cid=stelprdb5347980) and saw that "Pine Ridge Trail" and "Happy Hollow Trail" were closed, you'd think I'd just be able to filter out these names from the Trail and Road subsets I've already made, right? Unfortunately, the Forest Watch has classified Happy Hollow Trail as Type == "Road". This means that filtering out "Happy Hollow Trail" from the Trails subset would not accomplish what we're hoping it would. 
+
+Thus, for this special filtering case, I've built out a workflow below to filter out specific names, *then* break down the dataset in to Trails and Roads, then filter for "OPEN" status (which is optional), and save the output. This will all be commented out and the code chunk will be set to eval=FALSE. You can individually uncomment lines by deleting the "#", or bulk-uncomment by pressing: command (or control, for Windows users) + shift + C (note: you can find RStudio keyboard shortcuts in Tools --> Keyboard Shortcuts Help).
+
+
+
+```{r filter-names, eval=FALSE}
+# # Filter out specific roads or trails by NAME (i.e., you have a name of a trail or road that you know is closed and would like to filter them out)
+# 
+# # filter to "OPEN" AND filter OUT specific name(s):
+# filtered_trails_roads <- trails_and_roads %>% 
+#   janitor::clean_names() %>% # sets col names to lower_snake_case
+#   dplyr::select(type, public_acc, geometry) %>% # select columns of interest
+#   st_zm() %>% # remove z-dimension (we only want 2D)
+#   st_transform(crs = st_crs(lpnf_boundary_south)) %>% 
+#   dplyr::filter(! name %in% c("Trail name", "Another trail name")) # CUSTOM NAME FILTERING HERE
+# 
+# # Make subsets for Trails....
+# filtered_trails <- filtered_trails_roads %>% 
+#   dplyr::filter(type == "Trail")
+# # and Roads
+# filtered_roads <- filtered_trails_roads %>% 
+#   dplyr::filter(type == "Road")
+# 
+# 
+# # Additionally, you can filter out all trails and roads that were not classified as "OPEN" when this dataset was made (in 2023)
+# 
+# # Filter to OPEN Trails
+# my_open_trails <- filtered_trails %>% 
+#   dplyr::filter(str_detect(public_acc, pattern = "OPEN"))
+# 
+# # Filter to OPEN Roads
+# my_open_roads <- filtered_roads %>% 
+#   dplyr::filter(str_detect(public_acc, pattern = "OPEN"))
+# 
+# 
+# # Save to clean_data folder in data directory
+# # write files to clean_data folder ----
+# # uncomment the following lines to write the data to the clean data folder
+# 
+# # st_write(my_open_trails, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_trails_south.shp")
+# 
+# # st_write(my_open_roads, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_roads_south.shp") # feel free to change the name of this file to something else if you're testing out multiple filter scenarios. Just make sure that you read in the appropriate file later on (i.e., before running the accessibility index setup script (scripts/accessibility_setup.R) or site_accessibility/rescale_all_layers.qmd or site_accessibility/create_accessibility_index.qmd)
 
 ```
+
 
 ## USGS
 
