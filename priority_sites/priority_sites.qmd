@@ -117,4 +117,3 @@ plot(californica_rescaled)
 
 
 ```
-
