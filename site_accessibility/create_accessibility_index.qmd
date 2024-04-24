@@ -27,9 +27,8 @@ plot(access_index)
 # Rescale accessibility index for a final index from 0 - 1
 
 ```{r}
-min_max_access <- minmax(access_index) 
-# (value - minimum_vale) / (maximum_value - minimum_value)
-access_index_final <- (access_index - min_max_access[1,]) / (min_max_access[2,] - min_max_access[1,])
+access_index_final <- rescale_raster(access_index)
+
 plot(access_index_final)
 ```
 # Save final accessibility index

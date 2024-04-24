@@ -13,15 +13,14 @@ This document's purpose is to rescale all layers for our accessibility raster to
 # reads in all data we need
 # takes a minute because it reprojects slope to correct CRS
 source("../scripts/accessibility_setup.R")
+source("../scripts/rescale_raster.R")
 ```
 
 # Rescale Layers
 
 ## Canopy Cover
 ```{r}
-min_max_cc <- minmax(canopy_cover) 
-# (value - minimum_vale) / (maximum_value - minimum_value)
-canopy_rescaled <- (canopy_cover - min_max_cc[1,]) / (min_max_cc[2,] - min_max_cc[1,])
+canopy_rescaled <- rescale_raster(canopy_cover)
 
 # check that max = 1 and min = 0
 plot(canopy_rescaled)
@@ -29,30 +28,23 @@ plot(canopy_rescaled)
 
 ## Slope
 ```{r}
-min_max_slope <- minmax(slope) 
-# (value - minimum_vale) / (maximum_value - minimum_value)
-slope_rescaled <- (slope - min_max_slope[1,]) / (min_max_slope[2,] - min_max_slope[1,])
+slope_rescaled <- rescale_raster(slope)
 
-#slope_rescaled_reproject <- project(slope_rescaled, temp_rast4)
-# maybe maximum for accessibility so we're not losing the high slopes?
 plot(slope_rescaled)
-#plot(slope_rescaled_reproject)
 ```
 
 ## Distance from Trails
 ```{r}
-min_max_trails <- minmax(trails) 
-# (value - minimum_vale) / (maximum_value - minimum_value)
-trails_rescaled <- (trails - min_max_trails[1,]) / (min_max_trails[2,] - min_max_trails[1,])
+trails_rescaled <- rescale_raster(trails)
+
 plot(trails_rescaled)
 ```
 
 
 ## Distance from Roads
 ```{r}
-min_max_roads <- minmax(roads) 
-# (value - minimum_vale) / (maximum_value - minimum_value)
-roads_rescaled <- (roads - min_max_roads[1,]) / (min_max_roads[2,] - min_max_roads[1,])
+roads_rescaled <- rescale_raster(roads)
+
 plot(roads_rescaled)
 ```
 
@@ -130,15 +122,6 @@ st_crs(roads_rescaled) == st_crs(temp_rast)
 # land ownership
 print("Does ownership_rast have correct CRS?")
 st_crs(ownership_rast) == st_crs(temp_rast)
-```
-
-#### Reproject if necessary
-```{r}
-# #slope_rescaled <- project(slope_rescaled,
-#                           #crs(temp_rast))
-# # verify
-# print("Does slope_rescaled have correct CRS?")
-# st_crs(slope_rescaled) == st_crs(temp_rast2)
 ```
 
 ### Resolution
