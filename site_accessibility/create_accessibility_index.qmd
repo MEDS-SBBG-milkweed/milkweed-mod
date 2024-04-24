@@ -4,6 +4,8 @@ title: "Creating the final accessibility index"
 
 ```{r}
 library(terra)
+# source rescale_raster function
+source("../scripts/rescale_raster.R")
 ```
 
 
