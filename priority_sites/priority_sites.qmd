@@ -32,6 +32,10 @@ erosa <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.t
 # Vestita
 vestita <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"))
 
+
+# ---- Max Suitability Raster -----------------------------
+max_suitable <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/max_suitable_sdm.tif"))
+
 ```
 
 
@@ -55,7 +59,7 @@ californica_reproject <- project(californica, template_rast) # default method is
 eriocarpa_reproject <- project(eriocarpa, template_rast)
 erosa_reproject <- project(erosa, template_rast)
 vestita_reproject <- project(vestita, template_rast)
-
+max_reproject <- project(max_suitable, template_rast)
 
 print("Do the habitat suitability maps have the same origin as the template raster?")
 origin(californica_reproject) == origin(template_rast)
@@ -74,11 +78,13 @@ californica_priority <- californica_reproject * access_index
 eriocarpa_priority <- eriocarpa_reproject * access_index
 erosa_priority <- erosa_reproject * access_index
 vestita_priority <- vestita_reproject * access_index
-
+all_priority <- max_reproject * access_index
 
 
 
 plot(californica_priority)
+plot(eriocarpa_priority)
+plot(all_priority)
 
 ```
 
@@ -98,11 +104,14 @@ californica_rescaled <- rescale_raster(californica_priority)
 eriocarpa_rescaled <- rescale_raster(eriocarpa_priority)
 erosa_rescaled <- rescale_raster(erosa_priority)
 vestita_rescaled <- rescale_raster(vestita_priority)
-
+all_rescaled <- rescale_raster(all_priority)
 
 # Plot to check output
 plot(californica_rescaled)
-
+plot(eriocarpa_rescaled)
+plot(erosa_rescaled)
+plot(vestita_rescaled)
+plot(all_rescaled)
 
 ```
 
@@ -115,5 +124,5 @@ plot(californica_rescaled)
 #writeRaster(erosa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/erosa_priority.tif"))
 #writeRaster(vestita_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"))
 
-
+#writeRaster(all_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/all_priority.tif"))
 ```
