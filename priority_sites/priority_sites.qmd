@@ -5,7 +5,7 @@ date: "Last Updated: 2024-04-23"
 
 ```{r setup}
 library(terra)
-
+library(here)
 ```
 
 # Read in Habitat Suitability Maps, Accessibility Index, Template Raster
@@ -90,7 +90,7 @@ Highest priority: 1
 
 ```{r}
 # Source rescale raster function from scripts folder
-source(here("scripts/rescale_raster.R"))
+source(here("scripts", "rescale_raster.R"))
 
 # Rescale priority for each species of milkweed
 
