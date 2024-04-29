@@ -17,7 +17,23 @@ aspect <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_as
 lpnf_south <- sf::st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
 
 dem <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_dem.tif"))
+dem_aspect <- terra::terrain(dem, v = "aspect", unit="degrees")
+
 ```
+
+
+```{r}
+# Obtain DEM derived maps
+derived_vars <- terrain(dem, opt = c('slope', 'aspect'), unit = "degrees")
+slope <- derived_vars[["slope"]]
+northness <- cos(derived_vars[["aspect"]] * pi / 180) * sin(derived_vars[["slope"]] * pi / 180)
+eastness <- sin(derived_vars[["aspect"]] * pi / 180)
+
+# Plot maps
+plot(northness, col = heat.colors(20), main = "northness", axes = F)
+plot(eastness, col = heat.colors(20), main = "eastness", axes = F)
+```
+
 
 “Northness”: Cosine of aspect x sine of slope
 - If facing due south, cosine of aspect = 1
@@ -27,7 +43,9 @@ dem <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_dem.t
 - North facing vertical wall has a northness of 1
 
 ```{r}
-northness <- cos(aspect) * sin(slope)
+plot(eastness, col = heat.colors(20), main = "eastness", axes = F)
+plot(northness, col = heat.colors(20), main = "northness", axes = F)
+
 ```
 
 “eastness” (sine(aspect) x sine(slope))
@@ -48,10 +66,9 @@ Write rasters
 # plotting to make sure northness and eastness look correct
 bbox <- sf::st_bbox(c(xmin = -120.2, ymin = 34.8, xmax = -120, ymax = 35),  crs = sf::st_crs(4326))
 
-slope_crop <- crop(slope, bbox)
-plot(slope_crop)
-northness_crop <- crop(northness_rad, bbox)
-plot(northness_crop, col = palette(brewer.pal(n = 9, name = "Greys")), main = "Northness - LPNF South Section")
+northness_crop <- crop(northness, bbox)
+
+plot(northness_crop,  col = palette(brewer.pal(n = 9, name = "Greys")), main = "northness")
 ```
 
 
