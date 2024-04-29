@@ -5,6 +5,7 @@ format: html
 
 ```{r}
 library(terra)
+library(raster)
 library(tmap)
 library(RColorBrewer)
 ```
@@ -13,7 +14,9 @@ library(RColorBrewer)
 slope <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"))
 aspect <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_aspect.tif"))
 
-lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
+lpnf_south <- sf::st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
+
+dem <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_dem.tif"))
 ```
 
 “Northness”: Cosine of aspect x sine of slope
@@ -24,36 +27,33 @@ lpnf_south <- st_read(here("~/../../capstone/milkweedmod/data/lpnf_boundary_data
 - North facing vertical wall has a northness of 1
 
 ```{r}
-northness <- cos(aspect * (180 / pi)) * sin(slope * (180 / pi))
+northness <- cos(aspect) * sin(slope)
 ```
 
 “eastness” (sine(aspect) x sine(slope))
 - If due east on a vertical wall –> 1
 
 ```{r}
-eastness <- sin(aspect * (180 / pi)) * sin(slope * (180 / pi))
+eastness <- sin(aspect) * sin(slope)
 ```
 
 Write rasters
 ```{r}
-writeRaster(northness, here::here("~/../../capstone/milkweedmod/clean_data/dem/northness.tif"))
-writeRaster(eastness, here::here("~/../../capstone/milkweedmod/clean_data/dem/eastness.tif"))
+ # writeRaster(northness, here::here("~/../../capstone/milkweedmod/clean_data/dem/northness.tif"), overwrite=TRUE)
+ # writeRaster(eastness, here::here("~/../../capstone/milkweedmod/clean_data/dem/eastness.tif"), overwrite=TRUE)
 ```
 
 
 ```{r}
-# crop northness to southern ext
-northness_lpnfS <- crop(northness, lpnf_south, mask = TRUE)
+# plotting to make sure northness and eastness look correct
+bbox <- sf::st_bbox(c(xmin = -120.2, ymin = 34.8, xmax = -120, ymax = 35),  crs = sf::st_crs(4326))
 
-plot(northness_lpnfS, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Northness - LPNF South Section")
-plot(northness, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Northness")
-
-# crop eastness to southern ext
-eastness_lpnfS <- crop(eastness, lpnf_south, mask = TRUE)
-
-plot(eastness_lpnfS, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Eastness - LPNF South Section")
-plot(eastness, col = palette(brewer.pal(n = 11, name = "RdBu")), main = "Eastness")
+slope_crop <- crop(slope, bbox)
+plot(slope_crop)
+northness_crop <- crop(northness_rad, bbox)
+plot(northness_crop, col = palette(brewer.pal(n = 9, name = "Greys")), main = "Northness - LPNF South Section")
 ```
+
 
 ```{r}
 northness_vals <- northness@data@values %>% 

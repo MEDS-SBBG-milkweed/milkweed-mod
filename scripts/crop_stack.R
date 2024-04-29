@@ -2,6 +2,7 @@ library(tidyverse)
 library(raster)
 library(terra)
 library(sf)
+library(here)
 
 # Read in bioclim, canopy, slope, and aspect data
 bioclim <- brick(here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
@@ -31,16 +32,14 @@ northness_mask <- mask(northness_resample, bioclim_resample)
 eastness_mask <- mask(eastness_resample, bioclim_resample)
 
 # Stack
-#envs_Ac <- raster::stack(bioclim_resample, canopy_mask, aspect_mask, slope_mask)
-envs_Ac2 <- raster::stack(bioclim_resample, canopy_mask, northness_mask, eastness_mask)
-#crs(envs_Ac) <- "EPSG:4326"
-crs(envs_Ac2) <- "EPSG:4326"
+envs_Ac <- raster::stack(bioclim_resample, canopy_mask, northness_mask, eastness_mask)
+crs(envs_Ac) <- "EPSG:4326"
 
 # Crop for northern section
 #envs_north <- crop(envs_Ac, lpnf_north)
-envs_north2 <- crop(envs_Ac2, lpnf_north)
+# envs_north2 <- crop(envs_Ac2, lpnf_north)
 
 
 # Write rasters
-# writeRaster(envs_Ac2, here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack2.tif")), overwrite=TRUE)
+# writeRaster(envs_Ac, here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack.tif")), overwrite=TRUE)
 # writeRaster(envs_north2, here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack_north2.tif")), overwrite=TRUE)
