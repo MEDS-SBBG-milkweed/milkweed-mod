@@ -74,7 +74,7 @@ res(roads) == res(temp_rast)
 
 # land ownership
 print("Does lpnf_ownership have the correct resolution?")
-res(lpnf_ownership) == res(temp_rast)
+# res(lpnf_ownership) == res(temp_rast)
 ```
 
 ### Extent
@@ -198,32 +198,25 @@ origin(roads_rescaled) == origin(temp_rast)
 Currently, all the continuous layers are rescaled where 1 is least accessible and 0 is most accessible (e.g. highest slope = 1) so, the last step is to flip the scale so that 1 = most accessible and 0 = least accessible
 
 ```{r}
-canopy_final <- 1- (mask(canopy_rescaled, lpnf_boundary_buffered))
+canopy_final <- 1- (mask(canopy_rescaled, lpnf_boundary))
 
-slope_final <- 1 - (mask(slope_rescaled, lpnf_boundary_buffered))
+slope_final <- 1 - (mask(slope_rescaled, lpnf_boundary))
 
-trails_final <- 1 - (mask(trails_rescaled, lpnf_boundary_buffered))
+trails_final <- 1 - (mask(trails_rescaled, lpnf_boundary))
 
-roads_final <- 1 - (mask(roads_rescaled, lpnf_boundary_buffered))
+roads_final <- 1 - (mask(roads_rescaled, lpnf_boundary))
 ```
 
 
 # Save everything in milkweedmod/ouputs/site_accessibility_outputs/
 
 ```{r}
-# writeRaster(canopy_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"))
-# writeRaster(slope_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"))
-# writeRaster(trails_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"))
-# writeRaster(roads_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"))
-# writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"))
+# writeRaster(canopy_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"), overwrite = TRUE)
+# writeRaster(slope_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"), overwrite = TRUE)
+# writeRaster(trails_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"), overwrite = TRUE)
+# writeRaster(roads_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"), overwrite = TRUE)
+# writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"), overwrite = TRUE)
 ```
-
-## save the slope (resampled by average) rescaled
-```{r}
-# writeRaster(slope_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_avg_rescaled.tif"))
-
-```
-
 
 -------------------------------------------------------------------------------
 
