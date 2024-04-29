@@ -28,8 +28,8 @@ vestita_points <- read_csv("~/../../capstone/milkweedmod/clean_data/milkweed_dat
 #.............................Maxent.............................
 
 # Stacked rasters
-#envs_Ac <- brick(here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack.tif")))
-envs_Ac2 <- brick(here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack2.tif")))
+envs_Ac <- brick(here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack.tif")))
+# envs_Ac2 <- brick(here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack2.tif")))
 #envs_north <- brick(here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack_north.tif")))
 #envs_north2 <- brick(here::here(("~/../../capstone/milkweedmod/clean_data/sdm_env_stack/env_stack_north2.tif")))
 

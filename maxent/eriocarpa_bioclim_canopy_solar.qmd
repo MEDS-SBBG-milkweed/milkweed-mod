@@ -29,7 +29,7 @@ source("scripts/setup.R")
 
 ```{r}
 occs_geom_Ac <- occs_Ac[c("longitude", "latitude")]
-occs_vals_Ac <- as.data.frame(raster::extract(envs_Ac2, occs_geom_Ac, cellnumbers = TRUE))
+occs_vals_Ac <- as.data.frame(raster::extract(envs_Ac, occs_geom_Ac, cellnumbers = TRUE))
 
 # add columns for env variable values for each occurrence record
 occs_Ac <- cbind(occs_Ac, occs_vals_Ac)
@@ -56,7 +56,7 @@ bgExt_Ac <- lpnf_south
 # Mask environmental data to provided extent
 bgMask_Ac <- penvs_bgMask(
   occs = occs_Ac,
-  envs = envs_Ac2,
+  envs = envs_Ac,
   bgExt = bgExt_Ac)
 # Sample background points from the provided area
 bgSample_Ac <- penvs_bgSample(
@@ -160,7 +160,7 @@ m  %>%
 xfer_area_Ac <- xfer_area(
   evalOut = model_Ac,
   curModel = "fc.LQ_rm.0.5",
-  envs = envs_Ac2, 
+  envs = envs_Ac, 
   outputType = "cloglog",
   alg = "maxnet",
   clamp = FALSE,
@@ -217,7 +217,7 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 
 ```{r}
 eriocarpa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)
-writeRaster(eriocarpa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"))
+writeRaster(eriocarpa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"), overwrite=TRUE)
 write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.rda"))
 ```
 
