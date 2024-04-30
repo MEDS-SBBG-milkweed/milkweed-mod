@@ -164,7 +164,7 @@ xfer_area_Ac <- xfer_area(
   outputType = "cloglog",
   alg = "maxnet",
   clamp = FALSE,
-  xfExt = lpnf_north_buffered) 
+  xfExt = lpnf_north) 
 # store the cropped transfer variables
 xferExt_Ac <- xfer_area_Ac$envs_north2
 

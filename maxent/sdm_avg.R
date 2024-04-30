@@ -38,5 +38,5 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTerrain) %>%
 #Esri.WorldTerrain
 
 
-# writeRaster(max_suitable, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/max_suitable_sdm.tif"))
+# writeRaster(max_suitable, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/max_suitable_sdm.tif"), overwrite=TRUE)
 
