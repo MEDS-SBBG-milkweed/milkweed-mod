@@ -1,7 +1,7 @@
 ---
 title: "Rescale all layers for accessibility index to 0-1"
 date-created: 04-09-2024
-date-last-updated: 04-23-2024
+date-last-updated: 04-28-2024
 ---
 
 This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.
@@ -16,11 +16,104 @@ source("../scripts/accessibility_setup.R")
 source("../scripts/rescale_raster.R")
 ```
 
+# Set everything to same resolution, extent, and CRS
+
+CRS: EPSG 4326
+
+```{r}
+# this are the resolution, extent, and crs we want from the template
+res(temp_rast) # 0.0083 0.0083
+ext(temp_rast) # -122.0, -117.5014, 33.6, 36.9034 (xmin, xmax, ymin, ymax)
+crs(temp_rast) # 4326
+origin(temp_rast) # 0.0017, 0.0016
+```
+
+## Initial Check
+
+
+### CRS
+```{r}
+# canopy cover
+print("Does canopy_cover have correct CRS?")
+st_crs(canopy_cover) == st_crs(temp_rast)
+
+# slope
+print("Does slope have correct CRS?")
+st_crs(slope) == st_crs(temp_rast)
+
+# distance from trails
+print("Does trails have correct CRS?")
+st_crs(trails) == st_crs(temp_rast)
+
+# distance from roads
+print("Does roads have correct CRS?")
+st_crs(roads) == st_crs(temp_rast)
+
+# land ownership
+print("Does lpnf_ownership have correct CRS?")
+st_crs(lpnf_ownership) == st_crs(temp_rast)
+```
+
+### Resolution
+```{r}
+# canopy
+print("Does canopy_cover have the correct resolution?")
+res(canopy_cover) == res(temp_rast)
+
+# slope
+print("Does slope have the correct resolution?")
+res(slope) == res(temp_rast)
+
+# distance from trails
+print("Does trails have the correct resolution?")
+res(trails) == res(temp_rast)
+
+# distance from roads
+print("Does roads have the correct resolution?")
+res(roads) == res(temp_rast)
+
+# land ownership
+print("Does lpnf_ownership have the correct resolution?")
+# res(lpnf_ownership) == res(temp_rast)
+```
+
+### Extent
+```{r}
+# canopy 
+print("Does canpy_cover have the correct extent?")
+ext(canopy_cover) == ext(temp_rast)
+
+# slope 
+print("Does slope have the correct extent?")
+ext(slope) == ext(temp_rast)
+
+# distance from trails 
+print("Does trails have the correct extent?")
+ext(trails) == ext(temp_rast)
+
+# distance from roads 
+print("Does roads have the correct extent?")
+ext(roads) == ext(temp_rast)
+
+# land ownership 
+print("Does lpnf_ownership have the correct extent?")
+ext(lpnf_ownership) == ext(temp_rast)
+```
+## Update with template raster
+```{r}
+canopy_reproject <- project(canopy_cover,temp_rast)
+
+# going forward (4/28) with average
+#slope_reproject_max <- project(slope, temp_rast, method = "max")
+#slope_reproject_mode <- project(slope, temp_rast, method = "mode")
+slope_reproject_avg <- project(slope, temp_rast, method = "average")
+```
+
 # Rescale Layers
 
 ## Canopy Cover
 ```{r}
-canopy_rescaled <- rescale_raster(canopy_cover)
+canopy_rescaled <- rescale_raster(canopy_reproject)
 
 # check that max = 1 and min = 0
 plot(canopy_rescaled)
@@ -28,7 +121,7 @@ plot(canopy_rescaled)
 
 ## Slope
 ```{r}
-slope_rescaled <- rescale_raster(slope)
+slope_rescaled <- rescale_raster(slope_reproject_avg)
 
 plot(slope_rescaled)
 ```
@@ -86,107 +179,14 @@ When I was using the model output as a template, the rasterize function kept val
 # plot(ownership_rast)
 ```
 
-# Set everything to same resolution, extent, and CRS
-
-CRS: EPSG 4326
-
-```{r}
-# this are the resolution, extent, and crs we want from the template
-res(temp_rast) # 0.0083 0.0083
-ext(temp_rast) # -122.0, -117.5014, 33.6, 36.9034 (xmin, xmax, ymin, ymax)
-crs(temp_rast) # 4326
-origin(temp_rast) # 0.0017, 0.0016
-```
-
-## Initial Check
-
-
-### CRS
-```{r}
-# canopy cover
-print("Does canopy_rescaled have correct CRS?")
-st_crs(canopy_rescaled) == st_crs(temp_rast)
-
-# slope
-print("Does slope_rescaled have correct CRS?")
-st_crs(slope_rescaled) == st_crs(temp_rast)
-
-# distance from trails
-print("Does trails_rescaled have correct CRS?")
-st_crs(trails_rescaled) == st_crs(temp_rast)
-
-# distance from roads
-print("Does roads_rescaled have correct CRS?")
-st_crs(roads_rescaled) == st_crs(temp_rast)
-
-# land ownership
-print("Does ownership_rast have correct CRS?")
-st_crs(ownership_rast) == st_crs(temp_rast)
-```
-
-### Resolution
-```{r}
-# canopy
-print("Does canopy_rescaled have the correct resolution?")
-res(canopy_rescaled) == res(temp_rast)
-
-# slope
-print("Does slope_rescaled have the correct resolution?")
-res(slope_rescaled) == res(temp_rast)
-
-# distance from trails
-print("Does trails_rescaled have the correct resolution?")
-res(trails_rescaled) == res(temp_rast)
-
-# distance from roads
-print("Does roads_rescaled have the correct resolution?")
-res(roads_rescaled) == res(temp_rast)
-
-# land ownership
-print("Does ownership_rast have the correct resolution?")
-res(ownership_rast) == res(temp_rast)
-```
-
-### Extent
-```{r}
-# canopy 
-print("Does canpy_rescaled have the correct extent?")
-ext(canopy_rescaled) == ext(temp_rast)
-
-# slope 
-print("Does slope_rescaled have the correct extent?")
-ext(slope_rescaled) == ext(temp_rast)
-
-# distance from trails 
-print("Does trails_rescaled have the correct extent?")
-ext(trails_rescaled) == ext(temp_rast)
-
-# distance from roads 
-print("Does roads_rescaled have the correct extent?")
-ext(roads_rescaled) == ext(temp_rast)
-
-# land ownership 
-print("Does ownership_rast have the correct extent?")
-ext(ownership_rast) == ext(temp_rast)
-```
-## Update with template raster
-```{r}
-canopy_reproject <- project(canopy_rescaled,temp_rast)
-
-# going forward (4/23) trying mode
-slope_reproject_max <- project(slope_rescaled, temp_rast, method = "max")
-slope_reproject_mode <- project(slope_rescaled, temp_rast, method = "mode")
-plot(slope_reproject_max)
-plot(slope_reproject_mode)
-```
 
 ## Final Checks
 ```{r}
 origin(ownership_rast) == origin(temp_rast)
 
-origin(canopy_reproject)==origin(temp_rast)
+origin(canopy_rescaled)==origin(temp_rast)
 
-origin(slope_reproject_mode)==origin(temp_rast)
+origin(slope_rescaled)==origin(temp_rast)
 
 origin(trails_rescaled) == origin(temp_rast)
 
@@ -198,26 +198,25 @@ origin(roads_rescaled) == origin(temp_rast)
 Currently, all the continuous layers are rescaled where 1 is least accessible and 0 is most accessible (e.g. highest slope = 1) so, the last step is to flip the scale so that 1 = most accessible and 0 = least accessible
 
 ```{r}
-canopy_final <- 1- (mask(canopy_reproject, lpnf_boundary_buffered))
+canopy_final <- 1- (mask(canopy_rescaled, lpnf_boundary))
 
-slope_final <- 1 - (mask(slope_reproject_mode, lpnf_boundary_buffered))
+slope_final <- 1 - (mask(slope_rescaled, lpnf_boundary))
 
-trails_final <- 1 - (mask(trails_rescaled, lpnf_boundary_buffered))
+trails_final <- 1 - (mask(trails_rescaled, lpnf_boundary))
 
-roads_final <- 1 - (mask(roads_rescaled, lpnf_boundary_buffered))
+roads_final <- 1 - (mask(roads_rescaled, lpnf_boundary))
 ```
 
 
 # Save everything in milkweedmod/ouputs/site_accessibility_outputs/
 
 ```{r}
-# writeRaster(canopy_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"))
-# writeRaster(slope_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"))
-# writeRaster(trails_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"))
-# writeRaster(roads_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"))
-# writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"))
+# writeRaster(canopy_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"), overwrite = TRUE)
+# writeRaster(slope_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"), overwrite = TRUE)
+# writeRaster(trails_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"), overwrite = TRUE)
+# writeRaster(roads_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"), overwrite = TRUE)
+# writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"), overwrite = TRUE)
 ```
-
 
 -------------------------------------------------------------------------------
 

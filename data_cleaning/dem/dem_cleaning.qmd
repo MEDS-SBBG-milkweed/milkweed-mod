@@ -45,13 +45,13 @@ plot(dem)
 
 ```{r}
 ## get slope and aspect ##
-dem_slope <- terra::terrain(dem, v = "slope", unit="degrees")
-dem_aspect <- terra::terrain(dem, v = "aspect", unit="degrees")
-dem_roughness <- terra::terrain(dem, v = "roughness", unit="degrees")
+dem_slope <- terra::terrain(dem, v = "slope", unit="radians")
+dem_aspect <- terra::terrain(dem, v = "aspect", unit="radians")
+# dem_roughness <- terra::terrain(dem, v = "roughness", unit="degrees")
 
 # save rasters to data folder 
-# writeRaster(dem_slope, here("~/../../capstone/milkweedmod/data/dem/lpnf_slope.tif"))
-# writeRaster(dem_aspect, here("~/../../capstone/milkweedmod/data/dem/lpnf_aspect.tif"))
+# writeRaster(dem_slope, here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"), overwrite=TRUE)
+# writeRaster(dem_aspect, here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_aspect.tif"), overwrite=TRUE)
 # writeRaster(dem_roughness, here("~/../../capstone/milkweedmod/data/dem/lpnf_roughness.tif"))
 
 
