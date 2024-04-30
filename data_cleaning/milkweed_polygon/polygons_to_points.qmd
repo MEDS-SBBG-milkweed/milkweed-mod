@@ -15,10 +15,10 @@ library(leaflet)
 ```
 
 ```{r}
-milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/data/milkweed_polygon_data/"))
+milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
 
 # read in bioclim raster
-envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
+envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
 
 # remove "No" observations
 milkweed_presence <- milkweed_data_raw |> 
