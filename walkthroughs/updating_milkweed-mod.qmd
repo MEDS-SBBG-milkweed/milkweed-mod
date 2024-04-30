@@ -1,0 +1,24 @@
+# Intro
+
+# SDM 
+## Add new data
+
+## Model
+
+
+
+
+
+
+## Updating “closed” Trails and Roads
+Direct to trails and roads doc that already has commented note on how to filter (note again that this is only applicable to the south)
+
+### Using those updates to update site accessibility 
+Instruct on where/how to run rescale layers, etc. again.
+
+## Updating Site Priority 
+Using new outputs from SDM – north and south, species-specific and max(all) 
+
+Save outputs to _____ (note here that this is where the dashboard will be pulling from) 
+
+
