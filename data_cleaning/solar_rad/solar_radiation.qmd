@@ -11,14 +11,7 @@ library(RColorBrewer)
 ```
 
 ```{r}
-slope <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"))
-aspect <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_aspect.tif"))
-
-lpnf_south <- sf::st_read(here::here("~/../../capstone/milkweedmod/data/lpnf_boundary_data/lpnf_boundary_south/lpnf_boundary_south.shp"))
-
 dem <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_dem.tif"))
-dem_aspect <- terra::terrain(dem, v = "aspect", unit="degrees")
-
 ```
 
 
@@ -26,12 +19,9 @@ dem_aspect <- terra::terrain(dem, v = "aspect", unit="degrees")
 # Obtain DEM derived maps
 derived_vars <- terrain(dem, opt = c('slope', 'aspect'), unit = "degrees")
 slope <- derived_vars[["slope"]]
-northness <- cos(derived_vars[["aspect"]] * pi / 180) * sin(derived_vars[["slope"]] * pi / 180)
-eastness <- sin(derived_vars[["aspect"]] * pi / 180)
-
-# Plot maps
-plot(northness, col = heat.colors(20), main = "northness", axes = F)
-plot(eastness, col = heat.colors(20), main = "eastness", axes = F)
+aspect <- derived_vars[["aspect"]]
+# writeRaster(slope, here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"), overwrite=TRUE)
+# writeRaster(aspect, here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_aspect.tif"), overwrite=TRUE)
 ```
 
 
@@ -43,16 +33,16 @@ plot(eastness, col = heat.colors(20), main = "eastness", axes = F)
 - North facing vertical wall has a northness of 1
 
 ```{r}
-plot(eastness, col = heat.colors(20), main = "eastness", axes = F)
+northness <- cos(derived_vars[["aspect"]] * pi / 180) * sin(derived_vars[["slope"]] * pi / 180)
 plot(northness, col = heat.colors(20), main = "northness", axes = F)
-
 ```
 
 “eastness” (sine(aspect) x sine(slope))
 - If due east on a vertical wall –> 1
 
 ```{r}
-eastness <- sin(aspect) * sin(slope)
+eastness <- sin(derived_vars[["aspect"]] * pi / 180) * sin(derived_vars[["slope"]] * pi / 180)
+plot(eastness, col = heat.colors(20), main = "eastness", axes = F)
 ```
 
 Write rasters
@@ -72,10 +62,4 @@ plot(northness_crop,  col = palette(brewer.pal(n = 9, name = "Greys")), main = "
 ```
 
 
-```{r}
-northness_vals <- northness@data@values %>% 
-  data.frame() %>%
-  drop_na()
-head(northness_vals, n = 20)
-```
 
