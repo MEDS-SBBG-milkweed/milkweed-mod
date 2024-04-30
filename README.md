@@ -1,7 +1,7 @@
 # milkweed-mod
 Primary repository for Milkweed Modeling MEDS 2024 Capstone project 
 
-Repository Structure
+## What is in this repo?
 ```
 ├── data_cleaning
 │   ├── accessibility_template
