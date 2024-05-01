@@ -120,9 +120,12 @@ plot(all_rescaled)
 
 ```{r}
 # writeRaster(californica_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/californica_priority.tif"), overwrite = TRUE)
-# writeRaster(eriocarpa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/eriocarpa_priority.tif"), overwrite = TRUE)
-# writeRaster(erosa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/erosa_priority.tif"), overwrite = TRUE)
-# writeRaster(vestita_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"), overwrite = TRUE)
 # 
+# writeRaster(eriocarpa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/eriocarpa_priority.tif"), overwrite = TRUE)
+# 
+# writeRaster(erosa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/erosa_priority.tif"), overwrite = TRUE)
+# 
+# writeRaster(vestita_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"), overwrite = TRUE)
+# # 
 # writeRaster(all_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/all_priority.tif"), overwrite = TRUE)
 ```

@@ -205,6 +205,9 @@ slope_final <- 1 - (mask(slope_rescaled, lpnf_boundary))
 trails_final <- 1 - (mask(trails_rescaled, lpnf_boundary))
 
 roads_final <- 1 - (mask(roads_rescaled, lpnf_boundary))
+
+
+plot(trails_final)
 ```
 
 
