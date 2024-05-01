@@ -144,7 +144,7 @@ Generate a map of the maxnet generated model with no threshold
 
 ```{r}
 # Select current model and obtain raster prediction
-m_Ac <- model_Ac@models[["fc.LQ_rm.1"]] # change this for different models
+m_Ac <- model_Ac@models[["fc.LQ_rm.0.5"]] # change this for different models
 predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
@@ -181,12 +181,12 @@ m  %>%
 # Generate a transfer of the model to the desired area
 xfer_area_Ac <- xfer_area(
   evalOut = model_Ac,
-  curModel = "fc.LQ_rm.1",
+  curModel = "fc.LQ_rm.0.5",
   envs = envs_Ac, 
   outputType = "cloglog",
   alg = "maxnet",
   clamp = FALSE,
-  xfExt = lpnf_north_buffered) 
+  xfExt = lpnf_north) 
 # store the cropped transfer variables
 xferExt_Ac <- xfer_area_Ac$envs_north2
 
