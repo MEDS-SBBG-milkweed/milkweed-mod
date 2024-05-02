@@ -1,6 +1,12 @@
 # milkweed-mod
 ## Project Description
+The milkweed-mod repository houses the R code to process and execute code used to create products to aid the Santa Barbara Botanic Garden's milkweed survey project. The main objectives of this project are to identify high-priority milkweed survey sites, based on habitat suitability and physical accessibility, throughout the Los Padres National Forest (LPNF) to direct Santa Barbara Botanic Garden (SBBG) summer 2024 field surveys. 
 
+## Data
+In order to accomplish this objective a multitude of data sources were used.
+
+- Data collected by the SBBG on milkweed locations within the LPNF from their 2023 field surveys.  All research was conducted under permits from relevant federal, and state agencies.
+- 
 
 
 ## Repository Table of Contents
