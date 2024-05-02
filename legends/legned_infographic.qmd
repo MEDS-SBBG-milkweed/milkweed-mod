@@ -166,7 +166,7 @@ legend
 # Priority Legend
 
 ```{r}
-pal_priority <- (scales::viridis_pal(option = "C", begin = 0, end = 1)(5))
+pal_priority <- scales::viridis_pal(option = "C", begin = 0, end = 1)(5)
 
 legend_df <- tibble(pos = c(0, 1, 2, 3, 4),
                     accessibility = c("0","0.25","0.5","0.75","1"))
@@ -197,7 +197,7 @@ legend <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = 5.1, y = .45,
-    label = "A value of 1 indicates high \naccessibility, therefore \nit should be easier for \nresearchers to access yellow sites",
+    label = "A value of 1 indicates high priority, \ntherefore these survey\nsites are very accessible and \nhave a high predicted suitability \nfor the specified milkweed species",
     color = "black",
     size = 3,
     family = "oswald",
@@ -218,7 +218,7 @@ legend <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low \naccessibility, therefore it should \nbe difficult for researchers to \naccess dark blue sites",
+    label = "A value of 0 indicates low priority, \ntherefore these survey\nsites are not accessible and \nhave a low predicted suitability \nfor the specified milkweed species",
     color = "black",
     size = 3,
     family = "oswald",
@@ -226,7 +226,7 @@ legend <- ggplot(data = legend_df) +
     hjust = "outward"
   ) +
   # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
-  scale_fill_manual(values = pal_access) +
+  scale_fill_manual(values = pal_priority) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
   scale_y_continuous(limits = c(0,1)) + 
@@ -239,3 +239,4 @@ legend <- ggplot(data = legend_df) +
   theme_void() 
 
 legend
+```
