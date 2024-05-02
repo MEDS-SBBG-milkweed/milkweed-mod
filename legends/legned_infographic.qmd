@@ -1,0 +1,40 @@
+---
+title: "Infographic Legends for habitat suitability maps and site accessibility indices"
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+rasCols <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+
+legend_df <- tibble(pos = c(0, 1, 2, 3, 4),
+                    suitability = c("0","0.25","0.5","0.75","1"))
+
+legend <- ggplot(data = legend_df) + 
+  
+  # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
+  geom_rect(aes(xmin = pos, xmax = pos + 1, 
+                ymin = 0.35, ymax = 0.75, fill = suitability), size = 6) + 
+  
+  # Add continent labels in the center bottom of each rectangle in oswald, white, size 6, bold text ----
+  geom_text(aes(x = pos + 0.5, y = 0.45, label = suitability), 
+            family = "oswald", color = "white", size = 6, 
+            hjust = 0.5, vjust = 0, fontface = "bold") + 
+  
+  # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
+  scale_fill_manual(values = rasCols) +
+  
+  # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
+  scale_y_continuous(limits = c(0,1)) + 
+  scale_x_continuous(limits = c(0,5)) + 
+  
+  # remove any and all legends ----
+  guides(color = "none", fill = "none") + 
+  
+  # add the theme "void" to remove axis labels, lines, tickmarks, and grid lines ----
+  theme_void() 
+
+```
+
