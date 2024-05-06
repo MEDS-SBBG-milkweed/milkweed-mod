@@ -57,75 +57,7 @@ milkweed_maxent <- function(df, species, env_stack, pred_area, transfer_area) {
     parallel = FALSE,
     numCores = 7)
   
-  # select model and predict
-  auc_max <- model_Ac@results %>%
-    select(tune.args, auc.train) %>%
-  arrange(desc(auc.train)) %>%
-    head(1) %>%
-    mutate(tune.args = as.character(tune.args))
- 
-   
- 
- m_Ac <- model_Ac@models[[auc_max$tune.args]] # change this for different models
- predSel_Ac <- predictMaxnet(m_Ac, bgMask_Ac,
-                             type = "cloglog", # change for different types
-                             clamp = FALSE)
- #Get values of prediction
- mapPredVals_Ac <- getRasterVals(predSel_Ac, "cloglog") # change for different types
- 
- 
-# Generate a transfer of the model to the desired area
- xfer_area_Ac <- xfer_area(
-   evalOut = model_Ac,
-   curModel = auc_max$tune.args,
-   envs = env_stack, 
-   outputType = "cloglog",
-   alg = "maxnet",
-   clamp = FALSE,
-   xfExt = transfer_area) 
- 
- 
- ## Mapping --
- #Define colors and legend  
- rasCols <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
- 
- legendPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
- rasPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
- 
- #map result
- mapXferVals_Ac <- getRasterVals(xfer_area_Ac$xferArea,"cloglog")
- rasCols_Ac <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
- # if no threshold specified
- legendPal <- colorNumeric(rev(rasCols_Ac), mapXferVals_Ac, na.color = 'transparent')
- rasPal_Ac <- colorNumeric(rasCols_Ac, mapXferVals_Ac, na.color = 'transparent')
- 
- # merge rasters
- merge(xfer_area_Ac$xferArea, predSel_Ac)
- 
- # plot
-mod_plot <- leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
-   addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
-                        labFormat = reverseLabel(), decreasing = FALSE,
-                        title = paste(species, "<br>Predicted Suitability<br>")) %>%
-   # map model prediction raster and transfer polygon
-   clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
-   addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
-                  layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
-   ##add transfer polygon (user drawn area)
-   addPolygons(data = transfer_area, fill = FALSE,
-               weight = 2, color = "black", group = 'xfer')  %>%
-   addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
-                    radius = 2, color = 'black', fill = TRUE, fillColor = "black",
-                    fillOpacity = 0.2, weight = 2) %>% 
-   ##Add model prediction
-   addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
-                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
-   addPolygons(data = pred_area,
-               fill = FALSE,
-               color = "black",
-               weight = 2)
- 
- return(mod_plot)
+ return(model_Ac)
  
 }
 

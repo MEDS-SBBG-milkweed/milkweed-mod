@@ -1,27 +1,52 @@
 # Intro
 
+
+#### Load packages
 ```{r}
+library(spocc)
+library(spThin)
+library(dismo)
 library(sf)
+library(ENMeval)
+library(wallace)
 library(tidyverse)
+library(here)
+library(terra)
+library(raster)
+source("scripts/addLegend_decreasing.R")
+source("scripts/setup.R")
+source("maxent/milkweed_maxent.R")
 ```
+
+#### Read in data used for modeling
+```{r}
+# environmental data raster stack
+envs_Ac <- brick("path/to/env_stack.tif")
+
+# los padres forest boundary files
+lpnf_boundary <- st_read("path/to/lpnf_boundary.shp")
+lpnf_north <- st_read("path/to/lpnf_boundary_north.shp")
+lpnf_south <- st_read("path/to/lpnf_boundary_south.shp")
+
+# read in properly formatted milkweed polygon data
+new_milkweed_raw <- st_read("path/to/data")
+```
+
+##### Troubleshooting Errors
+Problems with reading in the data:
+
 
 # SDM 
 ## Add new data
 
-### Read in and clean new milkweed survey data
-```{r}
-# read in properly formatted milkweed polygon data
-new_milkweed_raw <- st_read("path/to/data")
-```
-Now that the new data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, and `geometry` (this will be the very last column). These are the columns we want to use for the species distribution modeling. 
+### Clean new milkweed survey data
+Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, and `geometry` (this will be the very last column). These are the columns we want to use for the species distribution modeling. 
 ```{r}
 # view the data frame; the data frame will pop up in a new tab at the top
 View(new_milkweed_raw)
 ```
 
 ##### Troubleshooting Errors
-Problems with reading the the data:
-
 Different column names/missing columns:
 
 ### Clean New Data
@@ -37,7 +62,7 @@ milkweed_clean <- new_milkweed_raw |>
 head(milkweed_clean)
 ```
 
-Here's what the data should look like:
+Here's an example what the data structure should look like:
 ```
   milkweed_sp       geometry
 1 Asclepias vestita MULTIPOLYGON (((-119.3003 3...
@@ -49,8 +74,27 @@ Here's what the data should look like:
 
 
 ## Model
+To perform species distribution modeling, we have used various functions from the R packages {Wallace}, {dismo}, and {ENMeval}. There are many steps to the modeling process, but for ease of use, we have complied the main components of the process into a function. The function is `milkweed_maxent()` and we will need to give the function:
+  1. data frame with the new species points
+  2. species name we want to model (this must match the species name as it appears in the data frame)
+  3. environmental data raster stack
+  4. area we want to predict on (the southern or northern part of the LPNF)
+
+```{r}
+
+```
 
 
+### Select best performing model iteration
+```{r}
+# select model and predict
+  auc_max <- model_Ac@results %>%
+    select(tune.args, auc.train) %>%
+  arrange(desc(auc.train)) %>%
+    head(1) %>%
+    mutate(tune.args = as.character(tune.args))
+
+```
 
 
 
