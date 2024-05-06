@@ -10,10 +10,10 @@ library(leaflet)
 # Suitability model Legend
 
 ```{r}
-rasCols <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
+reds <- c("#B00000", "#C03333", "#D06666", "#DF9999", "#EFCCCC", "#FFFFFF")
 
-legend_df <- tibble(pos = c(0, 1, 2, 3, 4),
-                    suitability = c("0","0.25","0.5","0.75","1"))
+legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
+                    suitability = c("0","0.2","0.4","0.6","0.8", "1"))
 
 legend <- ggplot(data = legend_df) + 
   
@@ -21,16 +21,22 @@ legend <- ggplot(data = legend_df) +
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55, fill = suitability), size = 6) + 
   
-  # Add continent labels in the center bottom of each rectangle in oswald, white, size 6, bold text ----
-  geom_text(aes(x = pos + 0.5, y = 0.425, label = suitability), 
-            family = "oswald", color = "black", size = 5, 
+    # add border
+  geom_rect(aes(xmin = pos, xmax = pos + 1, 
+                ymin = 0.35, ymax = 0.55), 
+            color = "black", fill = NA) +
+  
+  # Add index labels in the center of each rectangle with a light grey background ----
+  geom_label(aes(x = pos + 0.5, y = 0.42, label = suitability), 
+            family = "oswald", color = "black", fill = "grey90", 
+            label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
   # add arrows and annotations
   # right arrow
   annotate(
     geom = "curve",
-    x = 5.5, xend = 4.8,
+    x = 6.5, xend = 5.8,
     y = .55, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
@@ -40,8 +46,8 @@ legend <- ggplot(data = legend_df) +
   # label right arrow (high suitability)
   annotate(
     geom = "text",
-    x = 5.1, y = .45,
-    label = "A value of 1 indicates high \npredicted suitability, therefore \nit is very likely to find \nmilkweed in locations colored red",
+    x = 6.1, y = .45,
+    label = "A value of 1 indicates high \npredicted suitability, therefore \nit is very likely to find \nmilkweed in locations \ncolored dark red",
     color = "black",
     size = 3,
     family = "oswald",
@@ -62,7 +68,7 @@ legend <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low \npredicted suitability, \ntherefore it is NOT likely to find \nmilkweed in locations colored blue",
+    label = "A value of 0 indicates low \npredicted suitability, \ntherefore it is NOT likely to find \nmilkweed in locations \ncolored white",
     color = "black",
     size = 3,
     family = "oswald",
@@ -70,11 +76,11 @@ legend <- ggplot(data = legend_df) +
     hjust = "outward"
   ) +
   # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
-  scale_fill_manual(values = rasCols) +
+  scale_fill_manual(values = rev(reds)) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
   scale_y_continuous(limits = c(0,1)) + 
-  scale_x_continuous(limits = c(-3,8)) + 
+  scale_x_continuous(limits = c(-3,9)) + 
   
   # remove any and all legends ----
   guides(color = "none", fill = "none") + 
@@ -88,38 +94,44 @@ legend
 # Accessibility Legend
 
 ```{r}
-pal_access <- (scales::viridis_pal(option = "plasma")(5))
+blues <- c("#0029B0", "#3354C0", "#667FD0", "#99A9DF", "#CCD4EF", "#FFFFFF")
+#pal_access <- (scales::viridis_pal(option = "plasma")(5))
 
-legend_df <- tibble(pos = c(0, 1, 2, 3, 4),
-                    accessibility = c("0","0.25","0.5","0.75","1"))
+legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
+                    accessibility = c("0","0.2","0.4","0.6","0.8", "1"))
 
 legend <- ggplot(data = legend_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55, fill = accessibility), size = 6) + 
+  # add border
+  geom_rect(aes(xmin = pos, xmax = pos + 1, 
+                ymin = 0.35, ymax = 0.55), 
+            color = "black", fill = NA) +
   
-  # Add continent labels in the center bottom of each rectangle in oswald, white, size 6, bold text ----
-  geom_text(aes(x = pos + 0.5, y = 0.425, label = accessibility), 
-            family = "oswald", color = "black", size = 5, 
+  # Add index labels in the center of each rectangle with a light grey background ----
+  geom_label(aes(x = pos + 0.5, y = 0.42, label = accessibility), 
+            family = "oswald", color = "black", fill = "grey90", 
+            label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
   # add arrows and annotations
   # right arrow
   annotate(
     geom = "curve",
-    x = 5.5, xend = 4.8,
+    x = 6.5, xend = 5.8,
     y = .55, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
     color = "black"
   ) +
-  # label right arrow (high suitability)
+  # label right arrow (high accessibility)
   annotate(
     geom = "text",
-    x = 5.1, y = .45,
-    label = "A value of 1 indicates high \naccessibility, therefore \nit should be easier for \nresearchers to access yellow sites",
+    x = 6.1, y = .45,
+    label = "A value of 1 indicates high \naccessibility, therefore \nit should be easier for \nresearchers to access \ndark blue sites",
     color = "black",
     size = 3,
     family = "oswald",
@@ -140,7 +152,7 @@ legend <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low \naccessibility, therefore it should \nbe difficult for researchers to \naccess dark blue sites",
+    label = "A value of 0 indicates low \naccessibility, therefore it should \nbe difficult for researchers to \naccess white sites",
     color = "black",
     size = 3,
     family = "oswald",
@@ -148,11 +160,11 @@ legend <- ggplot(data = legend_df) +
     hjust = "outward"
   ) +
   # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
-  scale_fill_manual(values = pal_access) +
+  scale_fill_manual(values = rev(blues)) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
   scale_y_continuous(limits = c(0,1)) + 
-  scale_x_continuous(limits = c(-3,8)) + 
+  scale_x_continuous(limits = c(-3,9)) + 
   
   # remove any and all legends ----
   guides(color = "none", fill = "none") + 
@@ -166,27 +178,33 @@ legend
 # Priority Legend
 
 ```{r}
-pal_priority <- scales::viridis_pal(option = "C", begin = 0, end = 1)(5)
+purples <- c("#6A00B0", "#8833C0","#A666D0", "#C399DF", "#E1CCEF", "#FFFFFF")
 
-legend_df <- tibble(pos = c(0, 1, 2, 3, 4),
-                    accessibility = c("0","0.25","0.5","0.75","1"))
+legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
+                    priority = c("0","0.2","0.4","0.6", "0.8", "1"))
 
 legend <- ggplot(data = legend_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
-                ymin = 0.35, ymax = 0.55, fill = accessibility), size = 6) + 
+                ymin = 0.35, ymax = 0.55, fill = priority), size = 6) + 
   
-  # Add continent labels in the center bottom of each rectangle in oswald, white, size 6, bold text ----
-  geom_text(aes(x = pos + 0.5, y = 0.425, label = accessibility), 
-            family = "oswald", color = "black", size = 5, 
+    # add border
+  geom_rect(aes(xmin = pos, xmax = pos + 1, 
+                ymin = 0.35, ymax = 0.55), 
+            color = "black", fill = NA) +
+  
+  # Add index labels in the center of each rectangle with a light grey background ----
+  geom_label(aes(x = pos + 0.5, y = 0.42, label = priority), 
+            family = "oswald", color = "black", fill = "grey90", 
+            label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
   # add arrows and annotations
   # right arrow
   annotate(
     geom = "curve",
-    x = 5.5, xend = 4.8,
+    x = 6.5, xend = 5.8,
     y = .55, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
@@ -196,7 +214,7 @@ legend <- ggplot(data = legend_df) +
   # label right arrow (high suitability)
   annotate(
     geom = "text",
-    x = 5.1, y = .45,
+    x = 6.1, y = .45,
     label = "A value of 1 indicates high priority, \ntherefore these survey\nsites are very accessible and \nhave a high predicted suitability \nfor the specified milkweed species",
     color = "black",
     size = 3,
@@ -226,11 +244,11 @@ legend <- ggplot(data = legend_df) +
     hjust = "outward"
   ) +
   # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
-  scale_fill_manual(values = pal_priority) +
+  scale_fill_manual(values = rev(purples)) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
   scale_y_continuous(limits = c(0,1)) + 
-  scale_x_continuous(limits = c(-3,8)) + 
+  scale_x_continuous(limits = c(-3,9)) + 
   
   # remove any and all legends ----
   guides(color = "none", fill = "none") + 
