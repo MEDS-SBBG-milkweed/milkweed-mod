@@ -1,7 +1,52 @@
 # Intro
 
+```{r}
+library(sf)
+library(tidyverse)
+```
+
 # SDM 
 ## Add new data
+
+### Read in and clean new milkweed survey data
+```{r}
+# read in properly formatted milkweed polygon data
+new_milkweed_raw <- st_read("path/to/data")
+```
+Now that the new data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, and `geometry` (this will be the very last column). These are the columns we want to use for the species distribution modeling. 
+```{r}
+# view the data frame; the data frame will pop up in a new tab at the top
+View(new_milkweed_raw)
+```
+
+##### Troubleshooting Errors
+Problems with reading the the data:
+
+Different column names/missing columns:
+
+### Clean New Data
+If everything is looking good, let's move on to cleaning the data up a bit. We want to select only the columns we need for modeling, and rename them to names that are a bit simpler. Since this data has both "yes" and "no" values in the `Milkweed_P`, we want to filter to only keep the "yes" values. Finally, let's transform the coordinate reference system (CRS) to EPSG:4326, since this the the CRS that the prepared environmental data is in. 
+```{r}
+milkweed_clean <- new_milkweed_raw |> 
+  janitor::clean_names() |> 
+  filter(milkweed_p != "no")  %>%
+  st_transform("EPSG:4326") %>%
+  dplyr::select(milkweed_sp)
+
+# check that the new clean data is looking correct
+head(milkweed_clean)
+```
+
+Here's what the data should look like:
+```
+       milkweed_sp                       geometry
+1 Asclepias vestita MULTIPOLYGON (((-119.3003 3...
+2 Asclepias erosa   MULTIPOLYGON (((-119.1852 3...
+3 Asclepias cali... MULTIPOLYGON (((-119.402 34...
+```
+
+##### Troubleshooting Errors
+
 
 ## Model
 
