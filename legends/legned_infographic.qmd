@@ -13,10 +13,10 @@ library(here)
 ```{r}
 reds <- c("#B00000", "#C03333", "#D06666", "#DF9999", "#EFCCCC", "#FFFFFF")
 
-legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
+legend_suit_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     suitability = c("0","0.2","0.4","0.6","0.8", "1"))
 
-legend_suitability <- ggplot(data = legend_df) + 
+legend_suitability <- ggplot(data = legend_suit_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
@@ -48,7 +48,7 @@ legend_suitability <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = 6.1, y = .45,
-    label = "A value of 1 indicates high \npredicted suitability, therefore \nit is very likely to find \nmilkweed in locations \ncolored dark red",
+    label = "A value of 1 indicates high \npredicted suitability, therefore \nit is very likely to find milkweed \nin locations colored dark red",
     color = "black",
     size = 3,
     family = "arial",
@@ -98,10 +98,10 @@ legend_suitability
 blues <- c("#0029B0", "#3354C0", "#667FD0", "#99A9DF", "#CCD4EF", "#FFFFFF")
 #pal_access <- (scales::viridis_pal(option = "plasma")(5))
 
-legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
+legend_access_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     accessibility = c("0","0.2","0.4","0.6","0.8", "1"))
 
-legend_access <- ggplot(data = legend_df) + 
+legend_access <- ggplot(data = legend_access_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
@@ -132,7 +132,7 @@ legend_access <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = 6.1, y = .45,
-    label = "A value of 1 indicates high \naccessibility, therefore \nit should be easier for \nresearchers to access \ndark blue sites",
+    label = "A value of 1 indicates high \naccessibility, therefore it should \nbe easier for researchers to \naccess dark blue sites",
     color = "black",
     size = 3,
     family = "arial",
@@ -181,10 +181,10 @@ legend_access
 ```{r}
 purples <- c("#6A00B0", "#8833C0","#A666D0", "#C399DF", "#E1CCEF", "#FFFFFF")
 
-legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
+legend_priority_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     priority = c("0","0.2","0.4","0.6", "0.8", "1"))
 
-legend_priority <- ggplot(data = legend_df) + 
+legend_priority <- ggplot(data = legend_priority_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
@@ -206,7 +206,7 @@ legend_priority <- ggplot(data = legend_df) +
   annotate(
     geom = "curve",
     x = 6.5, xend = 5.8,
-    y = .55, yend = .55,
+    y = .57, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -227,7 +227,7 @@ legend_priority <- ggplot(data = legend_df) +
   annotate(
     geom = "curve",
     x = -.5, xend = 0.2,
-    y = .35, yend = .35,
+    y = .33, yend = .35,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -261,6 +261,7 @@ legend_priority
 ```
 
 # Save legends
+
 ```{r}
 # save suitability legend
 ggsave(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/suitability_legend.png"), plot = legend_suitability,
@@ -274,4 +275,3 @@ ggsave(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/acc
 ggsave(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_legend.png"), plot = legend_priority,
        width = 7, height = 4)
 ```
-
