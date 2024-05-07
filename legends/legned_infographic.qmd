@@ -15,7 +15,7 @@ reds <- c("#B00000", "#C03333", "#D06666", "#DF9999", "#EFCCCC", "#FFFFFF")
 legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     suitability = c("0","0.2","0.4","0.6","0.8", "1"))
 
-legend <- ggplot(data = legend_df) + 
+legend_suitability <- ggplot(data = legend_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
@@ -88,7 +88,7 @@ legend <- ggplot(data = legend_df) +
   # add the theme "void" to remove axis labels, lines, tickmarks, and grid lines ----
   theme_void() 
 
-legend
+legend_suitability
 ```
 
 # Accessibility Legend
@@ -100,7 +100,7 @@ blues <- c("#0029B0", "#3354C0", "#667FD0", "#99A9DF", "#CCD4EF", "#FFFFFF")
 legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     accessibility = c("0","0.2","0.4","0.6","0.8", "1"))
 
-legend <- ggplot(data = legend_df) + 
+legend_access <- ggplot(data = legend_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
@@ -172,7 +172,7 @@ legend <- ggplot(data = legend_df) +
   # add the theme "void" to remove axis labels, lines, tickmarks, and grid lines ----
   theme_void() 
 
-legend
+legend_access
 ```
 
 # Priority Legend
@@ -183,7 +183,7 @@ purples <- c("#6A00B0", "#8833C0","#A666D0", "#C399DF", "#E1CCEF", "#FFFFFF")
 legend_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     priority = c("0","0.2","0.4","0.6", "0.8", "1"))
 
-legend <- ggplot(data = legend_df) + 
+legend_priority <- ggplot(data = legend_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
@@ -215,7 +215,7 @@ legend <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = 6.1, y = .45,
-    label = "A value of 1 indicates high priority, \ntherefore these survey\nsites are very accessible and \nhave a high predicted suitability \nfor the specified milkweed species",
+    label = "A value of 1 indicates high priority, \ntherefore dark purple sites are very \naccessible and have a high \npredicted suitability for the \nspecified milkweed species",
     color = "black",
     size = 3,
     family = "oswald",
@@ -236,7 +236,7 @@ legend <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low priority, \ntherefore these survey\nsites are not accessible and \nhave a low predicted suitability \nfor the specified milkweed species",
+    label = "A value of 0 indicates low priority, \ntherefore white survey sites \nare not accessible and have \na low predicted suitability for the \nspecified milkweed species",
     color = "black",
     size = 3,
     family = "oswald",
@@ -248,7 +248,7 @@ legend <- ggplot(data = legend_df) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
   scale_y_continuous(limits = c(0,1)) + 
-  scale_x_continuous(limits = c(-3,9)) + 
+  scale_x_continuous(limits = c(-4,10)) + 
   
   # remove any and all legends ----
   guides(color = "none", fill = "none") + 
@@ -256,5 +256,5 @@ legend <- ggplot(data = legend_df) +
   # add the theme "void" to remove axis labels, lines, tickmarks, and grid lines ----
   theme_void() 
 
-legend
+legend_priority
 ```
