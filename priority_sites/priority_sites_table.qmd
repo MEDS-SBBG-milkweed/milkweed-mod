@@ -1,0 +1,105 @@
+---
+title: "Priority Sites table"
+date: "Last Updated: 2024-05-07"
+---
+
+```{r setup}
+library(terra)
+library(tidyverse)
+```
+
+# Read in Milkweed Survey Points, Accessibility Index & Priority Raster
+
+```{r}
+# ---- Milkweed Points ----
+milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
+
+# ---- Accessibility Index ----
+access_index <- raster(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
+
+# ---- Priority ----
+californica_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/californica_priority.tif"))
+eriocarpa_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/eriocarpa_priority.tif"))
+erosa_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/erosa_priority.tif"))
+vestita_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"))
+```
+
+# Stack Accessibility and Clean Milkweed Points
+```{r}
+names(californica_priority) <- "Asclepias californica"
+names(eriocarpa_priority) <- "Asclepias eriocarpa"
+names(erosa_priority) <- "Asclepias erosa"
+names(vestita_priority) <- "Asclepias vestita"
+priority_stack <- raster::stack(californica_priority, eriocarpa_priority, erosa_priority, vestita_priority)
+
+milkweed_presence <- milkweed_data_raw |> 
+  janitor::clean_names() |> 
+  st_transform("EPSG:4326") %>%
+  mutate(survey_status = "visited") %>%
+  dplyr::select(milkweed_sp, survey_status) %>%
+  st_cast("MULTIPOINT") %>%
+  st_cast("POINT")
+```
+
+# Get priority score
+```{r}
+priority_stack_df <- raster::as.data.frame(priority_stack, xy=TRUE) %>%
+  drop_na()
+```
+
+# Get raster cells that have been surveyed
+```{r}
+surveyed_priority_raster <- mask(priority_stack, milkweed_presence) %>%
+  raster::as.data.frame(xy=TRUE) %>%
+  drop_na() %>%
+  dplyr::select(x,y) %>%
+  mutate(survey_status = "visited")
+```
+
+# Get Accessibility
+```{r}
+access_df <- access_index %>%
+  raster::as.data.frame(xy=TRUE) %>%
+  rename(accessibility_score = 3) %>%
+  drop_na()
+```
+
+
+```{r}
+priority_surveyed <- full_join(priority_stack_df, surveyed_priority_raster, by = join_by(x,y))
+priority_surveyed_accessibility <- full_join(priority_surveyed, access_df, by = join_by(x,y)) %>%
+  filter(!is.na(Asclepias.californica)) %>%
+  relocate(survey_status, .after = accessibility_score) %>%
+  mutate(survey_status = replace_na(survey_status, "not visited")) %>%
+  rename(Longitude = x, Latitude = y, 
+         `A. californica Priority` = Asclepias.californica,
+         `A. eriocarpa Priority` = Asclepias.eriocarpa,
+         `A erosa Priority` = Asclepias.erosa,
+         `A vestita Priority` = Asclepias.vestita,
+         `Accessibility Score` = accessibility_score,
+         `Survey Status` = survey_status)
+```
+
+```{r}
+DT::datatable(
+          priority_surveyed_accessibility,
+          extensions = 'Buttons', 
+          options = list(scrollX=TRUE,
+                         scrollY=TRUE,
+                         paging = FALSE,
+                         searching = TRUE,
+                         fixedColumns = TRUE,
+                         autoWidth = FALSE,
+                         ordering = TRUE,
+                         dom = 'Bfrtip',
+                         buttons = c('csv', 'excel','pdf'))) %>%
+  formatRound(3:7, digits = 3) %>%
+  formatRound(1:2, digits = 5)
+```
+
+
+# Save outputs to outputs folder
+
+```{r}
+write_csv(priority_surveyed_accessibility, "~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_datatable.csv")
+```
