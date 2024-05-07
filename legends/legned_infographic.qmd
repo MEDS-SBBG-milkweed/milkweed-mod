@@ -5,6 +5,7 @@ title: "Infographic Legends for habitat suitability maps and site accessibility 
 ```{r}
 library(tidyverse)
 library(leaflet)
+library(here)
 ```
 
 # Suitability model Legend
@@ -28,7 +29,7 @@ legend_suitability <- ggplot(data = legend_df) +
   
   # Add index labels in the center of each rectangle with a light grey background ----
   geom_label(aes(x = pos + 0.5, y = 0.42, label = suitability), 
-            family = "oswald", color = "black", fill = "grey90", 
+            family = "arial", color = "black", fill = "grey90", 
             label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
@@ -50,7 +51,7 @@ legend_suitability <- ggplot(data = legend_df) +
     label = "A value of 1 indicates high \npredicted suitability, therefore \nit is very likely to find \nmilkweed in locations \ncolored dark red",
     color = "black",
     size = 3,
-    family = "oswald",
+    family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
@@ -68,10 +69,10 @@ legend_suitability <- ggplot(data = legend_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low \npredicted suitability, \ntherefore it is NOT likely to find \nmilkweed in locations \ncolored white",
+    label = "A value of 0 indicates low \npredicted suitability, therefore it is \nNOT likely to find milkweed \nin locations colored white",
     color = "black",
     size = 3,
-    family = "oswald",
+    family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
@@ -112,7 +113,7 @@ legend_access <- ggplot(data = legend_df) +
   
   # Add index labels in the center of each rectangle with a light grey background ----
   geom_label(aes(x = pos + 0.5, y = 0.42, label = accessibility), 
-            family = "oswald", color = "black", fill = "grey90", 
+            family = "arial", color = "black", fill = "grey90", 
             label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
@@ -134,7 +135,7 @@ legend_access <- ggplot(data = legend_df) +
     label = "A value of 1 indicates high \naccessibility, therefore \nit should be easier for \nresearchers to access \ndark blue sites",
     color = "black",
     size = 3,
-    family = "oswald",
+    family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
@@ -155,7 +156,7 @@ legend_access <- ggplot(data = legend_df) +
     label = "A value of 0 indicates low \naccessibility, therefore it should \nbe difficult for researchers to \naccess white sites",
     color = "black",
     size = 3,
-    family = "oswald",
+    family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
@@ -196,7 +197,7 @@ legend_priority <- ggplot(data = legend_df) +
   
   # Add index labels in the center of each rectangle with a light grey background ----
   geom_label(aes(x = pos + 0.5, y = 0.42, label = priority), 
-            family = "oswald", color = "black", fill = "grey90", 
+            family = "arial", color = "black", fill = "grey90", 
             label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
@@ -218,7 +219,7 @@ legend_priority <- ggplot(data = legend_df) +
     label = "A value of 1 indicates high priority, \ntherefore dark purple sites are very \naccessible and have a high \npredicted suitability for the \nspecified milkweed species",
     color = "black",
     size = 3,
-    family = "oswald",
+    family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
@@ -239,7 +240,7 @@ legend_priority <- ggplot(data = legend_df) +
     label = "A value of 0 indicates low priority, \ntherefore white survey sites \nare not accessible and have \na low predicted suitability for the \nspecified milkweed species",
     color = "black",
     size = 3,
-    family = "oswald",
+    family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
@@ -258,3 +259,19 @@ legend_priority <- ggplot(data = legend_df) +
 
 legend_priority
 ```
+
+# Save legends
+```{r}
+# save suitability legend
+ggsave(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/suitability_legend.png"), plot = legend_suitability,
+       width = 7, height = 4)
+
+# save accessibility legend
+ggsave(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/accessibility_legend.png"), plot = legend_access,
+       width = 7, height = 4)
+
+# save priority legend
+ggsave(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_legend.png"), plot = legend_priority,
+       width = 7, height = 4)
+```
+
