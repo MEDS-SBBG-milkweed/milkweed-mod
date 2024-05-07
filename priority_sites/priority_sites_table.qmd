@@ -74,8 +74,8 @@ priority_surveyed_accessibility <- full_join(priority_surveyed, access_df, by = 
   rename(Longitude = x, Latitude = y, 
          `A. californica Priority` = Asclepias.californica,
          `A. eriocarpa Priority` = Asclepias.eriocarpa,
-         `A erosa Priority` = Asclepias.erosa,
-         `A vestita Priority` = Asclepias.vestita,
+         `A. erosa Priority` = Asclepias.erosa,
+         `A. vestita Priority` = Asclepias.vestita,
          `Accessibility Score` = accessibility_score,
          `Survey Status` = survey_status)
 ```
