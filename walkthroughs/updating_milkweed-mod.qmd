@@ -40,7 +40,7 @@ Problems with reading in the data:
 ## Add new data
 
 ### Clean new milkweed survey data
-Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, and `geometry` (this will be the very last column). These are the columns we want to use for the species distribution modeling. 
+Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, `region`, and `geometry` (this will be the very last column). These are the columns we want to use for the species distribution modeling. 
 ```{r}
 # view the data frame; the data frame will pop up in a new tab at the top
 View(new_milkweed_raw)
@@ -70,8 +70,49 @@ Here's an example what the data structure should look like:
 3 Asclepias cali... MULTIPOLYGON (((-119.402 34...
 ```
 
+#### Convert Polygons to Points
+Maxent modeling only works with point data, so we are going to use the multipolygon border to extract points from the area.
+
+```{r}
+milkweed_cast_points <- st_cast(milkweed_presence, "MULTIPOINT") %>% 
+  st_cast("POINT")
+
+milkweed_points <- milkweed_cast_points %>%
+  group_by(milkweed_sp) %>%
+  st_coordinates() %>%
+  data.frame() %>%
+  cbind(milkweed_cast_points) %>%
+  dplyr::select(-geometry) %>%
+  rename(longitude = X,
+         latitude = Y)
+```
+
+### Join new data with old data
+
+If this new data is in the same data frame as the data originally used for modeling, do not run this next code chunk, and move on the the next section **Data Sub-setting**. If this new data has none of the previous survey data, continue with running the code below. 
+
+```{r}
+milkweed_points <- rbind(milkweed_points, milkweed_survey_2023)
+```
+
+
 ##### Troubleshooting Errors
 
+### Data subsetting
+
+#### Select data for the northern region of the LPNF
+```{r}
+
+```
+
+#### Select data for the southern region of the LPNF
+```{r}
+
+```
+
+
+- subset to north and south
+- join south new with south old
 
 ## Model
 To perform species distribution modeling, we have used various functions from the R packages {Wallace}, {dismo}, and {ENMeval}. There are many steps to the modeling process, but for ease of use, we have complied the main components of the process into a function. The function is `milkweed_maxent()` and we will need to give the function:
@@ -84,8 +125,16 @@ To perform species distribution modeling, we have used various functions from th
 
 ```
 
+### Model South
 
-### Select best performing model iteration
+
+#### Model transfer (optional, if no north data)
+
+
+### Model North
+
+
+## Model Selection
 ```{r}
 # select model and predict
   auc_max <- model_Ac@results %>%
@@ -93,13 +142,17 @@ To perform species distribution modeling, we have used various functions from th
   arrange(desc(auc.train)) %>%
     head(1) %>%
     mutate(tune.args = as.character(tune.args))
-
 ```
 
+## Join models & Plot
+- North and south data present
+- South only and transfer
+
+## Save model outputs
+- Where to move to update dashboard
 
 
-
-## Updating “closed” Trails and Roads
+# Updating “closed” Trails and Roads
 Direct to trails and roads doc that already has commented note on how to filter (note again that this is only applicable to the south)
 
 ### Using those updates to update site accessibility 

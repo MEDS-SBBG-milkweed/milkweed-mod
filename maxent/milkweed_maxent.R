@@ -1,8 +1,9 @@
 
-milkweed_maxent <- function(df, species, env_stack, pred_area, transfer_area) {
+milkweed_maxent <- function(df, species, env_stack, pred_area) {
   
   # rename milkweed occurrence data
-  occs_Ac <- df
+  occs_Ac <- df %>%
+    filter(milkweed_sp == species)
   
   # extract environmental data from the lat and lon
   occs_geom_Ac <- occs_Ac[c("longitude", "latitude")]
@@ -32,7 +33,7 @@ milkweed_maxent <- function(df, species, env_stack, pred_area, transfer_area) {
   # Extract values of environmental layers for each background point
   bgEnvsVals_Ac <- as.data.frame(raster::extract(bgMask_Ac,  bgSample_Ac))
   ##Add extracted values to background points table
-  bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias eriocarpa"), bgSample_Ac,
+  bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", species), bgSample_Ac,
                          occID = NA, year = NA, institution_code = NA, country = NA,
                          state_province = NA, locality = NA, elevation = NA,
                          record_type = NA, bgEnvsVals_Ac)
@@ -49,7 +50,7 @@ milkweed_maxent <- function(df, species, env_stack, pred_area, transfer_area) {
     bg = bgEnvsVals_Ac,
     user.grp = groups_Ac, 
     bgMsk = bgMask_Ac,
-    rms = c(1, 3), 
+    rms = c(1, 3), # change 
     rmsStep =  1,
     fcs = c('L', 'LQ'),
     clampSel = FALSE,
