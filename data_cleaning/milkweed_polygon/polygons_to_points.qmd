@@ -25,8 +25,9 @@ milkweed_presence <- milkweed_data_raw |>
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
   st_transform(crs(envs_Ac)) %>%
-  filter(milkweed_sp == "Asclepias vestita") %>%
-  dplyr::select(milkweed_sp)
+  mutate(region = "south") %>%
+#  filter(milkweed_sp == "Asclepias vestita") %>%
+  dplyr::select(milkweed_sp, region)
 ```
 
 
