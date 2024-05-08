@@ -80,7 +80,7 @@ legend_suitability <- ggplot(data = legend_suit_df) +
   scale_fill_manual(values = rev(reds)) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
-  scale_y_continuous(limits = c(0,1)) + 
+  scale_y_continuous(limits = c(0.3,0.6)) + 
   scale_x_continuous(limits = c(-3,9)) + 
   
   # remove any and all legends ----
@@ -164,7 +164,7 @@ legend_access <- ggplot(data = legend_access_df) +
   scale_fill_manual(values = rev(blues)) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
-  scale_y_continuous(limits = c(0,1)) + 
+  scale_y_continuous(limits = c(0.3,0.6)) + 
   scale_x_continuous(limits = c(-3,9)) + 
   
   # remove any and all legends ----
@@ -186,7 +186,7 @@ legend_priority_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
 
 legend_priority <- ggplot(data = legend_priority_df) + 
   
-  # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
+  # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55, fill = priority), size = 6) + 
   
@@ -206,7 +206,7 @@ legend_priority <- ggplot(data = legend_priority_df) +
   annotate(
     geom = "curve",
     x = 6.5, xend = 5.8,
-    y = .57, yend = .55,
+    y = .56, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -227,7 +227,7 @@ legend_priority <- ggplot(data = legend_priority_df) +
   annotate(
     geom = "curve",
     x = -.5, xend = 0.2,
-    y = .33, yend = .35,
+    y = .34, yend = .35,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -248,7 +248,7 @@ legend_priority <- ggplot(data = legend_priority_df) +
   scale_fill_manual(values = rev(purples)) +
   
   # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
-  scale_y_continuous(limits = c(0,1)) + 
+  scale_y_continuous(limits = c(0.3,0.6)) + 
   scale_x_continuous(limits = c(-4,10)) + 
   
   # remove any and all legends ----
@@ -261,17 +261,18 @@ legend_priority
 ```
 
 # Save legends
+Specify width and height to get desired dimensions (long and short)
 
 ```{r}
 # save suitability legend
 ggsave(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/suitability_legend.png"), plot = legend_suitability,
-       width = 7, height = 4)
+       width = 8, height = 1.5)
 
 # save accessibility legend
 ggsave(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/accessibility_legend.png"), plot = legend_access,
-       width = 7, height = 4)
+       width = 8, height = 1.5)
 
 # save priority legend
 ggsave(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_legend.png"), plot = legend_priority,
-       width = 7, height = 4)
+       width = 8, height = 1.5)
 ```
