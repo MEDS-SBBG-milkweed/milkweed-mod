@@ -18,6 +18,21 @@ source("scripts/setup.R")
 source("maxent/milkweed_maxent.R")
 ```
 
+
+```{r}
+milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
+
+milkweed_faux_old <- milkweed_data_raw %>%
+  head(150) %>%
+  
+  
+milkweed_faux_new <- milkweed_data_raw %>%
+  tail(77)
+
+st_write(milkweed_faux_new, here::here("~/../../capstone/milkweedmod/raw_data/test/milkweed_faux_new.shp"))
+```
+
+
 #### Read in data used for modeling
 ```{r}
 # environmental data raster stack
@@ -40,7 +55,7 @@ Problems with reading in the data:
 ## Add new data
 
 ### Clean new milkweed survey data
-Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, `region`, and `geometry` (this will be the very last column). These are the columns we want to use for the species distribution modeling. 
+Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, `region`, and `geometry` (geometry will be the very last column). These are the columns we want to use for the species distribution modeling. 
 ```{r}
 # view the data frame; the data frame will pop up in a new tab at the top
 View(new_milkweed_raw)
