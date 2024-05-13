@@ -1,29 +1,41 @@
+---
+title: "Max suitability"
+author: "Sam Muir"
+format: html
+---
+
+```{r}
 library(here)
 library(terra)
 library(leaflet)
 source("scripts/addLegend_decreasing.R")
+```
 
-
+```{r}
 vestita <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"))
 eriocarpa <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"))
 erosa <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.tif"))
 californica <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"))
 
 lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"))
+```
 
-# 
-model_avg <- (vestita + eriocarpa + erosa + californica) / 4
-
+```{r}
+# stack all sdms
 all_species <- stack(vestita, eriocarpa, erosa, californica)
 
+# find the maximum value across all 4
 max_suitable <- max(all_species)
+```
 
+```{r}
 #Define colors and legend  
 mapPredVals_Ac <- getRasterVals(max_suitable, "cloglog") # change for different types
 rasCols <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
 legendPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
 rasPal <- colorNumeric(rasCols, mapPredVals_Ac, na.color = 'transparent')
 
+# plot
 leaflet() %>% addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = mapPredVals_Ac,
                        labFormat = reverseLabel(), decreasing = TRUE,
@@ -35,8 +47,6 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTerrain) %>%
               color = "black",
               weight = 2)
 
-#Esri.WorldTerrain
-
-
 # writeRaster(max_suitable, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/max_suitable_sdm.tif"), overwrite=TRUE)
+```
 
