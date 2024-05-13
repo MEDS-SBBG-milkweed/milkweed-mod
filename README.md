@@ -36,7 +36,7 @@ In order to accomplish this objective a multitude of data sources were used. In 
 ├── legends
 │   └── legned_infographic.qmd
 ├── LICENSE
-├── maxent                                                 # species distribution modeling
+├── maxent                                             # species distribution modeling
 │   ├── californica_bioclim_canopy_solar.qmd
 │   ├── eriocarpa_bioclim_canopy_solar.qmd
 │   ├── eriocarpa_points_bioclim_canopy_dem.qmd
@@ -50,7 +50,7 @@ In order to accomplish this objective a multitude of data sources were used. In 
 ├── priority_sites
 │   └── priority_sites.qmd
 ├── README.md
-├── scripts                                             # important setup scripts found here!
+├── scripts                                        # important setup scripts found here!
 │   ├── accessibility_setup.R
 │   ├── addLegend_decreasing.R
 │   ├── crop_stack.R
@@ -62,7 +62,7 @@ In order to accomplish this objective a multitude of data sources were used. In 
 │   ├── distance_calculations.qmd
 │   ├── rescale_all_layers.qmd
 │   └── rescale_canopy_cover.qmd
-└── walkthroughs                                       # walkthroughs for updates found here!
+└── walkthroughs                                 # walkthroughs for updates found here!
     └── updating_milkweed-mod.qmd
 
 ```
