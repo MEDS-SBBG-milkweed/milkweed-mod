@@ -1,5 +1,6 @@
 ---
 title: "Infographic Legends for habitat suitability maps and site accessibility indices"
+author: "Amanda Herbst"
 ---
 
 ```{r}
