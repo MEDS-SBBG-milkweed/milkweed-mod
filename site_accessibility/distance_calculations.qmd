@@ -470,7 +470,7 @@ plot(trail_dist_rescaled)
 # COME BACK: REMOVE THIS OR ASK IN WORK SESSION
 ```{r, eval=FALSE}
 # SCRAPPED --------- MAPS REVERSE, NOT WANTED ----------------
-source(here("scripts/addLegend_decreasing.R"))
+source(here("R", "addLegend_decreasing.R"))
 lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
                          quiet = TRUE)
 
@@ -478,8 +478,8 @@ mapPredVals_Ac <- wallace::getRasterVals(road_dist_rescaled)
 
 colors <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
 
-numPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
-rasPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = TRUE)
+numPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = FALSE)
+rasPal <- colorNumeric(colors, mapPredVals_Ac, na.color = 'transparent', reverse = FALSE)
 
 leaflet(
   # options = leafletOptions(crs = leafletCRS("L.CRS.EPSG4326"))
