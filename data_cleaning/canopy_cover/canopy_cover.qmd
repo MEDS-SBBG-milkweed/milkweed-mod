@@ -21,7 +21,7 @@ library(stars)
 
 ```{r}
 # Prepare milkweed data using raster package
-canopy_cover_path <- here::here("~/../../capstone/milkweedmod/data/canopy_cover/")
+canopy_cover_path <- here::here("~/../../capstone/milkweedmod/raw_data/canopy_cover/")
 
 # read in canopy cover data tiles
 kern_county <- rast(here(canopy_cover_path, "KernCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
@@ -109,7 +109,7 @@ plot(envs_Ac)
 
 
 ```{r}
-writeRaster(canopy_cover_full_reproject, here::here("~/../../capstone/milkweedmod/data/canopy_cover/canopy_cover_cleaned.tif"))
+writeRaster(canopy_cover_full_reproject, here::here("~/../../capstone/milkweedmod/clean_data/canopy_cover/canopy_cover_cleaned.tif"))
 ```
 
 
