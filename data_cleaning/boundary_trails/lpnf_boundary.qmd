@@ -8,26 +8,25 @@ Load packages
 library(tidyverse)
 library(sf)
 library(here)
-library(mapdata)
 ```
 
-Read in data
+## Read in CA National Forest boundaries
 ```{r}
 # California National Forest boundaries
 boundary <- st_read(here("~/../../capstone/milkweedmod/raw_data/S_USA_AdministrativeForest.gdb/"))
-
-trails <- st_read(here("~/../../capstone/milkweedmod/raw_data/trails_and_roads/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
 ```
 
-Filter boundaries to Los Padres National Forest
+## Filter boundaries to Los Padres National Forest
 ```{r}
 lpnf_boundary <- boundary %>% 
   filter(FORESTNAME %in% c("Los Padres National Forest")) %>%
   st_transform(crs = st_crs("EPSG:4326"))
 
+# save a buffered boundary for species distribution modeling
 forest_buffer <- lpnf_boundary  %>%
   st_buffer(dist = 1000)
 
+# save boundaries as shapefiles
 
 # st_write(lpnf_boundary,
 #          here("~/../../capstone/milkweedmod/cleandata/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
@@ -38,32 +37,36 @@ forest_buffer <- lpnf_boundary  %>%
  
 ```
 
-## Finding max-y for southern section
-```{r}
+## Separate LPNF boundary into northern and southern sections
 
+Finding max-y for southern section by visualizing
+```{r}
 ggplot() +
   geom_sf(data = forest_buffer)
 
-# select 35.6 as max-y for subselection of southern portion! 
+# select 35.6 as max-y for subsection of southern portion! 
 ```
 
 ```{r}
-# Create a bounding box 
+# Create a bounding box for the south and north
 bbox_south <- st_bbox(c(xmin = -118, ymin = 34.2, xmax = -121, ymax = 35.5),  crs = st_crs(4326))
 bbox_north <- st_bbox(c(xmin = -122, ymin = 35.5, xmax = -121, ymax = 36.5),  crs = st_crs(4326))
 
-# Crop boundary
+# Crop boundary to the bounding boxes
 lpnf_south <- st_crop(lpnf_boundary, bbox_south) %>%
   select(SHAPE)
 lpnf_north <- st_crop(lpnf_boundary, bbox_north) %>% 
   select(SHAPE)
 
-# create boundary buffer
+# create buffered boundaries for south and north
 lpnf_south_buffered <- lpnf_south %>%
   st_buffer(dist = 1000)
 lpnf_north_buffered <- lpnf_north %>%
   st_buffer(dist = 1000)
+```
 
+Plot to verify 
+```{r}
 lpnf_south_df <- lpnf_south %>%
   st_coordinates() %>%
   data.frame()
@@ -73,71 +76,14 @@ ggplot(lpnf_south_df) +
 
 ggplot() +
   geom_sf(data = lpnf_south, color = "green4")
+```
 
+Save boundaries as shapefiles
+```{r}
 # write the forest boundaries
 # st_write(lpnf_north, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp"), append = FALSE)
 # st_write(lpnf_south, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp"), append = FALSE)
 # st_write(lpnf_north_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"), append = FALSE)
 # st_write(lpnf_south_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"), append = FALSE)
-```
-
-
-Reproject all data to EPSG: 2230 for California Zone 6 (area of interest) 
-```{r}
-# reprojecting both datasets' crs to EPSG: 2230 for California Zone 6 (area of interest) 
-lpnf_reprojected <- lpnf_boundary |> st_transform(crs = "EPSG:2230")
-
-# reproject milkweed data
-trails_reprojected <- trails |> st_transform(crs = st_crs(lpnf_reprojected))
-
-# check if CRS match
-st_crs(lpnf_reprojected) == st_crs(trails_reprojected)
-```
-
-Prepare data for plotting
-```{r}
-# drop Z and/or M dimensions from trails data
-# was getting error: "number of columns of matrices must match (see arg 9)"
-trails_reprojected <- st_zm(trails_reprojected)
-```
-
-Plot trails and lpnf boundary
-```{r}
-# make basemap
-ca <- map_data("state") %>% 
-  filter(region == "california")
-ca_sf <- st_as_sf(ca,
-                  coords = c("long", "lat"),
-                  crs = "epsg:4326") %>% 
-  summarise(geometry = st_combine(geometry)) %>%
-  st_cast("POLYGON")
-ca_reprojected <- ca_sf %>% st_transform(crs = st_crs(lpnf_reprojected))
-
-# create bbox around lpnf
-lpnf_bb <- st_bbox(lpnf_reprojected)
-
-# plot!
-ggplot() +
-  geom_sf(data = ca_sf, fill = "lightgreen", color = "black") +
-  geom_sf(data = lpnf_reprojected,
-          color = "darkgreen",
-          fill = "transparent",
-          lwd = 1) + 
-  geom_sf(data = trails_reprojected,
-          aes(color = Type)) +
-  coord_sf(xlim = c(lpnf_bb[1], lpnf_bb[3]),
-           ylim = c(lpnf_bb[2], lpnf_bb[4])) +
-  # geom_polygon(data = ca, aes(x = long, y = lat),
-  #              fill = "lightgray", color = "black") +
-  # coord_sf(crs = "epsg:2230") +
-  labs(x = "Longitude",
-       y = "Latitude") +
-  theme_bw()
-```
-
-```{r}
-# attempt with basemap
-
-
 ```
 
