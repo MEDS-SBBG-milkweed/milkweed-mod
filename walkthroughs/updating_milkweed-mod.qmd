@@ -13,30 +13,38 @@ library(tidyverse)
 library(here)
 library(terra)
 library(raster)
-source("scripts/addLegend_decreasing.R")
-source("scripts/setup.R")
-source("maxent/milkweed_maxent.R")
+source("R/addLegend_decreasing.R")
+source("R/setup.R")
+source("R/milkweed_maxent.R")
 ```
 
 
 ```{r}
-milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
+# generating *fake* data to test the walk through- will be deleted ----
+library(rgbif)
+gbif_data <- occ_data(scientificName = "Asclepias eriocarpa", hasCoordinate = TRUE, limit = 400) 
+new_data <- gbif_data$data %>%
+  filter(stateProvince == "California",
+         decimalLongitude < -121.0, 
+         decimalLatitude < 37) %>%
+  select(decimalLongitude, decimalLatitude, scientificName) %>%
+  rename(longitude = decimalLongitude,
+         latitude = decimalLatitude,
+         milkweed_sp = scientificName) %>%
+  mutate(milkweed_sp = "Asclepias eriocarpa",
+         region = "North")
 
-milkweed_faux_old <- milkweed_data_raw %>%
-  head(150) %>%
-  
-  
-milkweed_faux_new <- milkweed_data_raw %>%
-  tail(77)
-
-st_write(milkweed_faux_new, here::here("~/../../capstone/milkweedmod/raw_data/test/milkweed_faux_new.shp"))
+ggplot() +
+  geom_point(data = new_data, aes(x = longitude, y = latitude), size = 0.5) +
+  geom_sf(data = lpnf_north_buffered, alpha = 0.5)
 ```
 
 
 #### Read in data used for modeling
 ```{r}
 # environmental data raster stack
-envs_Ac <- brick("path/to/env_stack.tif")
+environmental_layers <- brick("path/to/env_stack.tif")
+# environmental_layers <- envs_Ac
 
 # los padres forest boundary files
 lpnf_boundary <- st_read("path/to/lpnf_boundary.shp")
@@ -44,7 +52,8 @@ lpnf_north <- st_read("path/to/lpnf_boundary_north.shp")
 lpnf_south <- st_read("path/to/lpnf_boundary_south.shp")
 
 # read in properly formatted milkweed polygon data
-new_milkweed_raw <- st_read("path/to/data")
+milkweed_data_raw <- st_read("path/to/data")
+# milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
 ```
 
 ##### Troubleshooting Errors
@@ -55,10 +64,10 @@ Problems with reading in the data:
 ## Add new data
 
 ### Clean new milkweed survey data
-Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(new_milkweed_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, `region`, and `geometry` (geometry will be the very last column). These are the columns we want to use for the species distribution modeling. 
+Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(milkweed_data_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, `region`, and `geometry` (geometry will be the very last column). These are the columns we want to use for the species distribution modeling. 
 ```{r}
 # view the data frame; the data frame will pop up in a new tab at the top
-View(new_milkweed_raw)
+View(milkweed_data_raw)
 ```
 
 ##### Troubleshooting Errors
@@ -67,7 +76,7 @@ Different column names/missing columns:
 ### Clean New Data
 If everything is looking good, let's move on to cleaning the data up a bit. We want to select only the columns we need for modeling, and rename them to names that are a bit simpler. Since this data has both "yes" and "no" values in the `Milkweed_P`, we want to filter to only keep the "yes" values. Finally, let's transform the coordinate reference system (CRS) to EPSG:4326, since this the the CRS that the prepared environmental data is in. 
 ```{r}
-milkweed_clean <- new_milkweed_raw |> 
+milkweed_clean <- milkweed_data_raw |> 
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
   st_transform("EPSG:4326") %>%
@@ -89,7 +98,7 @@ Here's an example what the data structure should look like:
 Maxent modeling only works with point data, so we are going to use the multipolygon border to extract points from the area.
 
 ```{r}
-milkweed_cast_points <- st_cast(milkweed_presence, "MULTIPOINT") %>% 
+milkweed_cast_points <- st_cast(milkweed_clean, "MULTIPOINT") %>% 
   st_cast("POINT")
 
 milkweed_points <- milkweed_cast_points %>%
@@ -99,7 +108,8 @@ milkweed_points <- milkweed_cast_points %>%
   cbind(milkweed_cast_points) %>%
   dplyr::select(-geometry) %>%
   rename(longitude = X,
-         latitude = Y)
+         latitude = Y) %>%
+  mutate(region = "South")
 ```
 
 ### Join new data with old data
@@ -108,6 +118,8 @@ If this new data is in the same data frame as the data originally used for model
 
 ```{r}
 milkweed_points <- rbind(milkweed_points, milkweed_survey_2023)
+
+# milkweed_points <- rbind(milkweed_points, new_data)
 ```
 
 
@@ -115,32 +127,88 @@ milkweed_points <- rbind(milkweed_points, milkweed_survey_2023)
 
 ### Data subsetting
 
-#### Select data for the northern region of the LPNF
+#### Select data for each species in the northern region of the LPNF
 ```{r}
+milkweed_north <- milkweed_points %>%
+  filter(region == "North")
 
+# californica
+californica_north <- milkweed_north %>%
+  filter(milkweed_sp == "Asclepias californica")
+# erosa
+erosa_north <- milkweed_north %>%
+  filter(milkweed_sp == "Asclepias erosa")
+# eriocarpa
+eriocarpa_north <- milkweed_north %>%
+  filter(milkweed_sp == "Asclepias eriocarpa")
+# vestita
+vestita_north <- milkweed_north %>%
+  filter(milkweed_sp == "Asclepias vestita")
 ```
 
-#### Select data for the southern region of the LPNF
+#### Select data for each species in the southern region of the LPNF
 ```{r}
+milkweed_south <- milkweed_points %>%
+  filter(region == "South")
 
+# californica
+californica_south <- milkweed_south %>%
+  filter(milkweed_sp == "Asclepias californica")
+# erosa
+erosa_south <- milkweed_south %>%
+  filter(milkweed_sp == "Asclepias erosa")
+# eriocarpa
+eriocarpa_south <- milkweed_south %>%
+  filter(milkweed_sp == "Asclepias eriocarpa")
+# vestita
+vestita_south <- milkweed_south %>%
+  filter(milkweed_sp == "Asclepias vestita")
 ```
 
-
-- subset to north and south
-- join south new with south old
 
 ## Model
-To perform species distribution modeling, we have used various functions from the R packages {Wallace}, {dismo}, and {ENMeval}. There are many steps to the modeling process, but for ease of use, we have complied the main components of the process into a function. The function is `milkweed_maxent()` and we will need to give the function:
-  1. data frame with the new species points
-  2. species name we want to model (this must match the species name as it appears in the data frame)
-  3. environmental data raster stack
-  4. area we want to predict on (the southern or northern part of the LPNF)
+To perform species distribution modeling, we have used various functions from the R packages {Wallace}, {dismo}, and {ENMeval}. There are many steps to the modeling process and these have been broken down into smaller sections
 
-```{r}
-
-```
 
 ### Model South
+
+#### Obtain environmental data values based on the occurence coordinates and join with the occurance points
+```{r}
+occurence_coordinates <- eriocarpa_south[c("longitude", "latitude")]
+environmental_values <- as.data.frame(raster::extract(environmental_layers, occurence_coordinates, cellnumbers = TRUE))
+
+# add columns for env variable values for each occurrence record
+occurence_env_values <- cbind(eriocarpa_south, environmental_values)
+```
+
+#### Process the occurence and environmental data
+```{r}
+# Spatially thin the occurrence points
+eriocarpa_south <- poccs_thinOccs(
+  occs = occurence_env_values, 
+  thinDist = 0.05) # adjust this value if you would like to change the thinning distaince (in km)
+
+
+# Mask environmental data to provided extent
+environmental_mask <- penvs_bgMask(
+  occs = eriocarpa_south, # occurence points
+  envs = environmental_layers, # environmental layers
+  bgExt = lpnf_south_buffered) # extent to model on (southern section of lpnf with a buffer)
+
+# Sample background points from the provided area
+bg_sample_points <- penvs_bgSample(
+  occs = eriocarpa_south,
+  bgMask =  environmental_mask,
+  bgPtsNum = 5000)
+
+# Extract values of environmental layers for each background point
+bgEnvsVals_Ac <- as.data.frame(raster::extract(environmental_mask,  bg_sample_points))
+##Add extracted values to background points table
+bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias erosa"), bg_sample_points,
+                            occID = NA, year = NA, institution_code = NA, country = NA,
+                            state_province = NA, locality = NA, elevation = NA,
+                            record_type = NA, bgEnvsVals_Ac)
+```
 
 
 #### Model transfer (optional, if no north data)
