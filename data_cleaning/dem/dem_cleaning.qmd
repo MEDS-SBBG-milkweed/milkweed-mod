@@ -17,7 +17,7 @@ library(here)
 
 ```{r}
 # set file path
-file_path <- here("~/../../capstone/milkweedmod/data/dem/")
+file_path <- here("~/../../capstone/milkweedmod/raw_data/dem/")
 
 # read in dem data tiles
 n35w119 <- rast(here(file_path, "USGS_1_n35w119_20190919.tif"))
