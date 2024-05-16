@@ -107,10 +107,10 @@ eriocarpa_points <- eriocarpa_points %>%
 ##                              Export to Taylor                            ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# write_csv(cali_points, "~/../../capstone/milkweedmod/data/clean_data/milkweed_points/californica_points.csv")
-# write_csv(erosa_points, "~/../../capstone/milkweedmod/data/clean_data/milkweed_points/erosa_points.csv")
-# write_csv(eriocarpa_points, "~/../../capstone/milkweedmod/data/clean_data/milkweed_points/eriocarpa_points.csv")
-# write_csv(vestita_points, "~/../../capstone/milkweedmod/data/clean_data/milkweed_points/vestita_points.csv")
+# write_csv(cali_points, "~/../../capstone/milkweedmod/clean_data/milkweed_data/sdm_milkweed_points/californica_points.csv")
+# write_csv(erosa_points, "~/../../capstone/milkweedmod/clean_data/milkweed_data/sdm_milkweed_points/erosa_points.csv")
+# write_csv(eriocarpa_points, "~/../../capstone/milkweedmod/clean_data/milkweed_data/sdm_milkweed_points/eriocarpa_points.csv")
+# write_csv(vestita_points, "~/../../capstone/milkweedmod/clean_data/milkweed_data/sdm_milkweed_points/vestita_points.csv")
 
 
 
