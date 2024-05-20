@@ -245,7 +245,9 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
-erosa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)
+erosa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac) %>%
+  rast()
+names(erosa_model) <- "fc.LQ_rm.0.5"
 writeRaster(erosa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.tif"), overwrite=TRUE)
 write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.rda"))
 ```

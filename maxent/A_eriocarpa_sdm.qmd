@@ -12,8 +12,8 @@ library(ENMeval)
 library(wallace)
 library(tidyverse)
 library(here)
-source("scripts/addLegend_decreasing.R")
-source("scripts/setup.R")
+source("R/addLegend_decreasing.R")
+source("R/setup.R")
 ```
 
 ## Analysis
@@ -216,9 +216,11 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
-eriocarpa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)
-writeRaster(eriocarpa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"), overwrite=TRUE)
-write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.rda"))
+eriocarpa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac) %>%
+  rast()
+names(eriocarpa_model) <- "fc.LQ_rm.0.5"
+# writeRaster(eriocarpa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"), overwrite=TRUE)
+# write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.rda"))
 ```
 
 ```{r}

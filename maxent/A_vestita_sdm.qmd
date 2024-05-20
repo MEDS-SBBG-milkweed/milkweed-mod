@@ -13,8 +13,8 @@ library(wallace)
 library(tidyverse)
 library(here)
 library(rgbif)
-source("scripts/addLegend_decreasing.R")
-source("scripts/setup.R")
+source("R/addLegend_decreasing.R")
+source("R/setup.R")
 ```
 
 ## Analysis
@@ -238,9 +238,11 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
-vestita_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)
-writeRaster(vestita_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"), overwrite=TRUE)
-write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.rda"))
+vestita_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)  %>%
+  rast()
+names(vestita_model) <- "fc.LQ_rm.0.5"
+# writeRaster(vestita_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"), overwrite=TRUE)
+# write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.rda"))
 ```
 
 ```{r}
