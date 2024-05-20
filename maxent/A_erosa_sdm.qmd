@@ -13,8 +13,8 @@ library(wallace)
 library(tidyverse)
 library(here)
 library(rgbif)
-source("scripts/addLegend_decreasing.R")
-source("scripts/setup.R")
+source("R/addLegend_decreasing.R")
+source("R/setup.R")
 ```
 
 ## Analysis

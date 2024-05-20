@@ -17,3 +17,5 @@ envs_Ac_W <- envs_worldclim(
 envs_Ac <- terra::mosaic(envs_Ac_W, envs_Ac_E, fun = "mean")
 
 #writeRaster(envs_Ac, here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
+
+biclim <- brick(here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
