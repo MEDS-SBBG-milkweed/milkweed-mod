@@ -39,7 +39,7 @@ legend_suitability <- ggplot(data = legend_suit_df) +
   annotate(
     geom = "curve",
     x = 6.5, xend = 5.8,
-    y = .55, yend = .55,
+    y = .56, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -49,9 +49,9 @@ legend_suitability <- ggplot(data = legend_suit_df) +
   annotate(
     geom = "text",
     x = 6.1, y = .45,
-    label = "A value of 1 indicates high \npredicted suitability, therefore \nit is very likely to find milkweed \nin locations colored dark red",
+    label = "A value of 1 indicates high \npredicted suitability,\ntherefore it is very likely to \nfind milkweed in locations \ncolored dark red",
     color = "black",
-    size = 3,
+    size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
@@ -60,7 +60,7 @@ legend_suitability <- ggplot(data = legend_suit_df) +
   annotate(
     geom = "curve",
     x = -.5, xend = 0.2,
-    y = .35, yend = .35,
+    y = .33, yend = .35,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -70,9 +70,9 @@ legend_suitability <- ggplot(data = legend_suit_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low \npredicted suitability, therefore it is \nNOT likely to find milkweed \nin locations colored white",
+    label = "A value of 0 indicates low \npredicted suitability, \ntherefore it is NOT likely to \nfind milkweed in locations \ncolored white",
     color = "black",
-    size = 3,
+    size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
@@ -97,7 +97,6 @@ legend_suitability
 
 ```{r}
 blues <- c("#0029B0", "#3354C0", "#667FD0", "#99A9DF", "#CCD4EF", "#FFFFFF")
-#pal_access <- (scales::viridis_pal(option = "plasma")(5))
 
 legend_access_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     accessibility = c("0","0.2","0.4","0.6","0.8", "1"))
@@ -123,7 +122,7 @@ legend_access <- ggplot(data = legend_access_df) +
   annotate(
     geom = "curve",
     x = 6.5, xend = 5.8,
-    y = .55, yend = .55,
+    y = .56, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -133,9 +132,9 @@ legend_access <- ggplot(data = legend_access_df) +
   annotate(
     geom = "text",
     x = 6.1, y = .45,
-    label = "A value of 1 indicates high \naccessibility, therefore it should \nbe easier for researchers to \naccess dark blue sites",
+    label = "A value of 1 indicates high \naccessibility, therefore it \nshould be easier for \nresearchers to access \ndark blue sites",
     color = "black",
-    size = 3,
+    size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
@@ -144,7 +143,7 @@ legend_access <- ggplot(data = legend_access_df) +
   annotate(
     geom = "curve",
     x = -.5, xend = 0.2,
-    y = .35, yend = .35,
+    y = .33, yend = .35,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -154,9 +153,9 @@ legend_access <- ggplot(data = legend_access_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low \naccessibility, therefore it should \nbe difficult for researchers to \naccess white sites",
+    label = "A value of 0 indicates low \naccessibility, therefore it \nshould be difficult for \nresearchers to access \nwhite sites",
     color = "black",
-    size = 3,
+    size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
@@ -207,7 +206,7 @@ legend_priority <- ggplot(data = legend_priority_df) +
   annotate(
     geom = "curve",
     x = 6.5, xend = 5.8,
-    y = .56, yend = .55,
+    y = .59, yend = .55,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -217,9 +216,9 @@ legend_priority <- ggplot(data = legend_priority_df) +
   annotate(
     geom = "text",
     x = 6.1, y = .45,
-    label = "A value of 1 indicates high priority, \ntherefore dark purple sites are very \naccessible and have a high \npredicted suitability for the \nspecified milkweed species",
+    label = "A value of 1 indicates high \npriority, therefore dark purple \nsites are very accessible and \nhave a high predicted \nsuitability for the specified \nmilkweed species",
     color = "black",
-    size = 3,
+    size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
@@ -228,7 +227,7 @@ legend_priority <- ggplot(data = legend_priority_df) +
   annotate(
     geom = "curve",
     x = -.5, xend = 0.2,
-    y = .34, yend = .35,
+    y = .33, yend = .35,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
@@ -238,9 +237,9 @@ legend_priority <- ggplot(data = legend_priority_df) +
   annotate(
     geom = "text",
     x = -0.1, y = .45,
-    label = "A value of 0 indicates low priority, \ntherefore white survey sites \nare not accessible and have \na low predicted suitability for the \nspecified milkweed species",
+    label = "A value of 0 indicates low \npriority, therefore white survey \nsites are not accessible and \nhave a low predicted suitability \nfor the specified milkweed species",
     color = "black",
-    size = 3,
+    size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
