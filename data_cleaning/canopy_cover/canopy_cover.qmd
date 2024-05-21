@@ -77,7 +77,7 @@ crs(canopy_cover_full)
 ## Explore BioClim Data
 ```{r}
 # Read in bioclim data
-envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/data/bioclim/wallace_bioclim.tif"))
+envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
 
 # resolution of bioclim data is 0.008333333 0.008333333
 res(envs_Ac)
@@ -103,13 +103,29 @@ same.crs(envs_Ac, canopy_cover_full_reproject)
 ```{r}
 plot(canopy_cover_full_reproject)
 ```
+
 ```{r}
 plot(envs_Ac)
 ```
 
 
 ```{r}
-writeRaster(canopy_cover_full_reproject, here::here("~/../../capstone/milkweedmod/clean_data/canopy_cover/canopy_cover_cleaned.tif"))
+# current layer name:
+names(canopy_cover_full_reproject)
+
+# rename layer name from KernCounty-Vegetation-CanopyCover-2020-Summer-00010m to "canopy_cover_percent"
+names(canopy_cover_full_reproject) <- "canopy_cover_percent"
+
+# check output
+names(canopy_cover_full_reproject)
+```
+
+
+```{r}
+# write renamed output to appropriate folder
+writeRaster(canopy_cover_full_reproject,
+            here::here("~/../../capstone/milkweedmod/clean_data/canopy_cover/canopy_cover_cleaned.tif"),
+            overwrite = TRUE) # If file with this name already exists, overwrite it
 ```
 
 
