@@ -15,7 +15,6 @@ library(terra)
 library(raster)
 source("R/addLegend_decreasing.R")
 source("R/setup.R")
-source("R/milkweed_maxent.R")
 ```
 
 
@@ -32,7 +31,8 @@ new_data <- gbif_data$data %>%
          latitude = decimalLatitude,
          milkweed_sp = scientificName) %>%
   mutate(milkweed_sp = "Asclepias eriocarpa",
-         region = "North")
+         region = "North") %>%
+  rename(scientific_name = milkweed_sp)
 
 ggplot() +
   geom_point(data = new_data, aes(x = longitude, y = latitude), size = 0.5) +
@@ -60,8 +60,8 @@ milkweed_data_raw <- st_read("path/to/data")
 Problems with reading in the data:
 
 
-# SDM 
-## Add new data
+# Species Distribution Model 
+## Adding new data
 
 ### Clean new milkweed survey data
 Now that the new data milkweed data is read in, we want to check that the structure of the data looks correct. Using `View(milkweed_data_raw)` look for the columns in the data `Milkweed_P`, `MilkweedSp`, `region`, and `geometry` (geometry will be the very last column). These are the columns we want to use for the species distribution modeling. 
@@ -98,71 +98,102 @@ Here's an example what the data structure should look like:
 Maxent modeling only works with point data, so we are going to use the multipolygon border to extract points from the area.
 
 ```{r}
+# get the points from polygons
 milkweed_cast_points <- st_cast(milkweed_clean, "MULTIPOINT") %>% 
   st_cast("POINT")
+# here you will get a warning about sub-geometries, but that's okay
 
 milkweed_points <- milkweed_cast_points %>%
-  group_by(milkweed_sp) %>%
-  st_coordinates() %>%
-  data.frame() %>%
-  cbind(milkweed_cast_points) %>%
-  dplyr::select(-geometry) %>%
-  rename(longitude = X,
-         latitude = Y) %>%
+  group_by(milkweed_sp) %>% 
+  st_coordinates() %>% # get the lat long coords from the point geometries (this returns only the lat long as a list)
+  data.frame() %>% # convert list to a data frame
+  cbind(milkweed_cast_points) %>% # join the data frame of points with the casted geometry points to get the species 
+  dplyr::select(-geometry) %>% # drop the casted geometry points (don't need since we have the lat long now)
+  rename(longitude = X, # update names
+         latitude = Y,
+         scientific_name = milkweed_sp) %>% # in the function, the species column must be called 'scientific_name'
+  mutate(occID = row_number())
+
+head(milkweed_points)
+
+# ---------------------
+milkweed_points <- milkweed_cast_points %>%
+  group_by(milkweed_sp) %>% 
+  st_coordinates() %>% # get the lat long coords from the point geometries (this returns only the lat long as a list)
+  data.frame() %>% # convert list to a data frame
+  cbind(milkweed_cast_points) %>% # join the data frame of points with the casted geometry points to get the species 
+  dplyr::select(-geometry) %>% # drop the casted geometry points (don't need since we have the lat long now)
+  rename(longitude = X, # update names
+         latitude = Y,
+         scientific_name = milkweed_sp) %>%
   mutate(region = "South")
 ```
 
+The head() of milkweed_points should look similar to this:
+```
+    longitude latitude       scientific_name occID
+1   -119.9609 34.71440 Asclepias californica     1
+1.1 -119.9610 34.71402 Asclepias californica     2
+1.2 -119.9612 34.71343 Asclepias californica     3
+```
+*Note the index looks kind of weird (1, 1.1, 1.2 etc) since we split a polygon (one row) in to multiple row, which added the decimal steps. 
+
+
 ### Join new data with old data
 
-If this new data is in the same data frame as the data originally used for modeling, do not run this next code chunk, and move on the the next section **Data Sub-setting**. If this new data has none of the previous survey data, continue with running the code below. 
+If this new data is in the same data frame as the data originally used for modeling, **do not** run this next code chunk, and move on the the next section **Data Sub-setting**. If this new data has none of the previous survey data, continue with running the code below. 
 
 ```{r}
-milkweed_points <- rbind(milkweed_points, milkweed_survey_2023)
+milkweed_points <- rbind(milkweed_points, milkweed_survey_2023) %>%
+  mutate(occID = row_number())
 
-# milkweed_points <- rbind(milkweed_points, new_data)
+# milkweed_points <- rbind(milkweed_points, new_data) %>%
+#  mutate(occID = row_number())
 ```
 
-
 ##### Troubleshooting Errors
+
 
 ### Data subsetting
 
 #### Select data for each species in the northern region of the LPNF
 ```{r}
+# filter to only have data from the northern region 
 milkweed_north <- milkweed_points %>%
   filter(region == "North")
 
 # californica
 californica_north <- milkweed_north %>%
-  filter(milkweed_sp == "Asclepias californica")
+  filter(scientific_name == "Asclepias californica")
 # erosa
 erosa_north <- milkweed_north %>%
-  filter(milkweed_sp == "Asclepias erosa")
+  filter(scientific_name == "Asclepias erosa")
 # eriocarpa
 eriocarpa_north <- milkweed_north %>%
-  filter(milkweed_sp == "Asclepias eriocarpa")
+  filter(scientific_name == "Asclepias eriocarpa")
 # vestita
 vestita_north <- milkweed_north %>%
-  filter(milkweed_sp == "Asclepias vestita")
+  filter(scientific_name == "Asclepias vestita")
 ```
 
 #### Select data for each species in the southern region of the LPNF
 ```{r}
+# filter to only have data from the southern region
 milkweed_south <- milkweed_points %>%
   filter(region == "South")
 
 # californica
 californica_south <- milkweed_south %>%
-  filter(milkweed_sp == "Asclepias californica")
+  filter(scientific_name == "Asclepias californica")
 # erosa
 erosa_south <- milkweed_south %>%
-  filter(milkweed_sp == "Asclepias erosa")
+  filter(scientific_name == "Asclepias erosa")
 # eriocarpa
 eriocarpa_south <- milkweed_south %>%
-  filter(milkweed_sp == "Asclepias eriocarpa")
+  filter(scientific_name == "Asclepias eriocarpa")
 # vestita
 vestita_south <- milkweed_south %>%
-  filter(milkweed_sp == "Asclepias vestita")
+  filter(scientific_name == "Asclepias vestita")
 ```
 
 
@@ -173,6 +204,13 @@ To perform species distribution modeling, we have used various functions from th
 ### Model South
 
 #### Obtain environmental data values based on the occurence coordinates and join with the occurance points
+
+Select species you want to model
+```{r}
+species_name <- "Asclepias eriocarpa"
+```
+
+
 ```{r}
 occurence_coordinates <- eriocarpa_south[c("longitude", "latitude")]
 environmental_values <- as.data.frame(raster::extract(environmental_layers, occurence_coordinates, cellnumbers = TRUE))
@@ -197,21 +235,126 @@ environmental_mask <- penvs_bgMask(
 
 # Sample background points from the provided area
 bg_sample_points <- penvs_bgSample(
-  occs = eriocarpa_south,
-  bgMask =  environmental_mask,
-  bgPtsNum = 5000)
+  occs = eriocarpa_south, # occurence points
+  bgMask =  environmental_mask, # environmental layers mask made above
+  bgPtsNum = 5000) # number of points to be sampled from the area
 
 # Extract values of environmental layers for each background point
-bgEnvsVals_Ac <- as.data.frame(raster::extract(environmental_mask,  bg_sample_points))
-##Add extracted values to background points table
-bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias erosa"), bg_sample_points,
+bg_env_values <- as.data.frame(raster::extract(environmental_mask,  bg_sample_points))
+
+#Add extracted values to background points table
+bg_env_values <- cbind(scientific_name = paste0("bg_", species_name), bg_sample_points,
                             occID = NA, year = NA, institution_code = NA, country = NA,
                             state_province = NA, locality = NA, elevation = NA,
-                            record_type = NA, bgEnvsVals_Ac)
+                            record_type = NA, bg_env_values)
 ```
 
+#### Partition occurrence data
 
-#### Model transfer (optional, if no north data)
+Partition occurrences and background points for model training and validation using block, a spatial partition method.
+
+```{r}
+# Partitioned data
+partition_groups <- part_partitionOccs(
+  occs = eriocarpa_south ,
+  bg =  bg_sample_points, 
+  method = "block") 
+```
+
+#### Build and Evaluate Model
+
+We are using “Linear” (L) and “Linear Quadratic” (LQ) feature class settings (where L is more simple, i.e., canopy cover + temperature, and LQ is more complex, i.e., canopy cover^2^ + temperature^2^) and not using Hinge (piecewise linear functions) because the relationship that we are modeling is relatively simple. 
+
+Regularization multipliers penalize model complexity, where higher values indicate smoother, less complex models. This is used to retain only the variables with the greatest predictive contribution in the model, thus performing feature selection. Regularization multipliers from 0.5 to 4 by increments of 0.5 are used, resulting in 16 models (L, LQ, x1 each per incremental increase). 
+
+```{r}
+# Run maxent model for the selected species
+species_model <- model_maxent(
+  occs = eriocarpa_south, 
+  bg = bg_env_values,
+  user.grp = partition_groups, 
+  bgMsk = environmental_mask,
+  rms = c(0.5, 4), 
+  rmsStep =  0.5,
+  fcs = c('L', 'LQ'),
+  clampSel = FALSE,
+  algMaxent = "maxnet",
+  parallel = FALSE,
+  numCores = 7)
+
+# View table of model results
+species_model@results %>%
+  gt::gt()
+
+# Select model and predict
+auc_max_south <- species_model@results %>%
+  select(tune.args, auc.train) %>%
+  arrange(desc(auc.train)) %>%
+  head(1) %>%
+  mutate(tune.args = as.character(tune.args))
+
+selected_model <- species_model@models[[auc_max_south$tune.args]] 
+
+model_prediction <- predictMaxnet(selected_model, environmental_mask,
+                                          type = "cloglog", # change for different types
+                                          clamp = FALSE)
+```
+
+#### Model transfer (optional; only run if there is no North data)
+
+```{r}
+# Generate a transfer of the model to the desired area
+xfer_area_mod <- xfer_area(
+  evalOut = species_model,
+  curModel = auc_max_south$tune.args,
+  envs = environmental_layers, 
+  outputType = "cloglog",
+  alg = "maxnet",
+  clamp = FALSE,
+  xfExt = lpnf_north_buffered)
+
+# store the cropped transfer variables
+xfer_prediction <- xfer_area_mod$xferArea
+
+# join the south model and north transfer model
+joined_model <- merge(xfer_prediction, model_prediction) %>%
+  rast()
+```
+
+```{r}
+## Plot everything together
+
+# Get values of prediction
+map_pred_values <- getRasterVals(model_prediction, "cloglog") # change for different types
+map_xfer_values <- getRasterVals(xfer_area_mod$xferArea,"cloglog")
+
+# Define colors and legend  
+suitability_pal <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
+
+legend_pal <- colorNumeric(suitability_pal, map_pred_values, na.color = 'transparent')
+raster_pal <- colorNumeric(suitability_pal, map_pred_values, na.color = 'transparent')
+xfre_legend_pal <- colorNumeric(suitability_pal, map_xfer_values, na.color = 'transparent')
+xfer_raster_pal <- colorNumeric(suitability_pal, map_xfer_values, na.color = 'transparent')
+
+leaflet() %>% 
+  addProviderTiles(providers$Esri.WorldTopoMap) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = map_xfer_values, layerId = "xfer",
+            labFormat = reverseLabel(), decreasing = TRUE,
+            title = paste(species_name, "<br>Predicted Suitability<br>")) %>%
+ ##add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_north, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer')  %>%
+  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
+                   fillOpacity = 0.2, weight = 2) %>% 
+  ##Add model prediction
+  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+                 group = 'vis', layerId = 'mapPred', method = "ngb") %>%
+  addPolygons(data = lpnf_south,
+              fill = FALSE,
+              color = "black",
+              weight = 2)
+```
 
 
 ### Model North
@@ -220,11 +363,11 @@ bgEnvsVals_Ac <- cbind(scientific_name = paste0("bg_", "Asclepias erosa"), bg_sa
 ## Model Selection
 ```{r}
 # select model and predict
-  auc_max <- model_Ac@results %>%
-    select(tune.args, auc.train) %>%
+auc_max_north <- model_Ac@results %>%
+  select(tune.args, auc.train) %>%
   arrange(desc(auc.train)) %>%
-    head(1) %>%
-    mutate(tune.args = as.character(tune.args))
+  head(1) %>%
+  mutate(tune.args = as.character(tune.args))
 ```
 
 ## Join models & Plot
