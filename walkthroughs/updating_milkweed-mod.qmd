@@ -318,39 +318,35 @@ xfer_prediction <- xfer_area_mod$xferArea
 
 # join the south model and north transfer model
 joined_model <- merge(xfer_prediction, model_prediction) %>%
-  rast()
+  rast() %>%
+  crop(lpnf_boundary, mask = TRUE)
 ```
 
 ```{r}
 ## Plot everything together
 
 # Get values of prediction
-map_pred_values <- getRasterVals(model_prediction, "cloglog") # change for different types
-map_xfer_values <- getRasterVals(xfer_area_mod$xferArea,"cloglog")
+map_pred_values <- getRasterVals(joined_model, "cloglog") # change for different types
 
 # Define colors and legend  
 suitability_pal <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
 
 legend_pal <- colorNumeric(suitability_pal, map_pred_values, na.color = 'transparent')
 raster_pal <- colorNumeric(suitability_pal, map_pred_values, na.color = 'transparent')
-xfre_legend_pal <- colorNumeric(suitability_pal, map_xfer_values, na.color = 'transparent')
-xfer_raster_pal <- colorNumeric(suitability_pal, map_xfer_values, na.color = 'transparent')
+
 
 leaflet() %>% 
   addProviderTiles(providers$Esri.WorldTopoMap) %>%
-  addLegend_decreasing("bottomleft", pal = legendPal, values = map_xfer_values, layerId = "xfer",
+  addLegend_decreasing("bottomleft", pal = legend_pal, values = map_pred_values,
             labFormat = reverseLabel(), decreasing = TRUE,
             title = paste(species_name, "<br>Predicted Suitability<br>")) %>%
- ##add transfer polygon (user drawn area)
-  addPolygons(data = lpnf_north, fill = FALSE,
-              weight = 2, color = "black", group = 'xfer')  %>%
-  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
+  addCircleMarkers(data = eriocarpa_points, lat = ~latitude, lng = ~longitude,
                    radius = 2, color = 'black', fill = TRUE, fillColor = "black",
                    fillOpacity = 0.2, weight = 2) %>% 
   ##Add model prediction
-  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+  addRasterImage(joined_model, colors = raster_pal, opacity = 0.7,
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
-  addPolygons(data = lpnf_south,
+  addPolygons(data = lpnf_boundary,
               fill = FALSE,
               color = "black",
               weight = 2)
@@ -375,7 +371,9 @@ auc_max_north <- model_Ac@results %>%
 - South only and transfer
 
 ## Save model outputs
-- Where to move to update dashboard
+
+
+
 
 
 # Updating “closed” Trails and Roads
