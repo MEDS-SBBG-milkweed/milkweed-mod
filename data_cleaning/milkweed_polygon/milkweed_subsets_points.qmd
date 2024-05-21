@@ -94,18 +94,6 @@ vestitia_centroids <- vestita |>
 all_spec_points <- st_write(all_spec_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
 
 
-californica_centroids <- st_write(californica_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/californica_centroids.shp")
-
-# this step outputted this warning: 
-# Writing 48 features with 43 fields and geometry type Point.
-# Warning: GDAL Message 1: One or several characters couldn't be converted correctly from UTF-8 to ISO-8859-1. This warning will not be emitted anymore.
-
-eriocarpa_centroids <- st_write(eri_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/eriocarpa_centroids.shp")
-
-# which gave the following Warning message:
-# Writing 116 features with 43 fields and geometry type Point.
-# Warning: GDAL Message 1: One or several characters couldn't be converted correctly from UTF-8 to ISO-8859-1.  This warning will not be emitted anymore.
-
 ```
 
 
