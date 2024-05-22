@@ -40,25 +40,26 @@ cali_points <- cali_points %>%
 
 
 ##~~~~~~~~~~~~~~~~~~~~~
-##  ~ Vestita  ----
+##  ~ Eriocarpa  ----
 ##~~~~~~~~~~~~~~~~~~~~~
 
 # remove "No" observations
-vestita <- milkweed_presence %>%
-  filter(milkweed_sp == "Asclepias vestita") %>%
+eriocarpa <- milkweed_presence %>%
+  filter(milkweed_sp == "Asclepias eriocarpa") %>%
   dplyr::select(milkweed_sp)
 
 # make points
-multi_p_vestita <- st_cast(vestita, "MULTIPOINT")
-vestita_points <- multi_p_vestita  %>% st_cast("POINT")
+multi_p_eriocarpa <- st_cast(eriocarpa, "MULTIPOINT")
+eriocarpa_points <- multi_p_eriocarpa  %>% st_cast("POINT")
 
-vestita_points <- vestita_points %>%
+eriocarpa_points <- eriocarpa_points %>%
   st_coordinates() %>%
   data.frame() %>%
-  mutate(scientific_name = "Asclepias vestita") %>%
+  mutate(scientific_name = "Asclepias eriocarpa") %>%
   mutate(occID = row_number()) %>%
   rename(longitude = X,
          latitude = Y)
+
 
 ##~~~~~~~~~~~~~~~~~~~~~
 ##  ~ Erosa  ----
@@ -81,30 +82,31 @@ erosa_points <- erosa_points %>%
   rename(longitude = X,
          latitude = Y)
 
+
 ##~~~~~~~~~~~~~~~~~~~~~
-##  ~ eriocarpa  ----
+##  ~ Vestita  ----
 ##~~~~~~~~~~~~~~~~~~~~~
 
 # remove "No" observations
-eriocarpa <- milkweed_presence %>%
-  filter(milkweed_sp == "Asclepias eriocarpa") %>%
+vestita <- milkweed_presence %>%
+  filter(milkweed_sp == "Asclepias vestita") %>%
   dplyr::select(milkweed_sp)
 
 # make points
-multi_p_eriocarpa <- st_cast(eriocarpa, "MULTIPOINT")
-eriocarpa_points <- multi_p_eriocarpa  %>% st_cast("POINT")
+multi_p_vestita <- st_cast(vestita, "MULTIPOINT")
+vestita_points <- multi_p_vestita  %>% st_cast("POINT")
 
-eriocarpa_points <- eriocarpa_points %>%
+vestita_points <- vestita_points %>%
   st_coordinates() %>%
   data.frame() %>%
-  mutate(scientific_name = "Asclepias eriocarpa") %>%
+  mutate(scientific_name = "Asclepias vestita") %>%
   mutate(occID = row_number()) %>%
   rename(longitude = X,
          latitude = Y)
 
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##                              Export to Taylor                            ----
+##                              Export to Data Folder                            ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # write_csv(cali_points, "~/../../capstone/milkweedmod/clean_data/milkweed_data/sdm_milkweed_points/californica_points.csv")
