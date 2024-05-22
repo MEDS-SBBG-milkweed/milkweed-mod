@@ -1,6 +1,6 @@
 ---
-author: "Anna Ramji"
 title: "Milkweed Subsets & Polygons to Points"
+date-modified: "2024-05-22"
 ---
 
 
@@ -49,7 +49,6 @@ erosa <- milkweed_presence |>
 vestita <- milkweed_presence |> 
   filter(milkweed_sp %in% c("Asclepias vestita")) # only 7 observations
 
-
 ```
 
 
@@ -60,7 +59,11 @@ all_spec_subset <- milkweed_presence |>
   select(milkweed_sp, geometry)
 
 all_spec_centroids <- st_centroid(all_spec_subset)
+```
 
+
+```{r, eval=FALSE}
+# ----------- Optional -- Creating species-specific centroids, including number of plants ---------------------
 californica_centroids <- californica |> 
   select(milkweed_sp, # species name
          milkweed_pl, # number of plants
@@ -85,14 +88,17 @@ vestitia_centroids <- vestita |>
          geometry) |> # associated geometries (geometries are automatically retained whenever you manipulate a special feature, but I'm specifying it to be overly clear for reproducibility )
   st_centroid() 
 
+
+```
+
+
+```{r, eval=FALSE}
+# checking crs
 # st_crs(all_spec_centroids)
 # epsg 3857
-
-
 # ------------ Writing data to new files in Taylor ----------------------------
 
 all_spec_points <- st_write(all_spec_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
-
 
 ```
 
