@@ -203,50 +203,53 @@ To perform species distribution modeling, we have used various functions from th
 
 ### Model South
 
-#### Obtain environmental data values based on the occurence coordinates and join with the occurance points
+This section......
 
-Select species you want to model
+Select the species you want to model
 ```{r}
-species_name <- "Asclepias eriocarpa"
+## Change these values! ##
+species_name <- "Asclepias eriocarpa" # change this to the species name
+species_points_south <- eriocarpa_south # change this to the corresponding species data frame for the south
 ```
 
+#### Obtain environmental data values based on the occurence coordinates and join with the occurance points
 
 ```{r}
-occurence_coordinates <- eriocarpa_south[c("longitude", "latitude")]
-environmental_values <- as.data.frame(raster::extract(environmental_layers, occurence_coordinates, cellnumbers = TRUE))
+occurence_coordinates_south <- species_points_south[c("longitude", "latitude")]
+environmental_values_south <- as.data.frame(raster::extract(environmental_layers, occurence_coordinates_south, cellnumbers = TRUE))
 
 # add columns for env variable values for each occurrence record
-occurence_env_values <- cbind(eriocarpa_south, environmental_values)
+occurence_env_values_south <- cbind(species_points_south, environmental_values_south)
 ```
 
 #### Process the occurence and environmental data
 ```{r}
 # Spatially thin the occurrence points
-eriocarpa_south <- poccs_thinOccs(
-  occs = occurence_env_values, 
+species_points_south <- poccs_thinOccs(
+  occs = occurence_env_values_south, 
   thinDist = 0.05) # adjust this value if you would like to change the thinning distaince (in km)
 
 
 # Mask environmental data to provided extent
-environmental_mask <- penvs_bgMask(
-  occs = eriocarpa_south, # occurence points
+environmental_mask_south <- penvs_bgMask(
+  occs = species_points_south, # occurence points
   envs = environmental_layers, # environmental layers
   bgExt = lpnf_south_buffered) # extent to model on (southern section of lpnf with a buffer)
 
 # Sample background points from the provided area
-bg_sample_points <- penvs_bgSample(
-  occs = eriocarpa_south, # occurence points
-  bgMask =  environmental_mask, # environmental layers mask made above
+bg_sample_points_south <- penvs_bgSample(
+  occs = species_points_south, # occurence points
+  bgMask =  environmental_mask_south, # environmental layers mask made above
   bgPtsNum = 5000) # number of points to be sampled from the area
 
 # Extract values of environmental layers for each background point
-bg_env_values <- as.data.frame(raster::extract(environmental_mask,  bg_sample_points))
+bg_env_values_south <- as.data.frame(raster::extract(environmental_mask_south,  bg_sample_points_south))
 
 #Add extracted values to background points table
-bg_env_values <- cbind(scientific_name = paste0("bg_", species_name), bg_sample_points,
+bg_env_values_south <- cbind(scientific_name = paste0("bg_", species_name), bg_sample_points_south,
                             occID = NA, year = NA, institution_code = NA, country = NA,
                             state_province = NA, locality = NA, elevation = NA,
-                            record_type = NA, bg_env_values)
+                            record_type = NA, bg_env_values_south)
 ```
 
 #### Partition occurrence data
@@ -255,9 +258,9 @@ Partition occurrences and background points for model training and validation us
 
 ```{r}
 # Partitioned data
-partition_groups <- part_partitionOccs(
-  occs = eriocarpa_south ,
-  bg =  bg_sample_points, 
+partition_groups_south <- part_partitionOccs(
+  occs = species_points_south ,
+  bg =  bg_sample_points_south, 
   method = "block") 
 ```
 
@@ -269,11 +272,11 @@ Regularization multipliers penalize model complexity, where higher values indica
 
 ```{r}
 # Run maxent model for the selected species
-species_model <- model_maxent(
-  occs = eriocarpa_south, 
-  bg = bg_env_values,
-  user.grp = partition_groups, 
-  bgMsk = environmental_mask,
+species_model_south <- model_maxent(
+  occs = species_points_south, 
+  bg = bg_env_values_south,
+  user.grp = partition_groups_south, 
+  bgMsk = environmental_mask_south,
   rms = c(0.5, 4), 
   rmsStep =  0.5,
   fcs = c('L', 'LQ'),
@@ -283,29 +286,31 @@ species_model <- model_maxent(
   numCores = 7)
 
 # View table of model results
-species_model@results %>%
+species_model_south@results %>%
   gt::gt()
 
 # Select model and predict
-auc_max_south <- species_model@results %>%
+auc_max_south <- species_model_south@results %>%
   select(tune.args, auc.train) %>%
   arrange(desc(auc.train)) %>%
   head(1) %>%
   mutate(tune.args = as.character(tune.args))
 
-selected_model <- species_model@models[[auc_max_south$tune.args]] 
+selected_model_south <- species_model_south@models[[auc_max_south$tune.args]] 
 
-model_prediction <- predictMaxnet(selected_model, environmental_mask,
+model_prediction <- predictMaxnet(selected_model_south, environmental_mask_south,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
 ```
 
 #### Model transfer (optional; only run if there is no North data)
 
+If you have sufficient data for modeling separately on the Northern part of the forest, continue onto the next section: **Model North**. 
+
 ```{r}
 # Generate a transfer of the model to the desired area
 xfer_area_mod <- xfer_area(
-  evalOut = species_model,
+  evalOut = species_model_south,
   curModel = auc_max_south$tune.args,
   envs = environmental_layers, 
   outputType = "cloglog",
@@ -322,9 +327,98 @@ joined_model <- merge(xfer_prediction, model_prediction) %>%
   crop(lpnf_boundary, mask = TRUE)
 ```
 
-```{r}
-## Plot everything together
 
+### Model North
+
+If you do not have sufficient data to model on the Northern part of the forest, do not attempt to run the code in the section. Instead, make sure you have run the section above: **Model Transfer**. 
+
+The process for modeling on the Northern section is the same as modeling on the Southern section. For efficiency, the modeling steps have been combined into one code block with less comments throughout. 
+
+Select the species you want to model
+```{r}
+## Change these values! ##
+species_points_north <- eriocarpa_north # change this to the corresponding species data frame for the south
+```
+
+```{r}
+# obtain the occurrence coordinates
+occurence_coordinates_north <- species_points_north[c("longitude", "latitude")]
+environmental_values_north <- as.data.frame(raster::extract(environmental_layers, occurence_coordinates_north, cellnumbers = TRUE))
+
+# add columns for env variable values for each occurrence record
+occurence_env_values_north <- cbind(species_points_north, environmental_values_north)
+
+# Spatially thin the occurrence points
+species_points_north <- poccs_thinOccs(
+  occs = occurence_env_values_north, 
+  thinDist = 0.05) # adjust this value if you would like to change the thinning distaince (in km)
+
+# Mask environmental data to provided extent
+environmental_mask_north <- penvs_bgMask(
+  occs = species_points_north, # occurence points
+  envs = environmental_layers, # environmental layers
+  bgExt = lpnf_north_buffered) # extent to model on (northern section of lpnf with a buffer)
+
+# Sample background points from the provided area
+bg_env_values_north <- penvs_bgSample(
+  occs = species_points_north, # occurence points
+  bgMask =  environmental_mask_north, # environmental layers mask made above
+  bgPtsNum = 5000) # number of points to be sampled from the area
+
+# Extract values of environmental layers for each background point
+bg_env_values_north <- as.data.frame(raster::extract(environmental_mask_north,  bg_sample_points_north))
+
+#Add extracted values to background points table
+bg_env_values_north <- cbind(scientific_name = paste0("bg_", species_name), bg_env_values_north,
+                            occID = NA, year = NA, institution_code = NA, country = NA,
+                            state_province = NA, locality = NA, elevation = NA,
+                            record_type = NA, bg_env_values_north)
+
+# Partitioned data
+partition_groups_north <- part_partitionOccs(
+  occs = species_points_north ,
+  bg =  bg_sample_points_north, 
+  method = "block") 
+
+# Run maxent model for the selected species
+species_model_north <- model_maxent(
+  occs = species_points_north, 
+  bg = bg_env_values_north,
+  user.grp = partition_groups_north, 
+  bgMsk = environmental_mask_north,
+  rms = c(0.5, 4), 
+  rmsStep =  0.5,
+  fcs = c('L', 'LQ'),
+  clampSel = FALSE,
+  algMaxent = "maxnet",
+  parallel = FALSE,
+  numCores = 7)
+
+# View table of model results
+species_model_north@results %>%
+  gt::gt()
+
+# Select model and predict
+auc_max_north <- species_model_north@results %>%
+  select(tune.args, auc.train) %>%
+  arrange(desc(auc.train)) %>%
+  head(1) %>%
+  mutate(tune.args = as.character(tune.args))
+
+selected_model_north <- species_model_north@models[[auc_max_north$tune.args]] 
+
+model_prediction_north <- predictMaxnet(selected_model_north, environmental_mask_north,
+                                          type = "cloglog", # change for different types
+                                          clamp = FALSE)
+# join the south model and north model
+joined_model <- merge(model_prediction_south, model_prediction_north) %>%
+  rast() %>%
+  crop(lpnf_boundary, mask = TRUE)
+```
+
+
+## Plotting
+```{r}
 # Get values of prediction
 map_pred_values <- getRasterVals(joined_model, "cloglog") # change for different types
 
@@ -352,26 +446,11 @@ leaflet() %>%
               weight = 2)
 ```
 
-
-### Model North
-
-
-## Model Selection
-```{r}
-# select model and predict
-auc_max_north <- model_Ac@results %>%
-  select(tune.args, auc.train) %>%
-  arrange(desc(auc.train)) %>%
-  head(1) %>%
-  mutate(tune.args = as.character(tune.args))
-```
-
-## Join models & Plot
-- North and south data present
-- South only and transfer
-
 ## Save model outputs
 
+```{r}
+
+```
 
 
 
