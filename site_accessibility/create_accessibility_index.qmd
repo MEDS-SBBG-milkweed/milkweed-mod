@@ -4,8 +4,9 @@ title: "Creating the final accessibility index"
 
 ```{r}
 library(terra)
+library(here)
 # source rescale_raster function
-source("../scripts/rescale_raster.R")
+source(here("R", "rescale_raster.R"))
 ```
 
 
@@ -36,5 +37,55 @@ plot(access_index_final)
 # Save final accessibility index
 ```{r}
 # writeRaster(access_index_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"), overwrite = TRUE)
+```
+
+# plot accessibility 
+```{r}
+access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+                         quiet = TRUE)
+
+library(leaflet)
+library(wallace)
+source(here("R", "addLegend_decreasing.R"))
+
+accessVals <- getRasterVals(access_index) # change for different types
+
+pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
+
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+
+
+accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Accessibility Index") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(access_index, colors = rasPal, opacity = 0.7,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "topleft")
+
+accessibility_index_leaflet
+
+```
+
+## save leaflet as png
+```{r}
+library(mapview)
+
+## 'leaflet' objects (image above)
+# need to install PhantomJS with webshot::install_phantomjs()
+mapshot(accessibility_index_leaflet, file = here("~/access_index_leaflet.png"))
+
+## 'mapview' objects (image below)
+m2 <- mapview(breweries91)
+mapshot(m2, file = "~/breweries.png")
 ```
 
