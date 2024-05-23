@@ -13,6 +13,7 @@ library(tidyverse)
 library(here)
 library(terra)
 library(raster)
+library(gt)
 source("R/addLegend_decreasing.R")
 source("R/setup.R")
 ```
@@ -116,7 +117,7 @@ milkweed_points <- milkweed_cast_points %>%
 
 head(milkweed_points)
 
-# ---------------------
+# --------------------- for Sam--- delete
 milkweed_points <- milkweed_cast_points %>%
   group_by(milkweed_sp) %>% 
   st_coordinates() %>% # get the lat long coords from the point geometries (this returns only the lat long as a list)
@@ -298,7 +299,7 @@ auc_max_south <- species_model_south@results %>%
 
 selected_model_south <- species_model_south@models[[auc_max_south$tune.args]] 
 
-model_prediction <- predictMaxnet(selected_model_south, environmental_mask_south,
+model_prediction_south <- predictMaxnet(selected_model_south, environmental_mask_south,
                                           type = "cloglog", # change for different types
                                           clamp = FALSE)
 ```
@@ -322,7 +323,7 @@ xfer_area_mod <- xfer_area(
 xfer_prediction <- xfer_area_mod$xferArea
 
 # join the south model and north transfer model
-joined_model <- merge(xfer_prediction, model_prediction) %>%
+joined_model <- merge(xfer_prediction, model_prediction_south) %>%
   rast() %>%
   crop(lpnf_boundary, mask = TRUE)
 ```
@@ -360,16 +361,16 @@ environmental_mask_north <- penvs_bgMask(
   bgExt = lpnf_north_buffered) # extent to model on (northern section of lpnf with a buffer)
 
 # Sample background points from the provided area
-bg_env_values_north <- penvs_bgSample(
+bg_sample_points_north <- penvs_bgSample(
   occs = species_points_north, # occurence points
   bgMask =  environmental_mask_north, # environmental layers mask made above
-  bgPtsNum = 5000) # number of points to be sampled from the area
+  bgPtsNum = 1000) # number of points to be sampled from the area
 
 # Extract values of environmental layers for each background point
 bg_env_values_north <- as.data.frame(raster::extract(environmental_mask_north,  bg_sample_points_north))
 
 #Add extracted values to background points table
-bg_env_values_north <- cbind(scientific_name = paste0("bg_", species_name), bg_env_values_north,
+bg_env_values_north <- cbind(scientific_name = paste0("bg_", species_name), bg_sample_points_north,
                             occID = NA, year = NA, institution_code = NA, country = NA,
                             state_province = NA, locality = NA, elevation = NA,
                             record_type = NA, bg_env_values_north)
@@ -430,14 +431,11 @@ raster_pal <- colorNumeric(suitability_pal, map_pred_values, na.color = 'transpa
 
 
 leaflet() %>% 
-  addProviderTiles(providers$Esri.WorldTopoMap) %>%
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legend_pal, values = map_pred_values,
             labFormat = reverseLabel(), decreasing = TRUE,
             title = paste(species_name, "<br>Predicted Suitability<br>")) %>%
-  addCircleMarkers(data = eriocarpa_points, lat = ~latitude, lng = ~longitude,
-                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
-                   fillOpacity = 0.2, weight = 2) %>% 
-  ##Add model prediction
+  # Add model prediction
   addRasterImage(joined_model, colors = raster_pal, opacity = 0.7,
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   addPolygons(data = lpnf_boundary,
