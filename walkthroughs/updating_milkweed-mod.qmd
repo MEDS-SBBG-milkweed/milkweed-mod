@@ -447,7 +447,8 @@ leaflet() %>%
 ## Save model outputs
 
 ```{r}
-
+# install.packages(snakecase)
+writeRaster(joined_model, paste0("outputs/sdm/", snakecase::to_snake_case(species_name), "_sdm.tif"))
 ```
 
 
