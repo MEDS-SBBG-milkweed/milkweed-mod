@@ -64,7 +64,7 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
                        labFormat = reverseLabel(), decreasing = TRUE,
                        title = "Accessibility Index") %>%
   # map model prediction raster and transfer polygon
-  addRasterImage(access_index, colors = rasPal, opacity = 0.7,
+  addRasterImage(access_index, colors = rasPal,
                  method = "ngb") %>%
   
   # #add transfer polygon (user drawn area)
