@@ -221,6 +221,7 @@ californica_model <- merge(xfer_area_Ac$xferArea, predSel_Ac) %>%
 names(californica_model) <- "fc.LQ_rm.0.5"
 #writeRaster(californica_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"), overwrite=TRUE)
 #write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.rda"))
+# writeRaster(californica_model, "outputs/dashboard/californica_sdm.tif")
 ```
 
 ```{r}
