@@ -9,7 +9,7 @@ library(tidyverse)
 library(sf)
 
 # Read in poygon data
-milkweed_data_raw <- st_read(here::here("~/../../capstone/milkweedmod/data/milkweed_polygon_data/"))
+milkweed_data_raw <- st_read(here::here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
 
 # Filter and project
 milkweed_presence <- milkweed_data_raw |> 

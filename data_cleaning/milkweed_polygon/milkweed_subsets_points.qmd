@@ -19,7 +19,7 @@ library(rnaturalearthdata)
 
 # read in data
 
-milkweed_path <- here("~/../../capstone/milkweedmod/data/milkweed_polygon_data/")
+milkweed_path <- here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/")
 
 milkweed_data_raw <- st_read(milkweed_path)
 
@@ -99,7 +99,7 @@ vestitia_centroids <- vestita |>
 # ------------ Writing data to new files in Taylor ----------------------------
 
 all_spec_points <- st_write(all_spec_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
-
+st_write(all_spec_centroids, "outputs/dashboard/species_centroids/all_species_points.shp")
 ```
 
 
