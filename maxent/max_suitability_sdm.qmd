@@ -8,7 +8,7 @@ format: html
 library(here)
 library(terra)
 library(leaflet)
-source("scripts/addLegend_decreasing.R")
+source("R/addLegend_decreasing.R")
 ```
 
 ```{r}
@@ -48,5 +48,6 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTerrain) %>%
               weight = 2)
 
 # writeRaster(max_suitable, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/max_suitable_sdm.tif"), overwrite=TRUE)
+writeRaster(max_suitable, "outputs/dashboard/max_suitable_sdm.tif")
 ```
 

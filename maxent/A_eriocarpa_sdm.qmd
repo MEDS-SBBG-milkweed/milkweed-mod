@@ -221,6 +221,7 @@ eriocarpa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac) %>%
 names(eriocarpa_model) <- "fc.LQ_rm.0.5"
 # writeRaster(eriocarpa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"), overwrite=TRUE)
 # write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.rda"))
+# writeRaster(eriocarpa_model, "outputs/dashboard/eriocarpa_sdm.tif")
 ```
 
 ```{r}

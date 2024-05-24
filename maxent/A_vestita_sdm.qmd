@@ -243,6 +243,7 @@ vestita_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)  %>%
 names(vestita_model) <- "fc.LQ_rm.0.5"
 # writeRaster(vestita_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"), overwrite=TRUE)
 # write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.rda"))
+writeRaster(vestita_model, "outputs/dashboard/vestita_sdm.tif")
 ```
 
 ```{r}
