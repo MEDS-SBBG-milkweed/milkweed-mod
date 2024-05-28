@@ -281,12 +281,21 @@ Specify width and height to get desired dimensions (long and short)
 # save suitability legend
 ggsave(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/suitability_legend.png"), plot = legend_suitability,
        width = 8, height = 1.5)
+# save suitability legend in GitHub
+ggsave(here("outputs/dashboard/suitability_legend.png"), plot = legend_suitability,
+       width = 8, height = 1.5)
 
 # save accessibility legend
 ggsave(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/accessibility_legend.png"), plot = legend_access,
        width = 8, height = 1.5)
+# save accessibility legend in GitHub
+ggsave(here("outputs/dashboard/accessibility_legend.png"), plot = legend_access,
+       width = 8, height = 1.5)
 
 # save priority legend
 ggsave(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_legend.png"), plot = legend_priority,
+       width = 8, height = 1.5)
+# save priority legend in GitHub
+ggsave(here("outputs/dashboard/priority_legend.png"), plot = legend_priority,
        width = 8, height = 1.5)
 ```
