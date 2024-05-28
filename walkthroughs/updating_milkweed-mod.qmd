@@ -458,24 +458,24 @@ writeRaster(joined_model, paste0("outputs/sdm/", snakecase::to_snake_case(specie
 
 **There is only the ability to filter roads by name or status in the southern section of the LPNF**
 
-Navigate to `data_cleaning/trails_and_roads.qmd`. Scroll to line 114, the start of the section titled "Requested filtering option: Filter out specific trails and roads by name." There you will find a brief description of the following code and how to use it to filter out roads by their specific name and/or by their designated "open" or "closed" status in the data set. Follow these instructions, and run all the necesssary code to filter and save as cleaned data.
+Navigate to `data_cleaning/trails_and_roads.qmd`. Scroll to line 114, the start of the section titled "Requested filtering option: Filter out specific trails and roads by name." There you will find a brief description of the following code and how to use it to filter out roads by their specific name and/or by their designated "open" or "closed" status in the data set. Follow these instructions, and run all the necessary code to filter and save as cleaned data.
+
+Once this is done, you will have to then update the site accessibility and site priority indices, but this should just require you to run a few notebooks, as detailed below. You shouldn't have to change anything in the code.
 
 ### Using those updates to update site accessibility 
 
-Once the trails and roads data are filtered to your liking and saved in the `clean_data` folder, you have a few more steps to update the survey site accessibility index and priority score index.
+Once the trails and roads data are filtered to your liking and saved in the `clean_data` folder, you have a few more steps to update the survey site accessibility index.
 
 1. First, navigate to `site_accessibility/distance_calculations.qmd`. Run this whole document to both re-calculate the distance from roads and trails with the updated data and re-save in the `clean_data` folder.
 2. Then, navigate to `site_accessibiility/rescale_all_layers.qmd`. Run the whole document to both rescale the new distance dataset and re-save in the `clean_data` folder.
-3. Now, navigate to `site_accessibiility/create_accessibility_index.qmd`. Run this whole document to update the survey site accessibility index and re-save it in the `outputs` folder.
-
-
-Instruct on where/how to run rescale layers, etc. again.
+3. Now, navigate to `site_accessibiility/create_accessibility_index.qmd`. Run this whole document to both update the survey site accessibility index and re-save it in the `outputs` folder.
 
 ## Updating Site Priority 
 
-4. Lastly, navigate to the `priority_sites` folder and open both documents. First, run `priority_sites.qmd` to update the priority index for each milkweed species and re-save in the `outputs` folder. Then, run the `priority_sites_table.qmd` to update the table containing the locations of each raster cell, the priority score for each milkweed species, the accessibility score, and the visited status.
-Using new outputs from SDM – north and south, species-specific and max(all) 
+*Whether you updated the species distribution models or the site accessibility index (via roads and trails), updating the site priority index requires the same two steps*
 
-Save outputs to _____ (note here that this is where the dashboard will be pulling from) 
+Updating site priority involves first updating the priority index for each milkweed species and then updating the table containing the locations of each raster cell, the priority score for each milkweed species, the accessibility score, and the visited status. Follow these steps to do so:
 
+1. Navigate to the `priority_sites` folder and open `priority_sites.qmd`. Run this document to both update the priority index for each milkweed species and re-save in the `outputs` folder. 
+2. Then, in the same `priority_sites` folder, run the `priority_sites_table.qmd` to update and re-save the data table.
 
