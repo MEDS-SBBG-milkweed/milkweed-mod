@@ -1,77 +1,82 @@
 ---
 title: "Infographic Legends for habitat suitability maps and site accessibility indices"
-author: "Amanda Herbst"
+date-updated: 2024-05-28
 ---
+
+Creating legends, infographic-style, for habitat suitability maps, survey site accessbility index, and high-priority survey site maps that live on the Milkweed Site Finder dashboard.
 
 ```{r}
 library(tidyverse)
-library(leaflet)
 library(here)
 ```
 
-# Suitability model Legend
+# Suitability model legend
 
 ```{r}
+# define color palette ----
 reds <- c("#B00000", "#C03333", "#D06666", "#DF9999", "#EFCCCC", "#FFFFFF")
 
+# create dataframe of positions and values of suitability that will be displayed ----
 legend_suit_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     suitability = c("0","0.2","0.4","0.6","0.8", "1"))
 
+# create suitability legend ----
 legend_suitability <- ggplot(data = legend_suit_df) + 
   
-  # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
+  # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the pre-defined suitability values ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55, fill = suitability), size = 6) + 
   
-    # add border
+  # add border to rectangles ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55), 
-            color = "black", fill = NA) +
+            color = "#3B3B3D", fill = NA) +
   
-  # Add index labels in the center of each rectangle with a light grey background ----
+  # Add suitability labels in the center of each rectangle with a light grey background ----
   geom_label(aes(x = pos + 0.5, y = 0.42, label = suitability), 
-            family = "arial", color = "black", fill = "grey90", 
+            family = "arial", color = "#3B3B3D", fill = "grey90", 
             label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
-  # add arrows and annotations
-  # right arrow
+  # add arrows and annotations ----
+  
+  # right arrow ----
   annotate(
     geom = "curve",
     x = 6.5, xend = 5.8,
-    y = .56, yend = .55,
+    y = .57, yend = .552,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
-    color = "black"
+    color = "#3B3B3D"
   ) +
-  # label right arrow (high suitability)
+  # label right arrow (high suitability) ----
   annotate(
     geom = "text",
     x = 6.1, y = .45,
     label = "A value of 1 indicates high \npredicted suitability,\ntherefore it is very likely to \nfind milkweed in locations \ncolored dark red",
-    color = "black",
+    color = "#3B3B3D",
     size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
-  # left arrow
+  # left arrow ----
   annotate(
     geom = "curve",
     x = -.5, xend = 0.2,
-    y = .33, yend = .35,
+    y = .32, yend = .348,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
-    color = "black"
+    color = "#3B3B3D"
   ) +
-  # label left arrow (low suitability)
+  # label left arrow (low suitability) ----
   annotate(
     geom = "text",
     x = -0.1, y = .45,
     label = "A value of 0 indicates low \npredicted suitability, \ntherefore it is NOT likely to \nfind milkweed in locations \ncolored white",
-    color = "black",
+    color = "#3B3B3D",
     size = 4,
     family = "arial",
     #fontface = 2,
@@ -80,7 +85,7 @@ legend_suitability <- ggplot(data = legend_suit_df) +
   # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
   scale_fill_manual(values = rev(reds)) +
   
-  # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
+  # set the limits of the y axis and x axis ----
   scale_y_continuous(limits = c(0.3,0.6)) + 
   scale_x_continuous(limits = c(-3,9)) + 
   
@@ -96,65 +101,70 @@ legend_suitability
 # Accessibility Legend
 
 ```{r}
+# define color palette ----
 blues <- c("#0029B0", "#3354C0", "#667FD0", "#99A9DF", "#CCD4EF", "#FFFFFF")
 
+# create dataframe of positions and values of accessibility that will be displayed ----
 legend_access_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     accessibility = c("0","0.2","0.4","0.6","0.8", "1"))
 
+# create accessibility legend ----
 legend_access <- ggplot(data = legend_access_df) + 
   
-  # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the continent ----
+  # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. Each rectangle is filled with a color based on the accessibility values ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55, fill = accessibility), size = 6) + 
-  # add border
+  
+  # add border to the rectangles ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55), 
-            color = "black", fill = NA) +
+            color = "#3B3B3D", fill = NA) +
   
-  # Add index labels in the center of each rectangle with a light grey background ----
+  # Add accessibility index labels in the center of each rectangle with a light grey background ----
   geom_label(aes(x = pos + 0.5, y = 0.42, label = accessibility), 
-            family = "arial", color = "black", fill = "grey90", 
+            family = "arial", color = "#3B3B3D", fill = "grey90", 
             label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
-  # add arrows and annotations
-  # right arrow
+  # add arrows and annotations ----
+
+  # right arrow ----
   annotate(
     geom = "curve",
     x = 6.5, xend = 5.8,
-    y = .56, yend = .55,
+    y = .57, yend = .552,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
-    color = "black"
+    color = "#3B3B3D"
   ) +
-  # label right arrow (high accessibility)
+  # label right arrow (high accessibility) ----
   annotate(
     geom = "text",
     x = 6.1, y = .45,
     label = "A value of 1 indicates high \naccessibility, therefore it \nshould be easier for \nresearchers to access \ndark blue sites",
-    color = "black",
+    color = "#3B3B3D",
     size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
-  # left arrow
+  # left arrow ----
   annotate(
     geom = "curve",
     x = -.5, xend = 0.2,
-    y = .33, yend = .35,
+    y = .32, yend = .348,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
-    color = "black"
+    color = "#3B3B3D"
   ) +
-  # label left arrow (low suitability)
+  # label left arrow (low suitability) ----
   annotate(
     geom = "text",
     x = -0.1, y = .45,
     label = "A value of 0 indicates low \naccessibility, therefore it \nshould be difficult for \nresearchers to access \nwhite sites",
-    color = "black",
+    color = "#3B3B3D",
     size = 4,
     family = "arial",
     #fontface = 2,
@@ -163,7 +173,7 @@ legend_access <- ggplot(data = legend_access_df) +
   # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
   scale_fill_manual(values = rev(blues)) +
   
-  # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
+  # set the limits of the y axis and the x axis ----
   scale_y_continuous(limits = c(0.3,0.6)) + 
   scale_x_continuous(limits = c(-3,9)) + 
   
@@ -179,66 +189,70 @@ legend_access
 # Priority Legend
 
 ```{r}
+# define color palette ----
 purples <- c("#6A00B0", "#8833C0","#A666D0", "#C399DF", "#E1CCEF", "#FFFFFF")
 
+# create dataframe of positions and values of priority that will be displayed ----
 legend_priority_df <- tibble(pos = c(0, 1, 2, 3, 4, 5),
                     priority = c("0","0.2","0.4","0.6", "0.8", "1"))
 
+# create priority legend ----
 legend_priority <- ggplot(data = legend_priority_df) + 
   
   # add equal height/width rectangles to the plot, using the pos column to designate each position on the x axis. ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55, fill = priority), size = 6) + 
   
-    # add border
+  # add border ----
   geom_rect(aes(xmin = pos, xmax = pos + 1, 
                 ymin = 0.35, ymax = 0.55), 
-            color = "black", fill = NA) +
+            color = "#3B3B3D", fill = NA) +
   
-  # Add index labels in the center of each rectangle with a light grey background ----
+  # Add priority labels in the center of each rectangle with a light grey background ----
   geom_label(aes(x = pos + 0.5, y = 0.42, label = priority), 
-            family = "arial", color = "black", fill = "grey90", 
+            family = "arial", color = "#3B3B3D", fill = "grey90", 
             label.size = NA, size = 5, 
             hjust = 0.5, vjust = 0, fontface = "bold") + 
   
-  # add arrows and annotations
-  # right arrow
+  # add arrows and annotations ----
+
+  # right arrow ----
   annotate(
     geom = "curve",
-    x = 6.5, xend = 5.8,
-    y = .59, yend = .55,
+    x = 6.5, xend = 5.6,
+    y = .60, yend = .552,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
-    color = "black"
+    color = "#3B3B3D"
   ) +
-  # label right arrow (high suitability)
+  # label right arrow (high priority) ----
   annotate(
     geom = "text",
     x = 6.1, y = .45,
     label = "A value of 1 indicates high \npriority, therefore dark purple \nsites are very accessible and \nhave a high predicted \nsuitability for the specified \nmilkweed species",
-    color = "black",
+    color = "#3B3B3D",
     size = 4,
     family = "arial",
     #fontface = 2,
     hjust = "outward"
   ) +
-  # left arrow
+  # left arrow ----
   annotate(
     geom = "curve",
-    x = -.5, xend = 0.2,
-    y = .33, yend = .35,
+    x = -.6, xend = 0.2,
+    y = .32, yend = .348,
     curvature = 0.6,
     arrow = arrow(length = unit(0.3, "cm")),
     linewidth = 1,
-    color = "black"
+    color = "#3B3B3D"
   ) +
-  # label left arrow (low suitability)
+  # label left arrow (low priority) ----
   annotate(
     geom = "text",
     x = -0.1, y = .45,
     label = "A value of 0 indicates low \npriority, therefore white survey \nsites are not accessible and \nhave a low predicted suitability \nfor the specified milkweed species",
-    color = "black",
+    color = "#3B3B3D",
     size = 4,
     family = "arial",
     #fontface = 2,
@@ -247,7 +261,7 @@ legend_priority <- ggplot(data = legend_priority_df) +
   # manually set the color scale for the rectangles to the reverse of the previously defined color palette ----
   scale_fill_manual(values = rev(purples)) +
   
-  # set the limits of the y axis to be continuous from 0 to 1. set the limits of the x axis to be continuous from 0 to 9  ----
+  # set the limits of the y axis and the x axis ----
   scale_y_continuous(limits = c(0.3,0.6)) + 
   scale_x_continuous(limits = c(-4,10)) + 
   
