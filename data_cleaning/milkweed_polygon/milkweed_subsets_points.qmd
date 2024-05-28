@@ -99,7 +99,7 @@ vestitia_centroids <- vestita |>
 # ------------ Writing data to new files in Taylor ----------------------------
 
 all_spec_points <- st_write(all_spec_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
-st_write(all_spec_centroids, "outputs/dashboard/species_centroids/all_species_points.shp")
+write_rds(all_spec_centroids, "outputs/dashboard/all_species_points.rda")
 ```
 
 
