@@ -12,8 +12,8 @@ This document's purpose is to rescale all layers for our accessibility raster to
 ```{r, message = FALSE}
 # reads in all data we need
 # takes a minute because it reprojects slope to correct CRS
-source("../scripts/accessibility_setup.R")
-source("../scripts/rescale_raster.R")
+source("../R/accessibility_setup.R")
+source("../R/rescale_raster.R")
 ```
 
 # Set everything to same resolution, extent, and CRS
@@ -206,12 +206,10 @@ trails_final <- 1 - (mask(trails_rescaled, lpnf_boundary))
 
 roads_final <- 1 - (mask(roads_rescaled, lpnf_boundary))
 
-
-plot(trails_final)
 ```
 
 
-# Save everything in milkweedmod/ouputs/site_accessibility_outputs/
+# Save everything in Taylor: milkweedmod/ouputs/site_accessibility_outputs/
 
 ```{r}
 # writeRaster(canopy_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"), overwrite = TRUE)
@@ -219,6 +217,15 @@ plot(trails_final)
 # writeRaster(trails_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"), overwrite = TRUE)
 # writeRaster(roads_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"), overwrite = TRUE)
 # writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"), overwrite = TRUE)
+```
+
+# Save everything in GitHub for the dashboard: milkweed-mod/outputs/dashboard
+```{r}
+writeRaster(canopy_final, here("outputs", "dashboard", "canopy_rescaled.tif"), overwrite = TRUE)
+writeRaster(slope_final, here("outputs", "dashboard", "slope_rescaled.tif"), overwrite = TRUE)
+writeRaster(trails_final, here("outputs", "dashboard", "trails_rescaled.tif"), overwrite = TRUE)
+writeRaster(roads_final, here("outputs", "dashboard", "roads_rescaled.tif"), overwrite = TRUE)
+writeRaster(ownership_rast, here("outputs", "dashboard", "ownership_rescaled.tif"), overwrite = TRUE)
 ```
 
 -------------------------------------------------------------------------------
