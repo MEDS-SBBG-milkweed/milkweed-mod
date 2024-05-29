@@ -6,22 +6,23 @@ date: "Last Updated: 2024-05-07"
 ```{r setup}
 library(terra)
 library(tidyverse)
+library(DT)
 ```
 
 # Read in Milkweed Survey Points, Accessibility Index & Priority Raster
 
 ```{r}
 # ---- Milkweed Points ----
-milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
+milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/")) # need to update to read from box
 
 # ---- Accessibility Index ----
-access_index <- raster(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
+access_index <- raster("https://raw.githubusercontent.com/MEDS-SBBG-milkweed/milkweed-mod/main/outputs/dashboard/access_index_final.tif")
 
 # ---- Priority ----
-californica_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/californica_priority.tif"))
-eriocarpa_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/eriocarpa_priority.tif"))
-erosa_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/erosa_priority.tif"))
-vestita_priority <- raster(here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"))
+californica_priority <- raster("https://raw.githubusercontent.com/MEDS-SBBG-milkweed/milkweed-mod/main/outputs/dashboard/californica_priority.tif")
+eriocarpa_priority <- raster("https://raw.githubusercontent.com/MEDS-SBBG-milkweed/milkweed-mod/main/outputs/dashboard/eriocarpa_priority.tif")
+erosa_priority <- raster("https://raw.githubusercontent.com/MEDS-SBBG-milkweed/milkweed-mod/main/outputs/dashboard/erosa_priority.tif")
+vestita_priority <- raster("https://raw.githubusercontent.com/MEDS-SBBG-milkweed/milkweed-mod/main/outputs/dashboard/vestita_priority.tif")
 ```
 
 # Stack Accessibility and Clean Milkweed Points
@@ -101,5 +102,7 @@ DT::datatable(
 # Save outputs to outputs folder
 
 ```{r}
-write_csv(priority_surveyed_accessibility, "~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_datatable.csv")
+# write_csv(priority_surveyed_accessibility, "~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_datatable.csv")
+
+write_csv(priority_surveyed_accessibility, "outputs/dashboard/priority_datatable.csv")
 ```
