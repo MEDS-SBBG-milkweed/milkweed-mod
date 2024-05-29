@@ -3,19 +3,27 @@
 
 #### Load packages
 ```{r}
-library(spocc)
-library(spThin)
-library(dismo)
-library(sf)
-library(ENMeval)
-library(wallace)
+# Load packages ----
+# general 
 library(tidyverse)
-library(here)
+library(here) # for reproducible file paths 
+library(gt) # for nicer outputs
+
+# for spatial data operations
 library(terra)
-library(raster)
-library(gt)
-source("R/addLegend_decreasing.R")
-source("R/setup.R")
+library(sf)
+library(raster) 
+
+# for Species Distribution Modeling (SDM)
+library(spocc)
+library(spThin) # for thinning occurrences in the SDM
+library(dismo)
+library(ENMeval) # model evaluation, selection, etc.
+library(wallace) 
+
+# source scripts
+source(here::here("R", "addLegend_decreasing.R"))
+source(here::here("R", "setup.R"))
 ```
 
 
