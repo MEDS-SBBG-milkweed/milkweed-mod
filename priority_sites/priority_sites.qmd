@@ -124,3 +124,16 @@ names(vestita_rescaled) <- "vestita_priority"
 # 
 # writeRaster(vestita_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"), overwrite = TRUE)
 ```
+
+# Save priority maps to GitHub
+
+```{r}
+writeRaster(californica_rescaled, here("outputs", "dashboard", "californica_priority.tif"), overwrite = TRUE)
+
+writeRaster(eriocarpa_rescaled, here("outputs", "dashboard", "eriocarpa_priority.tif"), overwrite = TRUE)
+
+writeRaster(erosa_rescaled, here("outputs", "dashboard", "erosa_priority.tif"), overwrite = TRUE)
+
+writeRaster(vestita_rescaled, here("outputs", "dashboard", "vestita_priority.tif"), overwrite = TRUE)
+```
+
