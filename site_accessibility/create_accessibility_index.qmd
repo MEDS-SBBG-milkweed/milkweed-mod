@@ -40,6 +40,10 @@ plot(access_index_final)
 ```
 
 # Save final accessibility index to GitHub
+```{r}
+writeRaster(access_index_final, here("outputs", "dashboard", "access_index_final.tif"), overwrite = TRUE)
+```
+
 
 # plot accessibility 
 ```{r}
