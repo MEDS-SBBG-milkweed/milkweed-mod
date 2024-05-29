@@ -225,26 +225,28 @@ names(eriocarpa_model) <- "fc.LQ_rm.0.5"
 ```
 
 ```{r}
-leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
-  addLegend_decreasing("bottomleft", pal = legendPal, values = mapXferVals_Ac, layerId = "xfer",
-            labFormat = reverseLabel(), decreasing = TRUE,
-            title = "<em>Asclepias eriocarpa</em><br>Predicted Suitability<br>") %>%
-# map model prediction raster and transfer polygon
-  clearMarkers() %>% clearShapes() %>% removeImage('xferRas') %>%
-  addRasterImage(xfer_area_Ac$xferArea, colors = rasPal_Ac, opacity = 0.7,
-                 layerId = 'xferRas', group = 'xfer', method = "ngb") %>%
+eriocarpa_pred <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"))
+pal_habitat <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
+mapPredVals_eriocarpa <- getRasterVals(eriocarpa_pred) # change for different types
+
+legendPal_eriocarpa <- colorNumeric(pal_habitat, mapPredVals_eriocarpa, na.color = 'transparent')
+rasPal_eriocarpa <- colorNumeric(pal_habitat, mapPredVals_eriocarpa, na.color = 'transparent')
+
+leaflet(options = leafletOptions(zoomControl = FALSE)) %>% 
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  # addLegend_decreasing("bottomleft", pal = legendPal_californica, values = mapPredVals_californica,
+  #           labFormat = reverseLabel(), decreasing = TRUE,
+  #           title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
  ##add transfer polygon (user drawn area)
   addPolygons(data = lpnf_north, fill = FALSE,
-              weight = 2, color = "black", group = 'xfer')  %>%
-  addCircleMarkers(data = occs_Ac, lat = ~latitude, lng = ~longitude,
-                   radius = 2, color = 'black', fill = TRUE, fillColor = "black",
-                   fillOpacity = 0.2, weight = 2) %>% 
+              weight = 2, color = "black")  %>%
   ##Add model prediction
-  addRasterImage(predSel_Ac, colors = rasPal, opacity = 0.7,
+  addRasterImage(eriocarpa_pred, colors = rasPal_eriocarpa, opacity = 0.7,
                  group = 'vis', layerId = 'mapPred', method = "ngb") %>%
   addPolygons(data = lpnf_south,
               fill = FALSE,
               color = "black",
-              weight = 2)
+              weight = 2) %>%
+  addScaleBar(position = "bottomright")
 ```
 
