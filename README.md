@@ -1,6 +1,11 @@
 # milkweed-mod
 
-![MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text "Milkweed Mod"](outputs/figs/MilkweedMod-transparent.png){align="center"}
+<h2 align="center">
+
+<img src="https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/MilkweedMod-transparent.png" alt="MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text Milkweed Mod", width="200">
+
+</h2>
+
 
 ## Project Description
 
@@ -11,7 +16,8 @@ The milkweed-mod repository houses the R code to process and execute code used t
 In order to accomplish this objective a multitude of data sources were used. In order to learn more about the data used in this project please visit this projects Technical Documentation.
 
 ## Repository Table of Contents
-
+```
+.
     ├── data_cleaning
     │   ├── accessibility_template
     │   │   └── template_raster.qmd
@@ -69,3 +75,4 @@ In order to accomplish this objective a multitude of data sources were used. In 
     │   └── rescale_canopy_cover.qmd
     └── walkthroughs                                 # walkthroughs for updates found here!
         └── updating_milkweed-mod.qmd
+```
