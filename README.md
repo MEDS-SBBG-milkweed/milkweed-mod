@@ -1,6 +1,6 @@
 # milkweed-mod
 
-![MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text "Milkweed Mod"](outputs/figs/MilkweedMod-transparent.png)
+![MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text "Milkweed Mod"](outputs/figs/MilkweedMod-transparent.png){align="center"}
 
 ## Project Description
 
