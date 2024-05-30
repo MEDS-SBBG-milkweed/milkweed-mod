@@ -35,6 +35,7 @@ forest_buffer <- lpnf_boundary  %>%
 #         here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
 #         append = FALSE)
  
+write_rds(lpnf_boundary, "outputs/dashboard/lpnf_boundary.rda")
 ```
 
 ## Separate LPNF boundary into northern and southern sections
