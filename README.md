@@ -424,20 +424,13 @@ This project was completed as a part of the [Master of Environmental Data Scienc
 \
 
 ## Authors and Contributors
+ Amanda Herbst { [Github](https://github.com/amandaherbst) | [Website](amandaherbst.github.io) | [LinkedIn](https://www.linkedin.com/in/amanda-herbst/) }
 
- - Amanda Herbst { [GitHub]([https://github.com/amandaherbst)](https://github.com/amandaherbst)) \| [Website](amandaherbst.github.io) \| [LinkedIn]([https://www.linkedin.com/in/amanda-herbst/)](https://www.linkedin.com/in/amanda-herbst/)) }
+ Anna Ramji { [Github](https://github.com/annaramji) | [Website](https://annaramji.github.io/) | [LinkedIn](https://www.linkedin.com/in/annaramji/) }
 
- 
+ Melissa Widas { [Github](https://github.com/mwidas) | [Website](https://mwidas.github.io/) | [LinkedIn](https://www.linkedin.com/in/mwidas/) }
 
- - Sam Muir { [GitHub]([https://github.com/shmuir)](https://github.com/shmuir)) \| [Website]([https://shmuir.github.io/)](https://shmuir.github.io/)) \| [LinkedIn]([https://www.linkedin.com/in/shmuir/)](https://www.linkedin.com/in/shmuir/)) }
-
-\
-
- - Anna Ramji { [GitHub]([https://github.com/annaramji)](https://github.com/annaramji)) \| [Website]([https://annaramji.github.io/)](https://annaramji.github.io/)) \| [LinkedIn]([https://www.linkedin.com/in/annaramji/)](https://www.linkedin.com/in/annaramji/)) }
-
-\
-
- - Melissa Widas { [GitHub]([https://github.com/mwidas)](https://github.com/mwidas)) \| [Website]([https://mwidas.github.io/)](https://mwidas.github.io/)) \| [LinkedIn]([https://www.linkedin.com/in/mwidas/)](https://www.linkedin.com/in/mwidas/)) }
+ Sam Muir { [Github](https://github.com/shmuir) | [Website](https://shmuir.github.io/) | [LinkedIn](https://www.linkedin.com/in/shmuir/) }
 
 \
 
