@@ -41,7 +41,7 @@ MilkweedMod
 [Disclaimers](#disclaimers)
 
 
-[Authors and Contributors](#authors-and-contributors)
+[Authors](#authors)
 
 
 [Client](#client)
@@ -328,7 +328,7 @@ Data was processed for interactive web dashboard applications in the following n
 ## Technical Documentation
 
 
-To read more about the project and modeling processes, please refer to our [Bren project page and technical documentation]([https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation).](https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation).)
+To read more about the project and modeling processes, please refer to our [Bren project page and technical documentation]([https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation).
 
 
 
@@ -342,7 +342,7 @@ This project was completed as a part of the [Master of Environmental Data Scienc
 
 
 
-## Authors and Contributors
+## Authors
  Amanda Herbst { [GitHub](https://github.com/amandaherbst) | [Website](amandaherbst.github.io) | [LinkedIn](https://www.linkedin.com/in/amanda-herbst/) }
 
  Anna Ramji { [GitHub](https://github.com/annaramji) | [Website](https://annaramji.github.io/) | [LinkedIn](https://www.linkedin.com/in/annaramji/) }
