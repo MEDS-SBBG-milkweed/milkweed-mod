@@ -73,30 +73,13 @@ This project was developed in the programming language R, in the integrated deve
 
 **Survey site priority index.** Finally, to identify high-priority survey site locations, the outputs of the habitat suitability maps and the survey site accessibility index were multiplied to create a survey site priority index. As both factors have scales from 0 to 1, with 0 being the lowest suitability and lowest accessibility and 1 being the highest suitability and highest accessibility, the resultant priority index was also scaled such that 0 indicates lowest priority and 1 indicates highest priority. 
 
-**Interactive web dashboard.** All of this information was incorporated in an interactive format as a tool to aid the SBBG staff in survey planning. A data table displaying the relative priority for each species at each location, along with the accessibility score for that location and the visit status (whether or not the SBBG has already visited a given location in previous survey efforts) are all displayed in a data table on the interactive web dashboard. See `[milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder)` for more information. 
+**Interactive web dashboard.** All of this information was incorporated in an interactive format as a tool to aid the SBBG staff in survey planning. A data table displaying the relative priority for each species at each location, along with the accessibility score for that location and the visit status (whether or not the SBBG has already visited a given location in previous survey efforts) are all displayed in a data table on the interactive web dashboard. See [milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder) for more information. 
 
 
 ## Data Sources
 
 
-
-Raw data source details are formatted using the following template:
-
-**Raw data source title**
-
-**Brief description:** 
-
-**How it was accessed:**
-
-**Use:** [name of file(s) in our archive it contributes to]
-
-**Units (when relevant):**  
-
-**Citation:**
-
-**Licenses:** 
-
-
+---------------------------------------------------------------------------------------------------------------
 
 **Bioclimatic Data**
 
@@ -106,7 +89,7 @@ Raw data source details are formatted using the following template:
 
 **Use:** This data was used in the development of the milkweed habitat suitability maps, which were used to create the survey site priority index. This data accessed and initially processed in the following script:
 
-\`[data_cleaning/bioclim/bioclim.R](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/data_cleaning/bioclim/bioclim.R)\`
+[data_cleaning/bioclim/bioclim.R](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/data_cleaning/bioclim/bioclim.R)
 
 **Units:** Spatial Reference: WGS 1984 (EPSG 4326)
 
@@ -117,17 +100,17 @@ Raw data source details are formatted using the following template:
 **Licenses:** The data are freely available for academic use and other non-commercial use. Redistribution or commercial use is not allowed without prior permission. Using the data to create maps for publishing of academic research articles is allowed.
 
 
-
+---------------------------------------------------------------------------------------------------------------
 
 **California Multi-Source Land Ownership:**
 
-**Brief description:** Classification of land ownership, excluding lands under private ownership, in California(.shp)
+**Brief description:** Classification of land ownership, excluding lands under private ownership, in California (.shp)
 
 **How it was accessed:** Downloaded the \"California Land Ownership\" feature layer from California State Geoportal as a shapefile
 
 **Use:** This data was used in the development of the survey site accessibility index, which was used to create the survey site priority index. This data was initially read in and processed in the following notebook: 
 
-\`[data_cleaning/land_ownership/land_ownership.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/land_ownership)\`
+[data_cleaning/land_ownership/land_ownership.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/land_ownership)
 
 **Units:** Spatial Reference: WGS 1984 Pseudo-Mercator (EPSG 3857)
 
@@ -139,9 +122,9 @@ California Department of Forestry and Fire Protection; California State Geoporta
 
 **Licenses:**
 
-The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps. Neither the State nor the Department shall be liable under any circumstances for any direct, special, incidental, or consequential damages with respect to any claim by any user or third party on account of, or arising from, the use of data or maps. For more information about this product, date or terms of use, contact calfire.egis\@fire.ca.gov.
+The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps. Neither the State nor the Department shall be liable under any circumstances for any direct, special, incidental, or consequential damages with respect to any claim by any user or third party on account of, or arising from, the use of data or maps. For more information about this product, date, or terms of use, contact calfire.egis\@fire.ca.gov.
 
-
+---------------------------------------------------------------------------------------------------------------
 
 **Canopy Cover:**
 
@@ -151,7 +134,7 @@ The State of California and the Department of Forestry and Fire Protection make 
 
 **Use:** This data was used in the development of the milkweed habitat suitability maps and survey site accessibility index, which were used to create the survey site priority index. This data was initially read in and processed in the following notebook:
 
-\`[data_cleaning/canopy_cover/canopy_cover.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/canopy_cover)\`
+[data_cleaning/canopy_cover/canopy_cover.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/canopy_cover)
 
 **Units:** Spatial Reference: WGS 1984 Pseudo-Mercator (EPSG 3857)
 
@@ -159,7 +142,7 @@ The State of California and the Department of Forestry and Fire Protection make 
 
 **Licenses:** For more information regarding licensing please visit: <https://forestobservatory.com/legal.html>
 
-
+---------------------------------------------------------------------------------------------------------------
 
 **Digital Elevation Model (DEM):**
 
@@ -185,7 +168,7 @@ n37w122_20201207 
 
 **Use:** This data was used in the development of the milkweed habitat suitability maps and survey site accessibility index, which were used to create the survey site priority index. This data was initially read in and processed in the following notebook:
 
-\`[data_cleaning/dem/dem_cleaning.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/dem)\`
+[data_cleaning/dem/dem_cleaning.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/dem)
 
 **Units:** Spatial Reference: NAD 1983 (EPSG 4269)
 
@@ -193,7 +176,7 @@ n37w122_20201207 
 
 **Licenses:** Data from The National Map is free and in the public domain. There are no restrictions on downloaded data; however, we request that the following statement be used when citing, copying, or reprinting data: "Data available from U.S. Geological Survey, National Geospatial Program."
 
-
+---------------------------------------------------------------------------------------------------------------
 
 **Los Padres National Forest (LPNF) Boundary:**
 
@@ -203,7 +186,7 @@ n37w122_20201207 
 
 **Use:** This data was used in the development of the milkweed habitat suitability maps and survey site accessibility index, which were used to create the survey site priority index. This data was initially read in and processed in the following notebook:
 
-\`[data_cleaning/boundary/lpnf_boundary.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/boundary)\`
+[data_cleaning/boundary/lpnf_boundary.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/boundary)
 
 **Units:** esriMeters, Spatial Reference: WGS 1984 Web Mercator Auxiliary Sphere (EPSG 3857)
 
@@ -211,7 +194,7 @@ n37w122_20201207 
 
 **Licenses:** The USDA Forest Service makes no warranty, expressed or implied, including the warranties of merchantability and fitness for a particular purpose, nor assumes any legal liability or responsibility for the accuracy, reliability, completeness or utility of these geospatial data, or for the improper or incorrect use of these geospatial data. These geospatial data and related maps or graphics are not legal documents and are not intended to be used as such. The data and maps may not be used to determine title, ownership, legal descriptions or boundaries, legal jurisdiction, or restrictions that may be in place on either public or private land. Natural hazards may or may not be depicted on the data and maps, and land users should exercise due caution. The data are dynamic and may change over time. The user is responsible to verify the limitations of the geospatial data and to use the data accordingly.
 
-
+---------------------------------------------------------------------------------------------------------------
 
 **Santa Barbara Botanic Garden Polygon Data:**
 
@@ -219,13 +202,13 @@ n37w122_20201207 
 
 **How it was accessed:** Shared directly by the Santa Barbara Botanic Garden as a shapefile.
 
-**Use:** This data was used in the development of the milkweed habitat suitability maps, which were used to create the survey site priority index. The centroids pulled from the polygons in this data were used in the interactive web dashboard created for this project: \`[milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder)\`. This data was processed for habitat suitability map development applications in the following script:
+**Use:** This data was used in the development of the milkweed habitat suitability maps, which were used to create the survey site priority index. The centroids pulled from the polygons in this data were used in the interactive web dashboard created for this project: [milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder). This data was processed for habitat suitability map development applications in the following script:
 
-\`[data_cleaning/milkweed_polygon/points_clean_export.R](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/data_cleaning/milkweed_polygon/points_clean_export.R)\`
+[data_cleaning/milkweed_polygon/points_clean_export.R](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/data_cleaning/milkweed_polygon/points_clean_export.R)
 
 Data was processed for interactive web dashboard applications in the following notebook:
 
-\`[data_cleaning/milkweed_polygon/milkweed_subsets_points.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/data_cleaning/milkweed_polygon/milkweed_subsets_points.qmd)\`
+[data_cleaning/milkweed_polygon/milkweed_subsets_points.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/data_cleaning/milkweed_polygon/milkweed_subsets_points.qmd)
 
 **Units:** Spatial Reference: WGS 1984 Pseudo-Mercator (EPSG 3857)
 
@@ -233,7 +216,7 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Licenses:** This data was privately shared with the MilkweedMod capstone team and is part of the Santa Barbara Botanic Garden\'s long-term milkweed restoration project. The capstone team was given permission to share this data by the U.S. Forest Service under the condition that the following disclaimer is included: "Plant and seed collection on Forest Service land is not permissible without a plant collection permit from the Los Padres National Forest".
 
-
+---------------------------------------------------------------------------------------------------------------
 
 **Trails & Roads Data --- Los Padres Forest Watch:**
 
@@ -243,7 +226,7 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Use:** This data was used in the development of the survey site accessibility index, which was used to create the survey site priority index. More specifically, this data was used to calculate the distance from trails and roads in the southern region of the LPNF. This data was initially read in and processed in the following notebook:
 
-\`[data_cleaning/trails_and_roads/trails_and_roads.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/trails_and_roads)\`
+[data_cleaning/trails_and_roads/trails_and_roads.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/trails_and_roads)
 
 **Units:** esriMeters, Spatial Reference: WGS 1984 Pseudo-Mercator (EPSG 3857)
 
@@ -251,7 +234,7 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Licenses:** No license information was provided. For more information regarding licensing, please visit [this](https://services9.arcgis.com/olCAyDMW794Lg7Au/arcgis/rest/services/2023_Regional_Trails_and_Roads/FeatureServer/info/itemInfo?f=pjson) page. 
 
-
+---------------------------------------------------------------------------------------------------------------
 
 **Trails & Roads Data --- USGS:**
 
@@ -261,7 +244,7 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Use:** This data was used in the development of the survey site accessibility index, which was used to create the survey site priority index. More specifically, this data was used to calculate the distance from trails and roads in the northern region of the LPNF. This data was initially read in and processed in the following notebook:
 
-\`[data_cleaning/trails_and_roads/trails_and_roads.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/trails_and_roads)\`
+[data_cleaning/trails_and_roads/trails_and_roads.qmd](https://github.com/MEDS-SBBG-milkweed/milkweed-mod/tree/main/data_cleaning/trails_and_roads)
 
 **Units:** esriMeters, Spatial Reference: NAD 1983 (EPSG 4269)
 
@@ -271,13 +254,12 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Licenses:** Data from The National Map is free and in the public domain. There are no restrictions on downloaded data; however, we request that the following statement be used when citing, copying, or reprinting data: "Data available from U.S. Geological Survey, National Geospatial Program."
 
-
+---------------------------------------------------------------------------------------------------------------
 
 ## Repository Structure
 
 
 ```
-.
 ├── data_cleaning                 # data cleaning and preparation
 │   ├── accessibility_template
 │   │   └── template_raster.qmd
@@ -293,7 +275,7 @@ Data was processed for interactive web dashboard applications in the following n
 │   │   └── dem_cleaning.qmd
 │   ├── land_ownership
 │   │   └── land_ownership.qmd
-│   ├── milkweed_polygon
+│   ├── milkweed_polygon             # milkweed data cleaning & processing
 │   │   ├── milkweed_subsets_points.qmd
 │   │   ├── points_clean_export.R
 │   │   └── survey_points_map.R
@@ -304,7 +286,7 @@ Data was processed for interactive web dashboard applications in the following n
 ├── legends                       # legend development for maps
 │   └── legend_infographic.qmd
 ├── LICENSE
-├── maxent
+├── maxent                        # species distribution modeling/habitat suitability map development
 │   ├── A_californica_sdm.qmd
 │   ├── A_eriocarpa_sdm.qmd
 │   ├── A_erosa_sdm.qmd
@@ -312,7 +294,7 @@ Data was processed for interactive web dashboard applications in the following n
 │   └── max_suitability_sdm.qmd
 ├── milkweed-mod.Rproj
 ├── outputs
-│   ├── dashboard                     # outputs used in milkweed-site-finder
+│   ├── dashboard                     # outputs used in milkweed-site-finder dashboard
 │   │   ├── accessibility_legend.png
 │   │   ├── all_species_points.rda
 │   │   ├── californica_sdm.tif
@@ -324,7 +306,7 @@ Data was processed for interactive web dashboard applications in the following n
 │   │   └── vestita_sdm.tif
 │   └── figs
 │       └── MilkweedMod-transparent.png   # hex sticker
-├── priority_sites
+├── priority_sites                        # survey site priority index development
 │   ├── priority_sites.qmd
 │   └── priority_sites_table.qmd
 ├── R                               # scripts
@@ -335,11 +317,11 @@ Data was processed for interactive web dashboard applications in the following n
 │   └── setup.R
 ├── README.md                    # you are here!
 ├── session_info.txt             # computing environment specs
-├── site_accessibility
+├── site_accessibility           # survey site accessibility index development
 │   ├── create_accessibility_index.qmd
 │   ├── distance_calculations.qmd
 │   └── rescale_all_layers.qmd
-└── walkthroughs                  # walkthroughs for updating milkweed-mod
+└── walkthroughs                  # walkthroughs for updating this repo
     └── updating_milkweed-mod.qmd
 ```
 
