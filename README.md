@@ -26,6 +26,9 @@ MilkweedMod
 [Project Description](#project-description)
 
 
+[Folder Descriptions](#folder-description)
+
+
 [Methods](#methods)
 
 
@@ -53,10 +56,21 @@ MilkweedMod
 To identify high-priority sites for the SBBG to visit in their upcoming surveys of early-season milkweed in the LPNF, we wanted to identify locations that were both highly suitable for each species of milkweed and highly physically accessible to enable the garden team to visit many locations efficiently. 
 
 
-The Technical Documentation for this project can be found [here](https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation).
-
-
 This repository contains all scripts and notebooks used in the data processing, species distribution models (SDM) and habitat suitability map development, survey site accessibility index development, and survey site priority index and map development for this capstone project.
+
+
+## Folder Descriptions
+
+**R**: 
+
+This folder contains functions used throughout the project: 
+- `addLegend_decreasing.R` for reversing a leaflet legend scale
+- `milkweed_maxent.R` for easily running a maximum entropy species distribution model
+- `rescale_raster.R` for rescaling rasters to a scale of 0 to 1 based on the minimum and maximum values
+
+As well as setup scripts that load all necessary data:
+- `accessibility_setup.R` loads all data needed for building the survey site accessibility index
+- `setup.R` loads all data needed for species distribution modeling to build milkweed habitat suitability maps.
 
 
 
