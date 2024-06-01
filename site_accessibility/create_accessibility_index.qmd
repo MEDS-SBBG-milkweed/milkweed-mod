@@ -41,11 +41,14 @@ plot(access_index_final)
 
 # Save final accessibility index to GitHub
 ```{r}
-writeRaster(access_index_final, here("outputs", "dashboard", "access_index_final.tif"), overwrite = TRUE)
+#writeRaster(access_index_final, here("outputs", "dashboard", "access_index_final.tif"), overwrite = TRUE)
 ```
 
 
-# plot accessibility 
+# Plot Survey Site Accessibility 
+
+
+## Plot final survey site accessibility index
 ```{r}
 access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
 lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
@@ -76,11 +79,152 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
   # #add transfer polygon (user drawn area)
   addPolygons(data = lpnf_boundary, fill = FALSE,
               weight = 2, color = "black", group = 'xfer') %>% 
-  addScaleBar(position = "topleft")
+  addScaleBar(position = "bottomright")
 
 accessibility_index_leaflet
 
 ```
+
+
+
+## Plot individual layers of survey site accessibility index
+
+```{r}
+# --------------- canopy cover --------------------------
+accessVals <- getRasterVals(canopy) # change for different types
+
+pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
+
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+
+
+accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Accessibility Index") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(access_index, colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+accessibility_index_leaflet
+
+# ---------------- Land ownership ------------------------
+accessVals <- getRasterVals(ownership) # change for different types
+
+pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
+
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+
+
+accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Accessibility Index") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(access_index, colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+accessibility_index_leaflet
+
+# ---------------- (distance from) Roads -----------------------
+accessVals <- getRasterVals(roads) # change for different types
+
+pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
+
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+
+
+accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Accessibility Index") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(access_index, colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+accessibility_index_leaflet
+
+# --------------- (distance from) Trails --------------------------------
+accessVals <- getRasterVals(trails) # change for different types
+
+pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
+
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+
+
+accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Accessibility Index") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(access_index, colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+accessibility_index_leaflet
+
+
+# ----------------- Slope ----------------------------------------------
+accessVals <- getRasterVals(slope) # change for different types
+
+pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
+
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+
+
+accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Accessibility Index") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(access_index, colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+accessibility_index_leaflet
+
+
+```
+
+
 
 ## save leaflet as png
 ```{r}
