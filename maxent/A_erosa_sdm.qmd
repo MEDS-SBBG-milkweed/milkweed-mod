@@ -264,9 +264,9 @@ rasPal_erosa <- colorNumeric(pal_habitat, mapPredVals_erosa, na.color = 'transpa
 
 leaflet(options = leafletOptions(zoomControl = FALSE)) %>% 
   addProviderTiles(providers$Esri.WorldTerrain) %>%
-  # addLegend_decreasing("bottomleft", pal = legendPal_californica, values = mapPredVals_californica,
-  #           labFormat = reverseLabel(), decreasing = TRUE,
-  #           title = "<em>Asclepias californica</em><br>Predicted Suitability<br>") %>%
+  addLegend_decreasing("bottomleft", pal = legendPal_erosa, values = mapPredVals_erosa,
+            labFormat = reverseLabel(), decreasing = TRUE,
+            title = "<em>Asclepias erosa</em><br>Predicted Suitability<br>") %>%
  ##add transfer polygon (user drawn area)
   addPolygons(data = lpnf_north, fill = FALSE,
               weight = 2, color = "black")  %>%
