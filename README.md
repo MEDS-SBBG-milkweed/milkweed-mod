@@ -357,11 +357,11 @@ This project was completed as a part of the [Master of Environmental Data Scienc
 
 
 
-Dr. Sarah Cusser, Terrestrial Invertebrate Conservation Ecologist \<br\>
+Dr. Sarah Cusser, Terrestrial Invertebrate Conservation Ecologist
 
-Santa Barbara Botanic Garden \<br\>
+Santa Barbara Botanic Garden 
 
-1212 Mission Canyon Rd. \<br\>
+1212 Mission Canyon Rd.
 
 Santa Barbara, CA 93105
 
