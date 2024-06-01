@@ -73,6 +73,34 @@ As well as setup scripts that load all necessary data:
 - `setup.R` loads all data needed for species distribution modeling to build milkweed habitat suitability maps.
 
 
+**data_cleaning**:
+
+This folder contains all of the notebooks and scripts used to clean and process all of the raw data to prepare for use in building milkweed habitat suitability maps and survey site accessibility index. All code found in this directory should not be run unless new, raw data is included in the project.
+
+**legends**:
+
+This folder contains a notebook that creates infographic-style legends for the milkweed habitat suitability maps, survey site accessibility index, and survey site priority index. These legends are used in the Milkweed Site Finder dashboard.
+
+**maxent**:
+
+This folder contains notebooks that create milkweed habitat suitability maps for each species of early-season milkweed using MaxEnt species distribution modeling.
+
+**outputs**:
+
+This folder contains all outputs produced in the project. The `dashboard` subfolder contains all outputs displayed on the dashboard including milkweed habitat suitability maps, survey site accessibility index (and the individual rescaled layers used to build it), survey site priority indices, milkweed species occurrence points, and infographic legends. The `figs` subfolder contains images of all outputs.
+
+**priority_sites**:
+
+This folder contains the notebooks that create the survey site priority index for each species of early-season milkweed. 
+
+**site_accessibility**:
+
+This folder contains the notebooks used in the development of the survey site accessibility index. This includes the notebook in which distances from trails and roads are calculated, as well as a notebook in which all layers used in the creation of this novel index are rescaled to a scale of 0 to 1. 
+
+**walkthroughs**:
+
+This folder contains a notebook with instructions for updating habitat suitability maps by incorporating new data in species distribution modeling, updating trails and roads data by adding or removing trails or roads based on open/closed status or name, and subsequently updating the survey site priority indices.
+
 
 ## Methods
 
