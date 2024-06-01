@@ -53,12 +53,10 @@ MilkweedMod
 To identify high-priority sites for the SBBG to visit in their upcoming surveys of early-season milkweed in the LPNF, we wanted to identify locations that were both highly suitable for each species of milkweed and highly physically accessible to enable the garden team to visit many locations efficiently. 
 
 
-The Technical Documentation for this project can be found  [here](https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation)
+The Technical Documentation for this project can be found [here](https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation).
 
 
-This repository contains all of the scripts and notebooks used in the data processing, species distribution models (SDM) and habitat suitability map development, survey site accessibility index development, and survey site priority index and map development for this capstone project.
-
-
+This repository contains all scripts and notebooks used in the data processing, species distribution models (SDM) and habitat suitability map development, survey site accessibility index development, and survey site priority index and map development for this capstone project.
 
 
 
@@ -340,7 +338,7 @@ Plant and seed collection on Forest Service land is not permissible without a pl
 
 
 
-This project was completed as a part of the [Master of Environmental Data Science]([https://bren.ucsb.edu/masters-programs/master-environmental-data-science)](https://bren.ucsb.edu/masters-programs/master-environmental-data-science)) program at the Bren School of Environmental Science & Management at the University of California, Santa Barbara. 
+This project was completed as a part of the [Master of Environmental Data Science]([https://bren.ucsb.edu/masters-programs/master-environmental-data-science) program at the Bren School of Environmental Science & Management at the University of California, Santa Barbara. 
 
 
 
