@@ -1,8 +1,22 @@
-# Identifying Priority Survey Sites for Early-Season Milkweed Conservation
+<h1 align="center">
+
+MilkweedMod
+
+</h1>
 
 <h2 align="center">
 
-<img src="https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/MilkweedMod-transparent.png" alt="MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text Milkweed Mod" width="300">
+**Identifying Priority Survey Sites for Early-Season Milkweed Conservation**
+
+</h2>
+
+<h2 align="center">
+
+<img src = "https://github.com/MEDS-SBBG-milkweed/.github/assets/98177666/b98e752a-194c-4e54-8623-15ef18f8409b" alt="MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text Milkweed Mod" width="300">
+
+<h2 align="center">
+
+**milkweed-mod**
 
 </h2>
 
@@ -54,9 +68,12 @@ This project was developed in the programming language R, in the integrated deve
 
 
 **Habitat suitability map.** To identify locations in the forest that are highly suitable for milkweed, we created a habitat suitability map using a maximum entropy (MaxEnt) species distribution modeling approach. This component was created using milkweed occurrence data from the SBBG’s field survey efforts from 2023 and publicly accessible environmental data. After preparing the data, all environmental layers were resampled and aggregated into a raster stack. We input milkweed occurrence points along with the environmental layer raster stack, and the model outputs a map of predicted milkweed habitat suitability in the LPNF. 
+
 **Survey site accessibility map.** To identify how physically accessible each location in the LPNF is, we developed a novel survey site accessibility index. We created this based on factors that we and our client deemed important in measuring physical accessibility, including distance from trails and roads, slope, vegetation density, and land ownership status. The distance from trails and roads, slope, and vegetation density data layers were rescaled to a scale of 0 (lowest relative accessibility) to 1 (highest relative accessibility). The land ownership layer was used as a mask where a value of 1 indicates public land and a value of 0 indicates private land. All of the layers were then multiplied together to create a final map of site accessibility throughout the LPNF on a scale of 0 to 1.
+
 **Survey site priority index.** Finally, to identify high-priority survey site locations, the outputs of the habitat suitability maps and the survey site accessibility index were multiplied to create a survey site priority index. As both factors have scales from 0 to 1, with 0 being the lowest suitability and lowest accessibility and 1 being the highest suitability and highest accessibility, the resultant priority index was also scaled such that 0 indicates lowest priority and 1 indicates highest priority. 
-**Interactive web dashboard.** All of this information was incorporated in an interactive format as a tool to aid the SBBG staff in survey planning. A data table displaying the relative priority for each species at each location, along with the accessibility score for that location and the visit status (whether or not the SBBG has already visited a given location in previous survey efforts) are all displayed in a data table on the interactive web dashboard. See \`[milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder)\` for more information. 
+
+**Interactive web dashboard.** All of this information was incorporated in an interactive format as a tool to aid the SBBG staff in survey planning. A data table displaying the relative priority for each species at each location, along with the accessibility score for that location and the visit status (whether or not the SBBG has already visited a given location in previous survey efforts) are all displayed in a data table on the interactive web dashboard. See `[milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder)` for more information. 
 
 
 ## Data Sources
