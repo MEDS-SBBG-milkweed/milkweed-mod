@@ -2,70 +2,66 @@
 
 <h2 align="center">
 
-<img src="https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/MilkweedMod-transparent.png" alt="MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text Milkweed Mod" width="500">
+<img src="https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/MilkweedMod-transparent.png" alt="MilkweedMod capstone group hexsticker. Dark green background with a white outline of California, filled in with illustrated milkweed plants and an orange monarch butterfly accompanying the text Milkweed Mod" width="300">
 
 </h2>
-\
+
 
 ## Table of Contents
 
 [Project Description](#project-description)
 
-\
 
 [Methods](#methods)
 
-\
 
 [Data](#data-sources)
 
-\
 
 [Repository Structure](#repository-structure)
 
-\
 
 [Technical Documentation](#technical-documentation)
 
-\
 
 [Disclaimers](#disclaimers)
 
-\
 
 [Authors and Contributors](#authors-and-contributors)
 
-\
 
 [Client](#client)
 
-\
-\
+
 
 ## Project Description
 
-[a description of what is done on the repository, including brief descriptions of what is housed in it]
+To identify high-priority sites for the SBBG to visit in their upcoming surveys of early-season milkweed in the LPNF, we wanted to identify locations that were both highly suitable for each species of milkweed and highly physically accessible to enable the garden team to visit many locations efficiently. 
 
-\
 
-Links Bren page for project
+The Technical Documentation for this project can be found  [here](https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation)
 
-\
 
-This repository contains all of the scripts and notebooks used in the data processing, species distribution models (SDM) and habitat suitability map development, survey site accessibility index development, and survey site priority index and map development for this capstone project. 
+This repository contains all of the scripts and notebooks used in the data processing, species distribution models (SDM) and habitat suitability map development, survey site accessibility index development, and survey site priority index and map development for this capstone project.
 
-\
-\
+
+
+
 
 ## Methods
 
-\
-\
-\
+This project was developed in the programming language R, in the integrated development environment, RStudio. All packages and versions used are in the `session_info.txt` file.
+
+
+**Habitat suitability map.** To identify locations in the forest that are highly suitable for milkweed, we created a habitat suitability map using a maximum entropy (MaxEnt) species distribution modeling approach. This component was created using milkweed occurrence data from the SBBG’s field survey efforts from 2023 and publicly accessible environmental data. After preparing the data, all environmental layers were resampled and aggregated into a raster stack. We input milkweed occurrence points along with the environmental layer raster stack, and the model outputs a map of predicted milkweed habitat suitability in the LPNF. 
+**Survey site accessibility map.** To identify how physically accessible each location in the LPNF is, we developed a novel survey site accessibility index. We created this based on factors that we and our client deemed important in measuring physical accessibility, including distance from trails and roads, slope, vegetation density, and land ownership status. The distance from trails and roads, slope, and vegetation density data layers were rescaled to a scale of 0 (lowest relative accessibility) to 1 (highest relative accessibility). The land ownership layer was used as a mask where a value of 1 indicates public land and a value of 0 indicates private land. All of the layers were then multiplied together to create a final map of site accessibility throughout the LPNF on a scale of 0 to 1.
+**Survey site priority index.** Finally, to identify high-priority survey site locations, the outputs of the habitat suitability maps and the survey site accessibility index were multiplied to create a survey site priority index. As both factors have scales from 0 to 1, with 0 being the lowest suitability and lowest accessibility and 1 being the highest suitability and highest accessibility, the resultant priority index was also scaled such that 0 indicates lowest priority and 1 indicates highest priority. 
+**Interactive web dashboard.** All of this information was incorporated in an interactive format as a tool to aid the SBBG staff in survey planning. A data table displaying the relative priority for each species at each location, along with the accessibility score for that location and the visit status (whether or not the SBBG has already visited a given location in previous survey efforts) are all displayed in a data table on the interactive web dashboard. See \`[milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder)\` for more information. 
+
 
 ## Data Sources
 
-\
+
 
 Raw data source details are formatted using the following template:
 
@@ -83,8 +79,7 @@ Raw data source details are formatted using the following template:
 
 **Licenses:** 
 
-\
-\
+
 
 **Bioclimatic Data**
 
@@ -104,8 +99,8 @@ Raw data source details are formatted using the following template:
 
 **Licenses:** The data are freely available for academic use and other non-commercial use. Redistribution or commercial use is not allowed without prior permission. Using the data to create maps for publishing of academic research articles is allowed.
 
-\
-\
+
+
 
 **California Multi-Source Land Ownership:**
 
@@ -129,8 +124,7 @@ California Department of Forestry and Fire Protection; California State Geoporta
 
 The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps. Neither the State nor the Department shall be liable under any circumstances for any direct, special, incidental, or consequential damages with respect to any claim by any user or third party on account of, or arising from, the use of data or maps. For more information about this product, date or terms of use, contact calfire.egis\@fire.ca.gov.
 
-\
-\
+
 
 **Canopy Cover:**
 
@@ -148,8 +142,7 @@ The State of California and the Department of Forestry and Fire Protection make 
 
 **Licenses:** For more information regarding licensing please visit: <https://forestobservatory.com/legal.html>
 
-\
-\
+
 
 **Digital Elevation Model (DEM):**
 
@@ -183,7 +176,7 @@ n37w122_20201207 
 
 **Licenses:** Data from The National Map is free and in the public domain. There are no restrictions on downloaded data; however, we request that the following statement be used when citing, copying, or reprinting data: "Data available from U.S. Geological Survey, National Geospatial Program."
 
-\
+
 
 **Los Padres National Forest (LPNF) Boundary:**
 
@@ -201,8 +194,7 @@ n37w122_20201207 
 
 **Licenses:** The USDA Forest Service makes no warranty, expressed or implied, including the warranties of merchantability and fitness for a particular purpose, nor assumes any legal liability or responsibility for the accuracy, reliability, completeness or utility of these geospatial data, or for the improper or incorrect use of these geospatial data. These geospatial data and related maps or graphics are not legal documents and are not intended to be used as such. The data and maps may not be used to determine title, ownership, legal descriptions or boundaries, legal jurisdiction, or restrictions that may be in place on either public or private land. Natural hazards may or may not be depicted on the data and maps, and land users should exercise due caution. The data are dynamic and may change over time. The user is responsible to verify the limitations of the geospatial data and to use the data accordingly.
 
-\
-\
+
 
 **Santa Barbara Botanic Garden Polygon Data:**
 
@@ -224,7 +216,7 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Licenses:** This data was privately shared with the MilkweedMod capstone team and is part of the Santa Barbara Botanic Garden\'s long-term milkweed restoration project. The capstone team was given permission to share this data by the U.S. Forest Service under the condition that the following disclaimer is included: "Plant and seed collection on Forest Service land is not permissible without a plant collection permit from the Los Padres National Forest".
 
-\
+
 
 **Trails & Roads Data --- Los Padres Forest Watch:**
 
@@ -242,7 +234,7 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Licenses:** No license information was provided. For more information regarding licensing, please visit [this](https://services9.arcgis.com/olCAyDMW794Lg7Au/arcgis/rest/services/2023_Regional_Trails_and_Roads/FeatureServer/info/itemInfo?f=pjson) page. 
 
-\
+
 
 **Trails & Roads Data --- USGS:**
 
@@ -262,166 +254,96 @@ Data was processed for interactive web dashboard applications in the following n
 
 **Licenses:** Data from The National Map is free and in the public domain. There are no restrictions on downloaded data; however, we request that the following statement be used when citing, copying, or reprinting data: "Data available from U.S. Geological Survey, National Geospatial Program."
 
-\
+
 
 ## Repository Structure
 
-\
-\
 
-\`\`\`
-
+```
 .
-
-├── data_cleaning                 \# data cleaning and preparation
-
-│   ├── accessibility_template
-
-│   │   └── template_raster.qmd
-
-│   ├── bioclim
-
-│   │   └── bioclim.R
-
-│   ├── boundary
-
-│   │   └── lpnf_boundary.qmd
-
-│   ├── canopy_cover
-
-│   │   └── canopy_cover.qmd
-
-│   ├── combine_layers
-
-│   │   └── crop_stack.R
-
-│   ├── dem
-
-│   │   └── dem_cleaning.qmd
-
-│   ├── land_ownership
-
-│   │   └── land_ownership.qmd
-
-│   ├── milkweed_polygon
-
-│   │   ├── milkweed_subsets_points.qmd
-
-│   │   ├── points_clean_export.R
-
-│   │   └── survey_points_map.R
-
-│   ├── solar_rad
-
-│   │   └── solar_radiation.qmd
-
-│   └── trails_and_roads
-
-│       └── trails_and_roads.qmd
-
-├── legends                       \# legend development for maps
-
-│   └── legend_infographic.qmd
-
+├── data_cleaning                 # data cleaning and preparation
+│   ├── accessibility_template
+│   │   └── template_raster.qmd
+│   ├── bioclim
+│   │   └── bioclim.R
+│   ├── boundary
+│   │   └── lpnf_boundary.qmd
+│   ├── canopy_cover
+│   │   └── canopy_cover.qmd
+│   ├── combine_layers
+│   │   └── crop_stack.R
+│   ├── dem
+│   │   └── dem_cleaning.qmd
+│   ├── land_ownership
+│   │   └── land_ownership.qmd
+│   ├── milkweed_polygon
+│   │   ├── milkweed_subsets_points.qmd
+│   │   ├── points_clean_export.R
+│   │   └── survey_points_map.R
+│   ├── solar_rad
+│   │   └── solar_radiation.qmd
+│   └── trails_and_roads
+│       └── trails_and_roads.qmd
+├── legends                       # legend development for maps
+│   └── legend_infographic.qmd
 ├── LICENSE
-
 ├── maxent
-
-│   ├── A_californica_sdm.qmd
-
-│   ├── A_eriocarpa_sdm.qmd
-
-│   ├── A_erosa_sdm.qmd
-
-│   ├── A_vestita_sdm.qmd
-
-│   └── max_suitability_sdm.qmd
-
+│   ├── A_californica_sdm.qmd
+│   ├── A_eriocarpa_sdm.qmd
+│   ├── A_erosa_sdm.qmd
+│   ├── A_vestita_sdm.qmd
+│   └── max_suitability_sdm.qmd
 ├── milkweed-mod.Rproj
-
 ├── outputs
-
-│   ├── dashboard                     \# outputs used in milkweed-site-finder
-
-│   │   ├── accessibility_legend.png
-
-│   │   ├── all_species_points.rda
-
-│   │   ├── californica_sdm.tif
-
-│   │   ├── eriocarpa_sdm.tif
-
-│   │   ├── erosa_sdm.tif
-
-│   │   ├── max_suitable_sdm.tif
-
-│   │   ├── priority_legend.png
-
-│   │   ├── suitability_legend.png
-
-│   │   └── vestita_sdm.tif
-
-│   └── figs
-
-│       └── MilkweedMod-transparent.png   \# hex sticker
-
+│   ├── dashboard                     # outputs used in milkweed-site-finder
+│   │   ├── accessibility_legend.png
+│   │   ├── all_species_points.rda
+│   │   ├── californica_sdm.tif
+│   │   ├── eriocarpa_sdm.tif
+│   │   ├── erosa_sdm.tif
+│   │   ├── max_suitable_sdm.tif
+│   │   ├── priority_legend.png
+│   │   ├── suitability_legend.png
+│   │   └── vestita_sdm.tif
+│   └── figs
+│       └── MilkweedMod-transparent.png   # hex sticker
 ├── priority_sites
-
-│   ├── priority_sites.qmd
-
-│   └── priority_sites_table.qmd
-
-├── R                               \# scripts
-
-│   ├── accessibility_setup.R
-
-│   ├── addLegend_decreasing.R
-
-│   ├── milkweed_maxent.R
-
-│   ├── rescale_raster.R
-
-│   └── setup.R
-
-├── README.md                    \# you are here!
-
-├── session_info.txt             \# computing environment specs
-
+│   ├── priority_sites.qmd
+│   └── priority_sites_table.qmd
+├── R                               # scripts
+│   ├── accessibility_setup.R
+│   ├── addLegend_decreasing.R
+│   ├── milkweed_maxent.R
+│   ├── rescale_raster.R
+│   └── setup.R
+├── README.md                    # you are here!
+├── session_info.txt             # computing environment specs
 ├── site_accessibility
+│   ├── create_accessibility_index.qmd
+│   ├── distance_calculations.qmd
+│   └── rescale_all_layers.qmd
+└── walkthroughs                  # walkthroughs for updating milkweed-mod
+    └── updating_milkweed-mod.qmd
+```
 
-│   ├── create_accessibility_index.qmd
 
-│   ├── distance_calculations.qmd
-
-│   └── rescale_all_layers.qmd
-
-└── walkthroughs                  \# walkthroughs for updating milkweed-mod
-
-    └── updating_milkweed-mod.qmd
-
-\`\`\`
-
-\
-\
-\
 
 ## Technical Documentation
 
-\
 
 To read more about the project and modeling processes, please refer to our [Bren project page and technical documentation]([https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation).](https://bren.ucsb.edu/projects/identifying-priority-survey-sites-early-season-milkweed-conservation).)
 
-\
+
 
 ## Disclaimers
 
 Plant and seed collection on Forest Service land is not permissible without a plant collection permit from the Los Padres National Forest.
 
-\
+
 
 This project was completed as a part of the [Master of Environmental Data Science]([https://bren.ucsb.edu/masters-programs/master-environmental-data-science)](https://bren.ucsb.edu/masters-programs/master-environmental-data-science)) program at the Bren School of Environmental Science & Management at the University of California, Santa Barbara. 
 
-\
+
 
 ## Authors and Contributors
  Amanda Herbst { [Github](https://github.com/amandaherbst) | [Website](amandaherbst.github.io) | [LinkedIn](https://www.linkedin.com/in/amanda-herbst/) }
@@ -432,11 +354,11 @@ This project was completed as a part of the [Master of Environmental Data Scienc
 
  Sam Muir { [Github](https://github.com/shmuir) | [Website](https://shmuir.github.io/) | [LinkedIn](https://www.linkedin.com/in/shmuir/) }
 
-\
+
 
 ## Client 
 
-\
+
 
 Dr. Sarah Cusser, Terrestrial Invertebrate Conservation Ecologist \<br\>
 
@@ -446,5 +368,4 @@ Santa Barbara Botanic Garden \<br\>
 
 Santa Barbara, CA 93105
 
-\
-\
+
