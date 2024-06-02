@@ -47,8 +47,11 @@ plot(access_index_final)
 
 # Plot Survey Site Accessibility 
 
+To create the figures in the outputs/figs folder in the GitHub repository, we ran the following code chunks and screenshotted them. While this is only somewhat reproducible, it is due to the incompatibility with the version of R on the server that we had to work on for this project. We've left an example of the reproducible method for saving leaflet outputs as figures in the final code chunk at the bottom of this notebook.
+
 
 ## Plot final survey site accessibility index
+
 ```{r}
 access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
 lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
@@ -89,17 +92,14 @@ accessibility_index_leaflet
 
 ## Plot individual layers of survey site accessibility index
 
+We already read in the individually rescaled layers at the top of this notebook, so we only need to use `getRasterVals()` on those objects and repeat the previous leaflet mapping steps. 
+
 ```{r}
 # --------------- canopy cover --------------------------
 accessVals <- getRasterVals(canopy) # change for different types
 
-pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
 
-legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-
-
-accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+canopy_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
@@ -114,18 +114,12 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
               weight = 2, color = "black", group = 'xfer') %>% 
   addScaleBar(position = "bottomright")
 
-accessibility_index_leaflet
+canopy_index_leaflet
 
 # ---------------- Land ownership ------------------------
 accessVals <- getRasterVals(ownership) # change for different types
 
-pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
-
-legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-
-
-accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+ownership_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
@@ -140,18 +134,13 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
               weight = 2, color = "black", group = 'xfer') %>% 
   addScaleBar(position = "bottomright")
 
-accessibility_index_leaflet
+ownership_index_leaflet
 
 # ---------------- (distance from) Roads -----------------------
 accessVals <- getRasterVals(roads) # change for different types
 
-pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
 
-legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-
-
-accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+roads_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
@@ -166,18 +155,13 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
               weight = 2, color = "black", group = 'xfer') %>% 
   addScaleBar(position = "bottomright")
 
-accessibility_index_leaflet
+roads_index_leaflet
 
 # --------------- (distance from) Trails --------------------------------
 accessVals <- getRasterVals(trails) # change for different types
 
-pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
 
-legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-
-
-accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+trails_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
@@ -192,19 +176,13 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
               weight = 2, color = "black", group = 'xfer') %>% 
   addScaleBar(position = "bottomright")
 
-accessibility_index_leaflet
+trails_index_leaflet
 
 
 # ----------------- Slope ----------------------------------------------
 accessVals <- getRasterVals(slope) # change for different types
 
-pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
-
-legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
-
-
-accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+slope_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
@@ -219,7 +197,7 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
               weight = 2, color = "black", group = 'xfer') %>% 
   addScaleBar(position = "bottomright")
 
-accessibility_index_leaflet
+slope_index_leaflet
 
 
 ```
