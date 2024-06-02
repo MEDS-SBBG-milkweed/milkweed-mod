@@ -105,7 +105,7 @@ nrow(raster) 389 rows 544 columns (wow!)
 
 ## Raster Template
 
-We'll want to mask the model raster template to the northern and southern regions of the LPNF before we run any distance calculations. We'll use the RasterLayer (`terra`) for this and the `raster::mask()` function.
+We'll want to mask the model raster template to the northern and southern regions of the LPNF before we run any distance calculations. We'll use the RasterLayer (`terra`) for this and the `terra::mask()` function (note: `{raster}` also has a `mask()` function.
 
 ```{r}
 # Mask template ----
