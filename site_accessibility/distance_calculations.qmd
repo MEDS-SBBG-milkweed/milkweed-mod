@@ -11,7 +11,6 @@ library(here)
 library(janitor) # for data cleaning
 library(leaflet) # for plotting (optional)
 
-
 # for geospatial operations, manipulation, distance calculations
 library(sf)
 library(terra)
@@ -68,10 +67,10 @@ Read in Model Raster (used as template raster for distance calculations)
 # to use as a template when we convert our shapefiles into rasters
 
 # the template needs to be a stars object when we rasterize with st_rasterize(), 
-stars_temp_raster <- stars::read_stars(here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+stars_temp_raster <- stars::read_stars(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
 
 # we also need it as a SpatRaster (terra), to perform reclassification 
-model_spat_raster_template <- terra::rast(here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+model_spat_raster_template <- terra::rast(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
 
 # and as a RasterLayer (raster), to extract points in our distance calculation steps
 #model_raster_layer <- raster::raster(here::here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_bioclim_canopy_dem.tif")) 
@@ -106,10 +105,10 @@ nrow(raster) 389 rows 544 columns (wow!)
 
 ## Raster Template
 
-We'll want to mask the model raster template to the northern and southern regions of the LPNF before we run any distance calculations. We'll use the RasterLayer (terra) for this.
+We'll want to mask the model raster template to the northern and southern regions of the LPNF before we run any distance calculations. We'll use the RasterLayer (`terra`) for this and the `raster::mask()` function.
 
 ```{r}
-# mask template ----
+# Mask template ----
 # mask this template area to the southern and northern regions of the LPNF (separately, which further helps to speed up distance calculations)
 
 model_template_south <- mask(model_spat_raster_template, # keep values in this raster when
