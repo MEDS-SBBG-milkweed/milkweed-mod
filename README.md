@@ -99,7 +99,7 @@ This folder contains the notebooks used in the development of the survey site ac
 
 **walkthroughs**:
 
-This folder contains a notebook with instructions for updating habitat suitability maps by incorporating new data in species distribution modeling, updating trails and roads data by adding or removing trails or roads based on open/closed status or name, and subsequently updating the survey site priority indices.
+This folder contains a notebook with instructions for updating habitat suitability maps by incorporating new data in species distribution modeling, updating trails and roads data by adding or removing trails or roads based on open/closed status or name to update the survey site accessibility indices, and subsequently updating the survey site priority indices.
 
 
 ## Methods
