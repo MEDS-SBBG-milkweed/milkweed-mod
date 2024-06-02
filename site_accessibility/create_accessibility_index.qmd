@@ -96,17 +96,22 @@ We already read in the individually rescaled layers at the top of this notebook,
 
 ```{r}
 # --------------- canopy cover --------------------------
-accessVals <- getRasterVals(canopy) # change for different types
+canopyVals <- getRasterVals(canopy) # change for different types
 
+# We can define this here and call back to this palette in the following plots
+pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
+
+legendPal <- colorNumeric(pal_access, canopyVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, canopyVals, na.color = 'transparent')
 
 canopy_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
   addProviderTiles(providers$Esri.WorldTerrain) %>%
-  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+  addLegend_decreasing("bottomleft", pal = legendPal, values = canopyVals,
                        labFormat = reverseLabel(), decreasing = TRUE,
-                       title = "Accessibility Index") %>%
+                       title = "Accessibility Index:<br>Canopy Cover<br>") %>%
   # map model prediction raster and transfer polygon
-  addRasterImage(access_index, colors = rasPal,
+  addRasterImage(canopy, colors = rasPal,
                  method = "ngb") %>%
   
   # #add transfer polygon (user drawn area)
@@ -118,6 +123,10 @@ canopy_index_leaflet
 
 # ---------------- Land ownership ------------------------
 accessVals <- getRasterVals(ownership) # change for different types
+
+# redefine palette based on this layer's values
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
 
 ownership_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
@@ -137,13 +146,17 @@ ownership_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)
 ownership_index_leaflet
 
 # ---------------- (distance from) Roads -----------------------
-accessVals <- getRasterVals(roads) # change for different types
+roadVals <- getRasterVals(roads) # change for different types
+
+# redefine palette based on this layer's values
+legendPal <- colorNumeric(pal_access, roadVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, roadVals, na.color = 'transparent')
 
 
 roads_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
   addProviderTiles(providers$Esri.WorldTerrain) %>%
-  addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
+  addLegend_decreasing("bottomleft", pal = legendPal, values = roadVals,
                        labFormat = reverseLabel(), decreasing = TRUE,
                        title = "Accessibility Index") %>%
   # map model prediction raster and transfer polygon
@@ -159,6 +172,11 @@ roads_index_leaflet
 
 # --------------- (distance from) Trails --------------------------------
 accessVals <- getRasterVals(trails) # change for different types
+
+
+# redefine palette based on this layer's values
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
 
 
 trails_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
@@ -181,6 +199,10 @@ trails_index_leaflet
 
 # ----------------- Slope ----------------------------------------------
 accessVals <- getRasterVals(slope) # change for different types
+
+# redefine palette based on this layer's values
+legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
 
 slope_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
