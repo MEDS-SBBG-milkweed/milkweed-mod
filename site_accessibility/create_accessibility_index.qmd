@@ -36,7 +36,7 @@ plot(access_index_final)
 ```
 # Save final accessibility index
 ```{r}
-# writeRaster(access_index_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"), overwrite = TRUE)
+#writeRaster(access_index_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"), overwrite = TRUE)
 ```
 
 # Save final accessibility index to GitHub
