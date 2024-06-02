@@ -118,7 +118,7 @@ slope_reproject_avg <- project(slope, temp_rast, method = "average")
 
 # Crop to LPNF Boundary
 
-Next, we'll crop all of our layers other than Land Ownership to the LPNF boundary by using the polygons that represent the northern and southern regions as masks. We are doing this before rescaling because rescaling before cropping may result in highest or lowest values being cropped out of our areas of interest, which impacts the final rescaled layers as well as the final survey site accessibility index. We'll mask Land Ownership after we rescale it because it will only have values of 0 and 1, with no threat of cutting maximum or minimum values out when we mask it afterwards.
+Next, we'll crop all of our layers other than Land Ownership to the LPNF boundary by using the polygons that represent the northern and southern regions as masks. We are doing this before rescaling because rescaling before cropping may result in highest or lowest values being cropped out of our areas of interest, which impacts the final rescaled layers as well as the final survey site accessibility index. Land Ownership has already been masked to the LPNF in the `data_cleaning/land_ownership.qmd` notebook, so we don't need to mask it again here.
 
 ```{r}
 # crop to LPNF using terra's mask function
@@ -186,8 +186,6 @@ ownership_rast <- rast(ownership_rasterize)
 
 plot(ownership_rast)
 
-ownership_masked <- terra::mask(ownership_rast, lpnf_boundary)
-plot(ownership_masked)
 ```
 
 When I was using the model output as a template, the rasterize function kept values from the template when rasterizing and I had to do an extra step, but now that I am using the template that is all 0s, the extra step is no longer needed.
@@ -207,7 +205,7 @@ When I was using the model output as a template, the rasterize function kept val
 
 ## Final Checks
 ```{r}
-origin(ownership_rast) == origin(temp_rast)
+origin(ownership_masked) == origin(temp_rast)
 
 origin(canopy_rescaled) == origin(temp_rast)
 
