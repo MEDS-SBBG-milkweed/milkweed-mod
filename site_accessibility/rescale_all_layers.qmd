@@ -4,16 +4,21 @@ date-created: 04-09-2024
 date-last-updated: 04-28-2024
 ---
 
-This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.
+This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.  
 
 # Set up
 
 ## Source Scripts
 ```{r, message = FALSE}
-# reads in all data we need
+library(here)
+# run here() in your console to see where the working directory file path starts
+
+# Sourcing the setup script we developed for this notebook 
+# reads in all of the data and packages that we need!
+
 # takes a minute because it reprojects slope to correct CRS
-source("../R/accessibility_setup.R")
-source("../R/rescale_raster.R")
+source(here("R", "accessibility_setup.R")) # setup (reads in data, packages)
+source(here("R", "rescale_raster.R")) # rescaling function
 ```
 
 # Set everything to same resolution, extent, and CRS
