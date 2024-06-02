@@ -2,9 +2,13 @@
 title: "Creating the final accessibility index"
 ---
 
+[document summary]
+
 ```{r}
+# load required packages
 library(terra)
 library(here)
+
 # source rescale_raster function
 source(here("R", "rescale_raster.R"))
 ```
