@@ -53,28 +53,37 @@ To create the figures in the outputs/figs folder in the GitHub repository, we ra
 ## Plot final survey site accessibility index
 
 ```{r}
-access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
-                         quiet = TRUE)
-
+# load packages necessary for plotting
 library(leaflet)
 library(wallace)
 source(here("R", "addLegend_decreasing.R"))
 
+# read in final accessibility index we made in the previous code chunks
+access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+                         quiet = TRUE)
+
+# get raster values
 accessVals <- getRasterVals(access_index) # change for different types
 
+# define color palette 
 pal_access <- c("#FFFFFF","#CCD4EF", "#99A9DF", "#667FD0", "#3354C0", "#0029B0")
 
+# pull out values from raster for color palette
 legendPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
 rasPal <- colorNumeric(pal_access, accessVals, na.color = 'transparent')
 
-
+# Plot!
 accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   
+  # add world map base layer
   addProviderTiles(providers$Esri.WorldTerrain) %>%
+  
+  # use legend function sourced from the R folder
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
                        labFormat = reverseLabel(), decreasing = TRUE,
                        title = "Accessibility Index") %>%
+  
   # map model prediction raster and transfer polygon
   addRasterImage(access_index, colors = rasPal,
                  method = "ngb") %>%
@@ -82,8 +91,12 @@ accessibility_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FA
   # #add transfer polygon (user drawn area)
   addPolygons(data = lpnf_boundary, fill = FALSE,
               weight = 2, color = "black", group = 'xfer') %>% 
+  
+  # add scale bar
   addScaleBar(position = "bottomright")
 
+
+# view plot
 accessibility_index_leaflet
 
 ```
@@ -95,6 +108,8 @@ accessibility_index_leaflet
 We already read in the individually rescaled layers at the top of this notebook, so we only need to use `getRasterVals()` on those objects and repeat the previous leaflet mapping steps. 
 
 ```{r}
+source(here("R", "addLegend_decreasing.R"))
+
 # --------------- canopy cover --------------------------
 canopyVals <- getRasterVals(canopy) # change for different types
 
@@ -111,7 +126,8 @@ canopy_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %
                        labFormat = reverseLabel(), decreasing = TRUE,
                        title = "Accessibility Index:<br>Canopy Cover<br>") %>%
   # map model prediction raster and transfer polygon
-  addRasterImage(canopy, colors = rasPal,
+  addRasterImage(canopy, # rescaled Canopy Cover raster we read in at the beginning of this notebook
+                 colors = rasPal,
                  method = "ngb") %>%
   
   # #add transfer polygon (user drawn area)
@@ -133,9 +149,10 @@ ownership_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
                        labFormat = reverseLabel(), decreasing = TRUE,
-                       title = "Accessibility Index") %>%
+                       title = "Accessibility Index:<br>Land Ownership<br>") %>%
   # map model prediction raster and transfer polygon
-  addRasterImage(access_index, colors = rasPal,
+  addRasterImage(ownership, # rescaled Land Ownership raster
+                 colors = rasPal,
                  method = "ngb") %>%
   
   # #add transfer polygon (user drawn area)
@@ -158,9 +175,10 @@ roads_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = roadVals,
                        labFormat = reverseLabel(), decreasing = TRUE,
-                       title = "Accessibility Index") %>%
+                       title = "Accessibility Index:<br>Distance from Roads<br>") %>%
   # map model prediction raster and transfer polygon
-  addRasterImage(access_index, colors = rasPal,
+  addRasterImage(roads, # rescaled Distance from Roads raster
+                 colors = rasPal,
                  method = "ngb") %>%
   
   # #add transfer polygon (user drawn area)
@@ -184,9 +202,10 @@ trails_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
                        labFormat = reverseLabel(), decreasing = TRUE,
-                       title = "Accessibility Index") %>%
+                       title = "Accessibility Index: <br>Distance from Trails<br>") %>%
   # map model prediction raster and transfer polygon
-  addRasterImage(access_index, colors = rasPal,
+  addRasterImage(trails, # rescaled Distance from Trails raster
+                 colors = rasPal,
                  method = "ngb") %>%
   
   # #add transfer polygon (user drawn area)
@@ -209,9 +228,10 @@ slope_index_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>
   addProviderTiles(providers$Esri.WorldTerrain) %>%
   addLegend_decreasing("bottomleft", pal = legendPal, values = accessVals,
                        labFormat = reverseLabel(), decreasing = TRUE,
-                       title = "Accessibility Index") %>%
+                       title = "Accessibility Index:<br>Slope<br>") %>%
   # map model prediction raster and transfer polygon
-  addRasterImage(access_index, colors = rasPal,
+  addRasterImage(slope, # rescaled Slope raster
+                 colors = rasPal,
                  method = "ngb") %>%
   
   # #add transfer polygon (user drawn area)
