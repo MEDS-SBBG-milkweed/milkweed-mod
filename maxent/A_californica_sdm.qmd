@@ -12,8 +12,8 @@ library(ENMeval)
 library(wallace)
 library(tidyverse)
 library(here)
-source("R/addLegend_decreasing.R")
-source("R/setup.R")
+source(here("R", "addLegend_decreasing.R"))
+source(here("R", "setup.R"))
 ```
 
 ## Analysis
@@ -225,6 +225,7 @@ names(californica_model) <- "fc.LQ_rm.0.5"
 ```
 
 ```{r}
+# update this file path [come back]
 californica_pred <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"))
 pal_habitat <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
 mapPredVals_californica <- getRasterVals(californica_pred) # change for different types
