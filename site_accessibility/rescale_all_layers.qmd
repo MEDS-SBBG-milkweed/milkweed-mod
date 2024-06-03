@@ -184,6 +184,8 @@ ownership_rasterize<- st_rasterize(lpnf_ownership_mask1,
 
 ownership_rast <- rast(ownership_rasterize)
 
+ownership_rast <- ownership_rast %>% terra::mask(lpnf_boundary)
+
 plot(ownership_rast)
 
 ```
