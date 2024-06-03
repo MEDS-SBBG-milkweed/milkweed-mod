@@ -121,11 +121,16 @@ This project was developed in the programming language R, in the integrated deve
 
 *All rescaled layers contributing to the final survey site accessibility index*
 
-<img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/final_accessibility_index.png" alt="Survey site accessibility index where 0, in white, indicates the least accessible terrain and 1, in dark blue, indicates the most accessible terrain within the Los Padres National Forest" width="400">
+<img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/final_accessibility_index.png" alt="Survey site accessibility index where 0, in white, indicates the least accessible terrain and 1, in dark blue, indicates the most accessible terrain within the Los Padres National Forest" width="500">
 
 *Survey site accessibility index for the Los Padres National Forest*
 
 **Survey site priority index.** Finally, to identify high-priority survey site locations, the outputs of the habitat suitability maps and the survey site accessibility index were multiplied to create a survey site priority index. As both factors have scales from 0 to 1, with 0 being the lowest suitability and lowest accessibility and 1 being the highest suitability and highest accessibility, the resultant priority index was also scaled such that 0 indicates lowest priority and 1 indicates highest priority. 
+
+<img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/californica_priority.png" alt="Survey site priority index for Asclepias californica within the Los Padres National Forest where 0, in white, indicates lowest priority, and 1, in dark purple, indicates high priority" width="400"> <img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/eriocarpa_priority.png" alt="Survey site priority index for Asclepias eriocarpa within the Los Padres National Forest where 0, in white, indicates lowest priority, and 1, in dark purple, indicates high priority" width="400"> 
+<img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/erosa_priority.png" alt="Survey site priority index for Asclepias erosa within the Los Padres National Forest where 0, in white, indicates lowest priority, and 1, in dark purple, indicates high priority" width="400"> <img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/vestita_priority.png" alt="Survey site priority index for Asclepias vestita within the Los Padres National Forest where 0, in white, indicates lowest priority, and 1, in dark purple, indicates high priority" width="400">
+
+*Survey site priority index for all four early-season milkweed species*
 
 **Interactive web dashboard.** All of this information was incorporated in an interactive format as a tool to aid the SBBG staff in survey planning. A data table displaying the relative priority for each species at each location, along with the accessibility score for that location and the visit status (whether or not the SBBG has already visited a given location in previous survey efforts) are all displayed in a data table on the interactive web dashboard. See [milkweed-site-finder](https://github.com/MEDS-SBBG-milkweed/milkweed-site-finder) for more information. 
 
