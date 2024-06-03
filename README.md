@@ -121,7 +121,7 @@ This project was developed in the programming language R, in the integrated deve
 
 *All rescaled layers contributing to the final survey site accessibility index*
 
-<img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/final-accessibility-index.png" alt="Survey site accessibility index where 0, in white, indicates the least accessible terrain and 1, in dark blue, indicates the most accessible terrain within the Los Padres National Forest" width="400">
+<img src = "https://github.com/MEDS-SBBG-milkweed/milkweed-mod/blob/main/outputs/figs/final_accessibility_index.png" alt="Survey site accessibility index where 0, in white, indicates the least accessible terrain and 1, in dark blue, indicates the most accessible terrain within the Los Padres National Forest" width="400">
 
 *Survey site accessibility index for the Los Padres National Forest*
 
