@@ -2,6 +2,8 @@
 title: "Calculating Distances from Trails & Roads"
 ---
 
+This notebook calculates the minimum distance between each raster cell in the LPNF and a road or trail for use in creating the survey site accessibility index.
+
 ## Setup
 
 ```{r setup}

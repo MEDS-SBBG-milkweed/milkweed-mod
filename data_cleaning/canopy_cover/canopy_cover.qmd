@@ -3,6 +3,8 @@ title: "Canopy Cover"
 author: "Melissa Widas"
 ---
 
+This notebook combines all canopy cover tiles into one raster that covers the whole area of the LPNF.
+
 ## Load in Data
 ```{r}
 # load packages

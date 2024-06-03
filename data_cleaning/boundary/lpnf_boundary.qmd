@@ -1,7 +1,8 @@
 ---
 title: "LPNF Boundary and Trails/Roads"
-author: "Amanda"
 ---
+
+This notebook selects the LPNF boundary from a geodatabase of all California national forests and saves the entire boundary, the entire boundary buffered, just the northern section of the boundary, just the southern section of the boundary, and the buffered northern and southern sections.
 
 Load packages
 ```{r}

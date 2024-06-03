@@ -3,6 +3,8 @@ title: "DEM"
 author: "Sam Muir"
 ---
 
+This notebook combines all tiles into one DEM raster that covers the entire area of the LPNF.
+
 Data is from the USGS National Map
 - 3DEP 1 arc-second DEM current
 

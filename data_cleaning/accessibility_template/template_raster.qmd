@@ -1,8 +1,10 @@
 ---
 title: "Making a template raster for site accessibility data preparation"
 date_created: "2024-17-04"
-author: "Amanda Herbst"
 ---
+
+This notebook creates a template raster which is used to reproject and rasterize individual layers as needed in preparation for creating the survey site accessibility index.
+
 ```{r}
 library(tidyverse)
 library(terra)

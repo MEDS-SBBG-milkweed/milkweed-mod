@@ -2,6 +2,8 @@
 title: "Cleaning CA landownership"
 ---
 
+This notebook crops the California Land Ownership shapefile to the LPNF boundary.
+
 # Load packages
 ```{r}
 library(tidyverse)

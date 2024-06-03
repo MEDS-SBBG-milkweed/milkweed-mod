@@ -3,6 +3,8 @@ title: "Solar Radiation"
 format: html
 ---
 
+This notebook calculates the northness and eastness (proxies for solar radiation) throughout the LPNF using the DEM raster.
+
 ```{r}
 library(terra)
 library(raster)

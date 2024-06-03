@@ -3,6 +3,8 @@ title: "Cleaning Trails & Roads Data"
 date: "2024-04-24"
 ---
 
+This notebook selects trails and roads within the LPNF boundary and provides code to filter out specific trails/roads based on name and/or open/closed status in the southern section of the forest.
+
 ## Setup
 
 ### Load required packages

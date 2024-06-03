@@ -2,7 +2,7 @@
 title: "Creating the final accessibility index"
 ---
 
-[document summary]
+This notebook joins the habitat suitability maps and the survey site accessibility index to create a survey site priority index for each of the four early-season milkweed species.
 
 ```{r}
 # load required packages

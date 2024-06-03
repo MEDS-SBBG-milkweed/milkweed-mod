@@ -4,7 +4,7 @@ date-created: 04-09-2024
 date-last-updated: 04-28-2024
 ---
 
-This document's purpose is to rescale all layers for our accessibility raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.  
+This document's purpose is to rescale all layers for our survey site accessibility index raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.  
 
 # Set up
 
