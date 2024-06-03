@@ -4,6 +4,8 @@
 ##                                                                            --
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# This file cleans all of the milkweed polygon data and exports the resulting csv files. 
+
 # Load packages
 library(tidyverse)
 library(sf)

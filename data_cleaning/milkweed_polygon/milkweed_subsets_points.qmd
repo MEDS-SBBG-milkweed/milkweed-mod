@@ -3,6 +3,7 @@ title: "Milkweed Subsets & Polygons to Points"
 date-modified: "2024-05-22"
 ---
 
+This notebook subsets the milkweed polygon data, creates centroids, and exports files for each species. 
 
 ```{r setup}
 # load required packages

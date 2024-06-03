@@ -3,6 +3,8 @@ title: "erosa: Bioclim, canopy, northness, eastness"
 format: html
 ---
 
+This notebook contains code for running a MaxEnt SDM for *A. erosa* within the Los Padres National Forest boundary, model selection, model transfer, and mapping. 
+
 ```{r}
 library(spocc)
 library(spThin)

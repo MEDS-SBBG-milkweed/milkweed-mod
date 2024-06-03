@@ -4,6 +4,8 @@ author: "Sam Muir"
 format: html
 ---
 
+This notebook contains code to find the maximum suitability across all four milkweed species, and maps these highest values of prediction in the LPNF. The SDM .tif files being read in were generated from four different notebooks: A_californica_sdm.qmd, A_eriocarpa_sdm.qmd, A_erosa_sdm.qmd, A_vestita_sdm.qmd. 
+
 ```{r}
 library(here)
 library(terra)

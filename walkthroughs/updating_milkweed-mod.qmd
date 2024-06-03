@@ -1,5 +1,12 @@
 # Updating Milkweed Models
 
+Hello! This notebook walks you through updating the milkweed species distribution models. This includes:
+- adding new survey data
+- modeling milkweed suitability in the southern region of the LPNF
+  - optionally transferring the model to the northern region of the LPNF
+- modeling milkweed suitability in the northern region of the LPNF
+
+Additionally, this notebook will walk through updating closed trails and roads in the accessibility index. 
 
 #### Load packages
 ```{r}

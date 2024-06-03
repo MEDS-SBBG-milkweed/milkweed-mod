@@ -3,7 +3,10 @@ title: "Californica: Bioclim, canopy, northness, eastness"
 format: html
 ---
 
+This notebook contains code for running a MaxEnt SDM for *A. californica* within the Los Padres National Forest boundary, model selection, model transfer, and mapping. 
+
 ```{r}
+# load packages
 library(spocc)
 library(spThin)
 library(dismo)
