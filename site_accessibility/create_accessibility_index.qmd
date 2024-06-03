@@ -58,6 +58,8 @@ To create the figures in the outputs/figs folder in the GitHub repository, we ra
 
 ```{r}
 # load packages necessary for plotting
+# -- note: we're reading these in here because plotting isn't necessary to 
+# create and save the outputs of the survey site accessibility index
 library(leaflet)
 library(wallace)
 source(here("R", "addLegend_decreasing.R"))
