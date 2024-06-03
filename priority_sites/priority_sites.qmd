@@ -1,11 +1,15 @@
 ---
 title: "Identify Priority Sites"
-date: "Last Updated: 2024-04-23"
+date: "Last Updated: 2024-06-03"
 ---
+
+This notebook joins the habitat suitability maps and the survey site accessibility index to create a survey site priority index for each of the four early-season milkweed species.
 
 ```{r setup}
 library(terra)
 library(here)
+library(wallace)
+library(leaflet)
 ```
 
 # Read in Habitat Suitability Maps, Accessibility Index, Template Raster
@@ -128,12 +132,133 @@ names(vestita_rescaled) <- "vestita_priority"
 # Save priority maps to GitHub
 
 ```{r}
-writeRaster(californica_rescaled, here("outputs", "dashboard", "californica_priority.tif"), overwrite = TRUE)
+# writeRaster(californica_rescaled, here("outputs", "dashboard", "californica_priority.tif"), overwrite = TRUE)
+# 
+# writeRaster(eriocarpa_rescaled, here("outputs", "dashboard", "eriocarpa_priority.tif"), overwrite = TRUE)
+# 
+# writeRaster(erosa_rescaled, here("outputs", "dashboard", "erosa_priority.tif"), overwrite = TRUE)
+# 
+# writeRaster(vestita_rescaled, here("outputs", "dashboard", "vestita_priority.tif"), overwrite = TRUE)
+```
 
-writeRaster(eriocarpa_rescaled, here("outputs", "dashboard", "eriocarpa_priority.tif"), overwrite = TRUE)
+# Plot with leaflet
 
-writeRaster(erosa_rescaled, here("outputs", "dashboard", "erosa_priority.tif"), overwrite = TRUE)
+```{r}
+source(here("R", "addLegend_decreasing.R"))
 
-writeRaster(vestita_rescaled, here("outputs", "dashboard", "vestita_priority.tif"), overwrite = TRUE)
+californica <- rast(here("outputs", "dashboard", "californica_priority.tif"))
+eriocarpa <- rast(here("outputs", "dashboard", "eriocarpa_priority.tif"))
+erosa <- rast(here("outputs", "dashboard", "erosa_priority.tif"))
+vestita <- rast(here("outputs", "dashboard", "vestita_priority.tif"))
+lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+                         quiet = TRUE)
+
+# define color palette 
+pal_priority <- c("#FFFFFF", "#E1CCEF", "#C399DF", "#A666D0", "#8833C0", "#6A00B0")
+
+# ---------------------californica---------------------
+# get raster values
+californicaVals <- getRasterVals(californica) # change for different types
+
+legendPal <- colorNumeric(pal_priority, californicaVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_priority, californicaVals, na.color = 'transparent')
+
+californica_priority_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = californicaVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Priority Index:<br><em>Asclepias californica</em><br>") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(californica,
+                 colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+californica_priority_leaflet
+
+
+# ---------------------eriocarpa---------------------
+
+# get raster values
+eriocarpaVals <- getRasterVals(eriocarpa) # change for different types
+
+legendPal <- colorNumeric(pal_priority, eriocarpaVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_priority, eriocarpaVals, na.color = 'transparent')
+
+eriocarpa_priority_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = eriocarpaVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Priority Index:<br><em>Asclepias eriocarpa</em><br>") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(eriocarpa,
+                 colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+eriocarpa_priority_leaflet
+
+
+# ---------------------erosa---------------------
+
+# get raster values
+erosaVals <- getRasterVals(erosa) # change for different types
+
+legendPal <- colorNumeric(pal_priority, erosaVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_priority, erosaVals, na.color = 'transparent')
+
+erosa_priority_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = erosaVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Priority Index:<br><em>Asclepias erosa</em><br>") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(erosa,
+                 colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+erosa_priority_leaflet
+
+# ---------------------vestita---------------------
+
+# get raster values
+vestitaVals <- getRasterVals(vestita) # change for different types
+
+legendPal <- colorNumeric(pal_priority, vestitaVals, na.color = 'transparent')
+rasPal <- colorNumeric(pal_priority, vestitaVals, na.color = 'transparent')
+
+vestita_priority_leaflet <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  
+  addProviderTiles(providers$Esri.WorldTerrain) %>%
+  addLegend_decreasing("bottomleft", pal = legendPal, values = vestitaVals,
+                       labFormat = reverseLabel(), decreasing = TRUE,
+                       title = "Priority Index:<br><em>Asclepias vestita</em><br>") %>%
+  # map model prediction raster and transfer polygon
+  addRasterImage(vestita,
+                 colors = rasPal,
+                 method = "ngb") %>%
+  
+  # #add transfer polygon (user drawn area)
+  addPolygons(data = lpnf_boundary, fill = FALSE,
+              weight = 2, color = "black", group = 'xfer') %>% 
+  addScaleBar(position = "bottomright")
+
+vestita_priority_leaflet
 ```
 
