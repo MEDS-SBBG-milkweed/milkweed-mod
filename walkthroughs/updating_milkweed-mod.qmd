@@ -1,4 +1,4 @@
-# Intro
+# Updating Milkweed Models
 
 
 #### Load packages
@@ -47,7 +47,6 @@ ggplot() +
   geom_point(data = new_data, aes(x = longitude, y = latitude), size = 0.5) +
   geom_sf(data = lpnf_north_buffered, alpha = 0.5)
 ```
-
 
 #### Read in data used for modeling
 ```{r}
