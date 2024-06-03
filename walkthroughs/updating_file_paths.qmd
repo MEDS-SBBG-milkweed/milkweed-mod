@@ -1,0 +1,10 @@
+---
+title: "Updating File Paths"
+---
+
+
+
+This notebook contains an example of how to update file paths for reading and writing raw and intermediate data products. Please read this before trying to run any notebooks.
+
+
+

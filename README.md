@@ -389,12 +389,9 @@ To read more about the project and modeling processes, please refer to our [Bren
 
 
 ## Disclaimers
+**Plant and seed collection on Forest Service land is not permissible without a plant collection permit from the Los Padres National Forest.**
 
-Plant and seed collection on Forest Service land is not permissible without a plant collection permit from the Los Padres National Forest.
-
-
-
-This project was completed as a part of the [Master of Environmental Data Science]([https://bren.ucsb.edu/masters-programs/master-environmental-data-science) program at the Bren School of Environmental Science & Management at the University of California, Santa Barbara. 
+This project was completed as a part of the [Master of Environmental Data Science](https://bren.ucsb.edu/masters-programs/master-environmental-data-science) program at the Bren School of Environmental Science & Management at the University of California, Santa Barbara. 
 
 
 
@@ -410,15 +407,10 @@ This project was completed as a part of the [Master of Environmental Data Scienc
 
 
 ## Client 
-
-
-
 Dr. Sarah Cusser, Terrestrial Invertebrate Conservation Ecologist
 
-Santa Barbara Botanic Garden 
-
-1212 Mission Canyon Rd.
-
+Santa Barbara Botanic Garden <br>
+1212 Mission Canyon Rd. <br>
 Santa Barbara, CA 93105
 
 

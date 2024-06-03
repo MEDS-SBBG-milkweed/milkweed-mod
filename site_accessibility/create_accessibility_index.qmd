@@ -2,7 +2,7 @@
 title: "Creating the final accessibility index"
 ---
 
-This notebook joins the habitat suitability maps and the survey site accessibility index to create a survey site priority index for each of the four early-season milkweed species.
+This notebook joins rescaled distance from roads, distance from trails, slope, vegetation density, and land ownership to create a survey site accessibility index in the LPNF
 
 ```{r}
 # load required packages
