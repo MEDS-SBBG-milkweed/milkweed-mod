@@ -11,32 +11,30 @@ This notebook combines all canopy cover tiles into one raster that covers the wh
 library(tidyverse)
 library(raster)
 library(terra)
-library(tmap)
-library(ggnewscale)
-library(tidyterra)
-library(giscoR)
-library(units)
-library(ggblend)
 library(here)
 library(stars)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+canopy_dir <- here(base_dir, "raw_data", "canopy_cover")
+
 ```
 
 ```{r}
-# Prepare milkweed data using raster package
-canopy_cover_path <- here::here("~/../../capstone/milkweedmod/raw_data/canopy_cover/")
+# Prepare milkweed data using raster package -----
 
 # read in canopy cover data tiles
-kern_county <- rast(here(canopy_cover_path, "KernCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+kern_county <- rast(here(canopy_dir, "KernCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 
-los_angeles_county <- rast(here(canopy_cover_path, "LosAngelesCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+los_angeles_county <- rast(here(canopy_dir, "LosAngelesCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 
-monterey_county <- rast(here(canopy_cover_path, "MontereyCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+monterey_county <- rast(here(canopy_dir, "MontereyCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 
-san_luis_obispo_county <- rast(here(canopy_cover_path, "SanLuisObispoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+san_luis_obispo_county <- rast(here(canopy_dir, "SanLuisObispoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 
-santa_barbara_county <- rast(here(canopy_cover_path, "SantaBarbaraCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+santa_barbara_county <- rast(here(canopy_dir, "SantaBarbaraCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 
-ventura_county <- rast(here(canopy_cover_path, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
+ventura_county <- rast(here(canopy_dir, "VenturaCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif"))
 ```
 
 ## Initial Data Exploration
@@ -46,12 +44,12 @@ plot(kern_county)
 ```
 ```{r}
 # check crs of kern county
-crs(kern_county) # WGS 84, spits out a ton of info though
-st_crs(kern_county_s)
+st_crs(kern_county)
 ```
 
 
 ```{r}
+# check resolution
 res(kern_county)
 ```
 
@@ -79,7 +77,7 @@ crs(canopy_cover_full)
 ## Explore BioClim Data
 ```{r}
 # Read in bioclim data
-envs_Ac <- brick(here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
+envs_Ac <- brick(here(base_dir, "clean_data", "bioclim", "wallace_bioclim.tif"))
 
 # resolution of bioclim data is 0.008333333 0.008333333
 res(envs_Ac)
@@ -99,7 +97,7 @@ crs(canopy_cover_full_reproject)
 res(canopy_cover_full_reproject)
 
 # returns TRUE
-same.crs(envs_Ac, canopy_cover_full_reproject)
+st_crs(envs_Ac) == st_crs(canopy_cover_full_reproject)
 ```
 
 ```{r}
@@ -126,7 +124,7 @@ names(canopy_cover_full_reproject)
 ```{r}
 # write renamed output to appropriate folder
 writeRaster(canopy_cover_full_reproject,
-            here::here("~/../../capstone/milkweedmod/clean_data/canopy_cover/canopy_cover_cleaned.tif"),
+            here(base_dir, "clean_data", "canopy_cover", "canopy_cover_cleaned.tif"),
             overwrite = TRUE) # If file with this name already exists, overwrite it
 ```
 
