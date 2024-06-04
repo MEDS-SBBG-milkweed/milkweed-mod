@@ -9,13 +9,19 @@ This notebook selects trails and roads within the LPNF boundary and provides cod
 
 ### Load required packages
 
-```{r}
+```{r, message=FALSE}
+# Load packages
 library(tidyverse)
 library(here)
 library(janitor)
 library(sf)
 library(terra)
 library(stars)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+
+usgs_dir <- here(base_dir, "raw_data", "trails_and_roads", "CA_transportation")
 ```
 
 
@@ -23,10 +29,10 @@ library(stars)
 ```{r}
 # ------ LPNF boundary shapefiles ---------
 # Southern region (buffered)
-lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"))
+lpnf_boundary_south <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_south_buffered", "lpnf_boundary_south_buffered.shp"))
 
 # Northern region (buffered)
-lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp")) 
+lpnf_boundary_north <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_north_buffered", "lpnf_boundary_north_buffered.shp")) 
 ```
 
 
@@ -37,22 +43,24 @@ lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpn
 # this data is only from the southern region
 
 # read in LPNF trails data 
-trails_and_roads <- st_read(here("~/../../capstone/milkweedmod/raw_data/trails_and_roads/2023_Regional_Trails_and_Roads_lines/2023_Regional_Trails_and_Roads_lines.shp"))
+trails_and_roads <- st_read(here(base_dir, "raw_data", "trails_and_roads",
+                                 "2023_Regional_Trails_and_Roads_lines",
+                                 "2023_Regional_Trails_and_Roads_lines.shp"))
 
 
 # ----------- USGS ------------------------
 
 # Trails
-usgs_trails <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_TrailSegment.shp")
+usgs_trails <- st_read(here(usgs_dir, "Trans_TrailSegment.shp"))
 
 
 # Roads
-usgs_roads_0 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_0.shp")
-usgs_roads_1 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_1.shp")
-# this layer ends up not being in either the northern or southern sections, but I'm including it in case this data is updated and re-downloaded
-usgs_roads_2 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_2.shp")
-usgs_roads_3 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_3.shp")
-usgs_roads_4 <- st_read("~/../../capstone/milkweedmod/raw_data/trails_and_roads/CA_transportation/Trans_RoadSegment_4.shp")
+usgs_roads_0 <- st_read(here(usgs_dir, "Trans_RoadSegment_0.shp"))
+usgs_roads_1 <- st_read(here(usgs_dir, "Trans_RoadSegment_1.shp"))
+#  layer 2 ended up not being in either the northern or southern sections, but we're including it in case this data is updated and re-downloaded
+usgs_roads_2 <- st_read(here(usgs_dir, "Trans_RoadSegment_2.shp"))
+usgs_roads_3 <- st_read(here(usgs_dir, "Trans_RoadSegment_3.shp"))
+usgs_roads_4 <- st_read(here(usgs_dir, "Trans_RoadSegment_4.shp"))
 
 
 ```
@@ -101,16 +109,16 @@ open_roads <- fw_roads %>%
 # write files to clean_data folder ----
 # uncomment the following lines to write the data to the clean data folder
 
-# st_write(open_trails, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_trails_south.shp")
+# st_write(open_trails, here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_open_trails_south.shp"))
 
-# st_write(open_roads, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_roads_south.shp")
+# st_write(open_roads, here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_open_roads_south.shp"))
 
 
 # optionally, if you want to use all trails and roads regardless of "OPEN" vs "CLOSED" status:
 # write files to clean_data folder ----
-# st_write(fw_trails, "~/../../capstone/milkweedmod/clean_data/trails_roads/forest_watch/forest_trails_south.shp")
+# st_write(fw_trails, here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_trails_south.shp"))
 
-#st_write(fw_roads, "~/../../capstone/milkweedmod/clean_data/trails_roads/forest_watch/forest_roads_south.shp")
+#st_write(fw_roads, here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_roads_south.shp"))
 ```
 
 #### *Requested filtering option:* Filter out specific trails and roads by name
@@ -157,9 +165,9 @@ Thus, for this special filtering case, I've built out a workflow below to filter
 # # write files to clean_data folder ----
 # # uncomment the following lines to write the data to the clean data folder
 # 
-# # st_write(my_open_trails, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_trails_south.shp")
+# # st_write(my_open_trails,  here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_open_trails_south.shp"))
 # 
-# # st_write(my_open_roads, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_roads_south.shp") # feel free to change the name of this file to something else if you're testing out multiple filter scenarios. Just make sure that you read in the appropriate file later on (i.e., before running the accessibility index setup script (scripts/accessibility_setup.R) or site_accessibility/rescale_all_layers.qmd or site_accessibility/create_accessibility_index.qmd)
+# # st_write(my_open_roads, here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_open_roads_south.shp")) # feel free to change the name of this file to something else if you're testing out multiple filter scenarios. Just make sure that you read in the appropriate file later on (i.e., before running the accessibility index setup script (scripts/accessibility_setup.R) or site_accessibility/rescale_all_layers.qmd or site_accessibility/create_accessibility_index.qmd)
 
 ```
 
@@ -197,8 +205,8 @@ usgs_trails_north <- usgs_trails_clean %>%
 #   geom_sf(data = lpnf_boundary_north, color = "forestgreen", fill = "transparent", linewidth = 1.5) +
 #   theme_classic()
 
-# Save output to clean_data folder ----
-#st_write(usgs_trails_north, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_trails_north.shp",
+# --------- Save output to clean_data folder ----------------
+#st_write(usgs_trails_north, here(base_dir, "clean_data", "trails_and_roads", "usgs", "usgs_trails_north.shp"),
  #        append = FALSE) # replace existing file that shares the same name (if appropriate)
 ```
 
@@ -242,8 +250,10 @@ usgs_roads_north <- usgs_roads_clean %>%
 #   geom_sf(data = lpnf_boundary_north, color = "forestgreen", fill = "transparent", linewidth = 1.5) +
 #   theme_classic()
 
-# Save output to clean_data folder ----
-# st_write(usgs_roads_north, "~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_roads_north.shp",
+
+
+# ------- Save output to clean_data folder ----------
+# st_write(usgs_roads_north, here(base_dir, "clean_data", "trails_and_roads", "usgs", "usgs_roads_north.shp"),
 #         append = FALSE) # replace existing file that shares the same name (if appropriate)
 
 ```
