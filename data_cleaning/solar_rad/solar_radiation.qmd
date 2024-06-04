@@ -6,14 +6,21 @@ format: html
 This notebook calculates the northness and eastness (proxies for solar radiation) throughout the LPNF using the DEM raster.
 
 ```{r}
+# Load packages
 library(terra)
 library(raster)
 library(tmap)
 library(RColorBrewer)
+library(here)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+dem_dir <- here(base_dir, "clean_data", "dem")
 ```
 
 ```{r}
-dem <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_dem.tif"))
+# Read in DEM raster
+dem <- raster(here::here(dem_dir, "lpnf_dem.tif"))
 ```
 
 
@@ -22,8 +29,8 @@ dem <- raster(here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_dem.t
 derived_vars <- terrain(dem, opt = c('slope', 'aspect'), unit = "degrees")
 slope <- derived_vars[["slope"]]
 aspect <- derived_vars[["aspect"]]
-# writeRaster(slope, here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_slope.tif"), overwrite=TRUE)
-# writeRaster(aspect, here::here("~/../../capstone/milkweedmod/clean_data/dem/lpnf_aspect.tif"), overwrite=TRUE)
+# writeRaster(slope, here::here(dem_dir, "lpnf_slope.tif"), overwrite=TRUE)
+# writeRaster(aspect, here::here(dem_dir, "lpnf_aspect.tif"), overwrite=TRUE)
 ```
 
 
@@ -49,8 +56,8 @@ plot(eastness, col = heat.colors(20), main = "eastness", axes = F)
 
 Write rasters
 ```{r}
- # writeRaster(northness, here::here("~/../../capstone/milkweedmod/clean_data/dem/northness.tif"), overwrite=TRUE)
- # writeRaster(eastness, here::here("~/../../capstone/milkweedmod/clean_data/dem/eastness.tif"), overwrite=TRUE)
+ # writeRaster(northness, here::here(dem_dir, "northness.tif"), overwrite=TRUE)
+ # writeRaster(eastness, here::here(dem_dir, "eastness.tif"), overwrite=TRUE)
 ```
 
 
