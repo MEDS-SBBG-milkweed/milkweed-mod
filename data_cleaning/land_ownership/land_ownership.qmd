@@ -1,5 +1,6 @@
 ---
 title: "Cleaning CA landownership"
+date-last-updated: 2024-06-04
 ---
 
 This notebook crops the California Land Ownership shapefile to the LPNF boundary.
@@ -9,16 +10,19 @@ This notebook crops the California Land Ownership shapefile to the LPNF boundary
 library(tidyverse)
 library(terra)
 library(sf)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 ```
 
 # Read in raw data
 ```{r}
-land_ownership <- st_read(here("~/../../capstone/milkweedmod/raw_data/California_Land_Ownership/ownership23_1.shp"))
+land_ownership <- st_read(here(base_dir, "raw_data", "California_Land_Ownership", "ownership23_1.shp"))
 ```
 
 # Read in LPNF boundary
 ```{r}
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"))
+lpnf_boundary <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary", "lpnf_boundary.shp"))
 
 # save the lpnf boundary as a polygon
 lpnf_polygon <- lpnf_boundary$geometry
@@ -46,7 +50,7 @@ plot(lpnf_ownership)
 # Save file
 ```{r}
 # st_write(lpnf_ownership,
-#          here("~/../../capstone/milkweedmod/clean_data/lpnf_land_ownership/lpnf_land_ownership.shp"),
+#          here(base_dir, "clean_data", "lpnf_land_ownership", "lpnf_land_ownership.shp"),
 #          append = FALSE)
 ```
 

@@ -1,6 +1,6 @@
 ---
 title: "Making a template raster for site accessibility data preparation"
-date_created: "2024-17-04"
+date_created: "2024-06-04"
 ---
 
 This notebook creates a template raster which is used to reproject and rasterize individual layers as needed in preparation for creating the survey site accessibility index.
@@ -9,11 +9,16 @@ This notebook creates a template raster which is used to reproject and rasterize
 library(tidyverse)
 library(terra)
 library(here)
+
+# Define base directory file path
+base_dir <- here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+
+template_dir <- here(base_dir, "clean_data", "site_accessibility")
 ```
 
-We have been using a template raster based on the SDM output, but wanted to create a template from scratch so we are not dependent on the model output.
+We have been using a template raster based on the SDM output, but wanted to create a template from scratch so we are not dependent on the model output. This is especially helpful to make because the resolution of the model outputs is 0.00833 repeating, which is not ideal and impossible to make rasters with that same exact resolution. This adjusted template will be used for all accessibility calculations and then then model output will be adjusted to the same resolution/extent before combining for final high-priority sites.
 
-Currently basing this template on `outputs/sdm_outputs/californica_bioclim_dem.tif` in Taylor (4/17/24).
+Basing this template on model outputs:
 
 - CRS: EPSG:4326
 - Resolution: 0.008333333 x 0.008333333
@@ -22,33 +27,7 @@ Currently basing this template on `outputs/sdm_outputs/californica_bioclim_dem.t
 - number of rows: 389
 - Number of columns: 544
 
-## Build template
-```{r}
-# # define resolution and corners of the extent
-# res <- c(0.008333333, 0.008333333)
-# xmin <- -122.01324133097
-# xmax <- -117.479907997637
-# ymin <- 33.679743833477
-# ymax <- 36.9214105001436
-# crs <- "EPSG:4326"
-#   
-# temp_rast <- rast(nrow = 389, ncol = 544, resolution = res,
-#                   xmin = xmin, xmax = xmax,
-#                   ymin = ymin, ymax = ymax,
-#                   vals = 0, crs = crs)
-# # plot to verify
-# plot(temp_rast)
-```
-
-## Write to csv
-```{r}
-# writeRaster(temp_rast, 
-#             here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
-```
-
-# 4.21.24 
-
-The origin of the above template is slightly off from the origin of the model raster, so instead of going off the exact values of the model raster, I am going to define similar values. The problem seems to come from the resolution that R prints out with 6 repeating 3s, but I believe are infinite repeating 3s. This adjusted template will be used for all accessibility calculations and then then model output will be adjusted to the same resolution/extent before combining for final high-priority sites.
+# Build template 
 
 New values: 
 - CRS: EPSG:4326 (same)
@@ -79,8 +58,11 @@ plot(temp_rast)
 origin(temp_rast)
 ```
 
+
+# Write to box folder
+
 ```{r}
 # writeRaster(temp_rast,
-#             here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"),
+#             here(template_dir, "template_raster.tif"),
 #             overwrite = TRUE)
 ```
