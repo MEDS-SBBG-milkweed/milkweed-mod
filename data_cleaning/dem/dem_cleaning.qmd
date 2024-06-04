@@ -12,14 +12,16 @@ Data is from the USGS National Map
 library(tidyverse)
 library(raster)
 library(terra)
-library(tmap)
 library(tidyterra)
 library(here)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 ```
 
 ```{r}
 # set file path
-file_path <- here("~/../../capstone/milkweedmod/raw_data/dem/")
+file_path <- here(base_dir, "raw_data", "dem")
 
 # read in dem data tiles
 n35w119 <- rast(here(file_path, "USGS_1_n35w119_20190919.tif"))
@@ -36,6 +38,6 @@ n37w122 <- rast(here(file_path, "USGS_1_n37w122_20201207.tif"))
 dem <- mosaic(n35w119, n35w120, n35w121, n36w120, n36w121, n36w122, n37w122)
 plot(dem)
 
-# writeRaster(dem, here("~/../../capstone/milkweedmod/data/dem/lpnf_dem.tif"))
+# writeRaster(dem, here(data_dir, "data", "dem", "lpnf_dem.tif"))
 ```
 
