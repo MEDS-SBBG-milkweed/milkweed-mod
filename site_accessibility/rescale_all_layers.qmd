@@ -1,7 +1,7 @@
 ---
 title: "Rescale all layers for accessibility index to 0-1"
 date-created: 04-09-2024
-date-last-updated: 04-28-2024
+date-last-updated: "`r format(Sys.time(), '%d %B, %Y')`"
 ---
 
 This document's purpose is to rescale all layers for our survey site accessibility index raster to a scale of 0-1 (0 = least accessible, 1 = most accessible) and set to same extent, CRS, and resolution.  
@@ -10,8 +10,13 @@ This document's purpose is to rescale all layers for our survey site accessibili
 
 ## Source Scripts
 ```{r, message = FALSE}
+# Load package(s)
 library(here)
+
 # run here() in your console to see where the working directory file path starts
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 
 # Sourcing the setup script we developed for this notebook 
 # reads in all of the data and packages that we need!
@@ -231,7 +236,7 @@ roads_rescaled
 Currently, all the continuous layers are rescaled where 1 is least accessible and 0 is most accessible (e.g. highest slope = 1) so, the last step is to flip the scale so that 1 = most accessible and 0 = least accessible
 
 ```{r}
-canopy_final <- 1- (canopy_rescaled)
+canopy_final <- 1 - (canopy_rescaled)
 
 slope_final <- 1 - (slope_rescaled)
 
@@ -242,15 +247,22 @@ roads_final <- 1 - (roads_rescaled)
 ```
 
 
-# Save everything in Taylor: milkweedmod/ouputs/site_accessibility_outputs/
+# Save everything in Box: milkweedmod/ouputs/site_accessibility_outputs/
 
 ```{r}
-# update to Box Folder file path
-#writeRaster(canopy_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"), overwrite = TRUE)
-#writeRaster(slope_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"), overwrite = TRUE)
-#writeRaster(trails_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"), overwrite = TRUE)
-#writeRaster(roads_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"), overwrite = TRUE)
-#writeRaster(ownership_rast, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"), overwrite = TRUE)
+# write to Box Folder file path
+
+# Set Box site accessibility folder file path to write to 
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+
+site_access_dir <- here::here(base_dir, "outputs", "site_accessibility_outputs")
+
+#writeRaster(canopy_final, here(site_access_dir, "canopy_rescaled.tif"), overwrite = TRUE)
+#writeRaster(slope_final, here(site_access_dir, "slope_rescaled.tif"), overwrite = TRUE)
+#writeRaster(trails_final, here(site_access_dir, "trails_rescaled.tif"), overwrite = TRUE)
+#writeRaster(roads_final, here(site_access_dir, "roads_rescaled.tif"), overwrite = TRUE)
+#writeRaster(ownership_rast, here(site_access_dir, "ownership_rescaled.tif"), overwrite = TRUE)
 ```
 
 # Save everything in GitHub for the dashboard: milkweed-mod/outputs/dashboard
