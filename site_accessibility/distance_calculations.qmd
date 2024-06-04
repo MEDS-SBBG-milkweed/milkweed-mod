@@ -19,6 +19,9 @@ library(terra)
 library(stars)
 library(ggspatial) 
 library(gdistance)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 ```
 
 
@@ -31,31 +34,31 @@ Read in cleaned trails & roads data
 # ------------------- Forest Watch -------------------------
 
 # Trails (South Only)
-forest_trails_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_trails_south.shp")) # note: this file contains trails that have been filtered to "OPEN" status
+forest_trails_south <- st_read(here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_open_trails_south.shp")) # note: this file contains trails that have been filtered to "OPEN" status
 
 # Roads (South Only)
-forest_roads_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/forest_watch/forest_open_roads_south.shp")) # note: this file contains roads that have been filtered to "OPEN" status
+forest_roads_south <- st_read(here(base_dir, "clean_data", "trails_and_roads", "forest_watch", "forest_open_roads_south.shp")) # note: this file contains roads that have been filtered to "OPEN" status
 
 # ---------------------- USGS -----------------------------
 
 # ........... Trails ................
 
 # North
-usgs_trails_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_trails_north.shp"))
+usgs_trails_north <- st_read(here(base_dir, "clean_data", "trails_and_roads", "usgs", "usgs_trails_north.shp"))
 
 # South
 # uncomment this line and use this object if you want to use the USGS data instead of the Forest Watch data for the southern portion of the LPNF
-# usgs_trails_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_trails_south.shp"))
+# usgs_trails_south <- st_read(here(base_dir, "clean_data", "trails_and_roads", "usgs", "usgs_trails_south.shp"))
 
 # ............. Roads .................
 
 # North
-usgs_roads_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_roads_north.shp"))
+usgs_roads_north <- st_read(here(base_dir, "clean_data", "trails_and_roads", "usgs", "usgs_roads_north.shp"))
 
 
 # South 
 # uncomment this line and use this object if you want to use the USGS data instead of the Forest Watch data for the southern portion of the LPNF
-# usgs_roads_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/trails_and_roads/usgs/usgs_roads_north.shp"))
+# usgs_roads_south <- st_read(here(base_dir, "clean_data", "trails_and_roads", "usgs", "usgs_trails_south.shp"))
 
 ```
 
@@ -69,13 +72,13 @@ Read in Model Raster (used as template raster for distance calculations)
 # to use as a template when we convert our shapefiles into rasters
 
 # the template needs to be a stars object when we rasterize with st_rasterize(), 
-stars_temp_raster <- stars::read_stars(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+stars_temp_raster <- stars::read_stars(here(base_dir, "clean_data", "site_accessibility", "template_raster.tif"))
 
 # we also need it as a SpatRaster (terra), to perform reclassification 
-model_spat_raster_template <- terra::rast(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+model_spat_raster_template <- terra::rast(here(base_dir, "clean_data", "site_accessibility", "template_raster.tif"))
 
 # and as a RasterLayer (raster), to extract points in our distance calculation steps
-#model_raster_layer <- raster::raster(here::here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_bioclim_canopy_dem.tif")) 
+#model_raster_layer <- raster::raster(here::here(base_dir, "outputs", "sdm_outputs", "californica_bioclim_canopy_dem.tif")) 
 
 # optional data exploration/visualization
 # plot(model_spat_raster)
@@ -84,10 +87,10 @@ model_spat_raster_template <- terra::rast(here("~/../../capstone/milkweedmod/cle
 
 # ------ LPNF boundary shapefiles ---------
 # Southern region (buffered)
-lpnf_boundary_south <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"))
+lpnf_boundary_south <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_south_buffered", "lpnf_boundary_south_buffered.shp"))
 
 # Northern region (buffered)
-lpnf_boundary_north <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp")) 
+lpnf_boundary_north <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_north_buffered", "lpnf_boundary_north_buffered.shp")) 
 
 
 # Check: Coordinate Reference System (CRS) of all objects need to match (they should already, since all objects are cleaned data products):
@@ -429,8 +432,8 @@ plot(roads_merge)
 ## Save output to outputs folder
 
 ```{r}
-#terra::writeRaster(trails_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/trails_distance_raster.tif"), overwrite = TRUE)
-#terra::writeRaster(roads_merge, here::here("~/../../capstone/milkweedmod/clean_data/site_accessibility/roads_distance_raster.tif"), overwrite = TRUE)
+#terra::writeRaster(trails_merge, here::here(base_dir, "clean_data", "site_accessibility", "trails_distance_raster.tif"), overwrite = TRUE)
+#terra::writeRaster(roads_merge, here::here(base_dir, "clean_data", "site_accessibility", "roads_distance_raster.tif"), overwrite = TRUE)
 
 ```
 
@@ -472,7 +475,7 @@ plot(trail_dist_rescaled)
 ```{r, eval=FALSE}
 # SCRAPPED --------- MAPS REVERSE, NOT WANTED ----------------
 source(here("R", "addLegend_decreasing.R"))
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+lpnf_boundary <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary", "lpnf_boundary.shp"),
                          quiet = TRUE)
 
 mapPredVals_Ac <- wallace::getRasterVals(road_dist_rescaled)
