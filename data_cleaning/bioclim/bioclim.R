@@ -1,5 +1,8 @@
 library(wallace)
 
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+
 # Download environmental data
 envs_Ac_E <- envs_worldclim(
   bcRes = 0.5, # resolution 30arc seconds
@@ -16,6 +19,6 @@ envs_Ac_W <- envs_worldclim(
 #Mosaic the two tiles together to get whole study region
 envs_Ac <- terra::mosaic(envs_Ac_W, envs_Ac_E, fun = "mean")
 
-#writeRaster(envs_Ac, here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
+writeRaster(envs_Ac, here::here(base_dir, "clean_data", "bioclim", "wallace_bioclim.tif"))
 
-biclim <- brick(here::here("~/../../capstone/milkweedmod/clean_data/bioclim/wallace_bioclim.tif"))
+biclim <- brick(here::here(base_dir, "clean_data", "bioclim", "wallace_bioclim.tif"))

@@ -9,7 +9,7 @@ This notebook calculates the northness and eastness (proxies for solar radiation
 # Load packages
 library(terra)
 library(raster)
-library(tmap)
+#library(tmap)
 library(RColorBrewer)
 library(here)
 
@@ -20,7 +20,7 @@ dem_dir <- here(base_dir, "clean_data", "dem")
 
 ```{r}
 # Read in DEM raster
-dem <- raster(here::here(dem_dir, "lpnf_dem.tif"))
+dem <- raster(here(dem_dir, "lpnf_dem.tif"))
 ```
 
 
