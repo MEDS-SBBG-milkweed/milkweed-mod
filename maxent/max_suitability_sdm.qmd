@@ -7,6 +7,9 @@ format: html
 This notebook contains code to find the maximum suitability across all four milkweed species, and maps these highest values of prediction in the LPNF. The SDM .tif files being read in were generated from four different notebooks: A_californica_sdm.qmd, A_eriocarpa_sdm.qmd, A_erosa_sdm.qmd, A_vestita_sdm.qmd. 
 
 ```{r}
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+
 library(here)
 library(terra)
 library(leaflet)
@@ -14,12 +17,14 @@ source("R/addLegend_decreasing.R")
 ```
 
 ```{r}
-vestita <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"))
-eriocarpa <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"))
-erosa <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.tif"))
-californica <- raster(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"))
+# read in species sdm rasters
+vestita <- raster(here("outputs", "dashboard", "vestita_sdm.tif"))
+eriocarpa <- raster(here("outputs", "dashboard", "eriocarpa_sdm.tif"))
+erosa <- raster(here("outputs", "dashboard", "erosa_sdm.tif"))
+californica <- raster(here("outputs", "dashboard", "californica_sdm.tif"))
 
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"))
+# read in lpnf boundary
+lpnf_boundary <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary", "lpnf_boundary.shp"))
 ```
 
 ```{r}
@@ -49,7 +54,7 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTerrain) %>%
               color = "black",
               weight = 2)
 
-# writeRaster(max_suitable, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/max_suitable_sdm.tif"), overwrite=TRUE)
+# write locally, push to github
 writeRaster(max_suitable, "outputs/dashboard/max_suitable_sdm.tif")
 ```
 

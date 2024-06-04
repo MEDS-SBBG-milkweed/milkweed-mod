@@ -249,17 +249,27 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```{r}
 erosa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac) %>%
   rast()
-names(erosa_model) <- "fc.LQ_rm.0.5"
-writeRaster(erosa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.tif"), overwrite=TRUE)
-write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.rda"))
-writeRaster(erosa_model, "outputs/dashboard/erosa_sdm.tif")
 ```
 
 ```{r}
-erosa_pred <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.tif")) %>%
+# save layer name
+names(erosa_model) <- "fc.LQ_rm.0.5"
+
+# write raster locally and push to github
+writeRaster(erosa_model, here("outputs", "dashboard", "erosa_sdm.tif"))
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+# write model object to box
+write_rds(model_Ac, here(base_dir, "outputs", "sdm_outputs", "erosa_sdm.rda"))
+```
+
+Plotting
+```{r}
+erosa_pred <- rast(here("outputs", "dashboard", "erosa_sdm.tif")) %>%
   mask(lpnf_boundary)
 pal_habitat <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
-mapPredVals_erosa <- getRasterVals(erosa_pred) # change for different types
+mapPredVals_erosa <- getRasterVals(erosa_pred)
 
 legendPal_erosa <- colorNumeric(pal_habitat, mapPredVals_erosa, na.color = 'transparent')
 rasPal_erosa <- colorNumeric(pal_habitat, mapPredVals_erosa, na.color = 'transparent')

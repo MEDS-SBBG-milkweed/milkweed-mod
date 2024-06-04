@@ -31,6 +31,9 @@ library(wallace)
 # source scripts
 source(here::here("R", "addLegend_decreasing.R"))
 source(here::here("R", "setup.R"))
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 ```
 
 
@@ -58,17 +61,16 @@ ggplot() +
 #### Read in data used for modeling
 ```{r}
 # environmental data raster stack
-environmental_layers <- brick("path/to/env_stack.tif")
+environmental_layers <- brick(here(base_dir, "clean_data", "sdm_env_stack", "env_stack.tif"))
 # environmental_layers <- envs_Ac
 
 # los padres forest boundary files
-lpnf_boundary <- st_read("path/to/lpnf_boundary.shp")
-lpnf_north <- st_read("path/to/lpnf_boundary_north.shp")
-lpnf_south <- st_read("path/to/lpnf_boundary_south.shp")
+lpnf_boundary <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary","lpnf_boundary.shp"))
+lpnf_north <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_north","lpnf_boundary_north.shp"))
+lpnf_south <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_south","lpnf_boundary_south.shp"))
 
 # read in properly formatted milkweed polygon data
-milkweed_data_raw <- st_read("path/to/data")
-# milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/"))
+milkweed_data_raw <- st_read(here(base_dir, "raw_data", "milkweed_polygon_data", "MilkweedPolygon_Data.shp"))
 ```
 
 ##### Troubleshooting Errors
@@ -459,10 +461,15 @@ leaflet() %>%
 ```
 
 ## Save model outputs
-
 ```{r}
+# write spcies model raster locally and push to github
 # install.packages(snakecase)
-writeRaster(joined_model, paste0("outputs/sdm/", snakecase::to_snake_case(species_name), "_sdm.tif"))
+writeRaster(joined_model, here("outputs", "dashboard", paste0(snakecase::to_snake_case(species_name), "_sdm.tif")))
+
+# write species models to box
+save_rds(species_model_south, here(base_dir, "outputs", "sdm_outputs", paste0(snakecase::to_snake_case(species_name), "_south_sdm.rda")))
+
+save_rds(species_model_north, here(base_dir, "outputs", "sdm_outputs", paste0(snakecase::to_snake_case(species_name), "_north_sdm.rda")))
 ```
 
 

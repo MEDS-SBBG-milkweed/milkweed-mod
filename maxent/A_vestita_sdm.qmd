@@ -240,19 +240,30 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
+# merge pred area with model transfer
 vestita_model <- merge(xfer_area_Ac$xferArea, predSel_Ac)  %>%
   rast()
-names(vestita_model) <- "fc.LQ_rm.0.5"
-# writeRaster(vestita_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"), overwrite=TRUE)
-# write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.rda"))
-writeRaster(vestita_model, "outputs/dashboard/vestita_sdm.tif")
 ```
 
 ```{r}
-vestita_pred <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif")) %>%
+# save layer name
+names(vestita_model) <- "fc.LQ_rm.0.5"
+
+# write raster locally and push to github
+writeRaster(vestita_model, here("outputs", "dashboard", "vestita_sdm.tif"))
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+# write model object to box
+write_rds(model_Ac, here(base_dir, "outputs", "sdm_outputs", "vestita_sdm.rda"))
+```
+
+Plotting
+```{r}
+vestita_pred <- rast(here("outputs", "dashboard", "vestita_sdm.tif")) %>%
   mask(lpnf_boundary)
 pal_habitat <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
-mapPredVals_vestita <- getRasterVals(vestita_pred) # change for different types
+mapPredVals_vestita <- getRasterVals(vestita_pred)
 
 legendPal_vestita <- colorNumeric(pal_habitat, mapPredVals_vestita, na.color = 'transparent')
 rasPal_vestita <- colorNumeric(pal_habitat, mapPredVals_vestita, na.color = 'transparent')

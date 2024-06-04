@@ -219,19 +219,31 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
+# merge pred and transfer
 californica_model <- merge(xfer_area_Ac$xferArea, predSel_Ac) %>%
   rast()
-names(californica_model) <- "fc.LQ_rm.0.5"
-#writeRaster(californica_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"), overwrite=TRUE)
-#write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.rda"))
-# writeRaster(californica_model, "outputs/dashboard/californica_sdm.tif")
 ```
 
 ```{r}
-# update this file path [come back]
-californica_pred <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"))
+# save layer name
+names(californica_model) <- "fc.LQ_rm.0.5"
+
+# write raster locally and push to github
+writeRaster(californica_model, here("outputs", "dashboard", "californica_sdm.tif"))
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+# write model object to box
+write_rds(model_Ac, here(base_dir, "outputs", "sdm_outputs", "californica_sdm.rda"))
+```
+
+Plotting
+```{r}
+# read in sdm raster 
+californica_pred <- rast(here("outputs", "dashboard", "californica_sdm.tif"))
+
 pal_habitat <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
-mapPredVals_californica <- getRasterVals(californica_pred) # change for different types
+mapPredVals_californica <- getRasterVals(californica_pred) 
 
 legendPal_californica <- colorNumeric(pal_habitat, mapPredVals_californica, na.color = 'transparent')
 rasPal_californica <- colorNumeric(pal_habitat, mapPredVals_californica, na.color = 'transparent')

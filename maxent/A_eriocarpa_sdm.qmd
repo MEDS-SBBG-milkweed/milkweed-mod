@@ -218,18 +218,29 @@ leaflet() %>% addProviderTiles(providers$Esri.WorldTopoMap) %>%
 ```
 
 ```{r}
+# merge pred area with model transfer
 eriocarpa_model <- merge(xfer_area_Ac$xferArea, predSel_Ac) %>%
   rast()
-names(eriocarpa_model) <- "fc.LQ_rm.0.5"
-# writeRaster(eriocarpa_model, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"), overwrite=TRUE)
-# write_rds(model_Ac, here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.rda"))
-# writeRaster(eriocarpa_model, "outputs/dashboard/eriocarpa_sdm.tif")
 ```
 
 ```{r}
-eriocarpa_pred <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"))
+# save layer name
+names(eriocarpa_model) <- "fc.LQ_rm.0.5"
+
+# write raster locally and push to github
+writeRaster(eriocarpa_model, here("outputs", "dashboard", "eriocarpa_sdm.tif"))
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+# write model object to box
+write_rds(model_Ac, here(base_dir, "outputs", "sdm_outputs", "eriocarpa_sdm.rda"))
+```
+
+Plotting
+```{r}
+eriocarpa_pred <- rast(here("outputs", "dashboard", "eriocarpa_sdm.tif"))
 pal_habitat <- c("#FFFFFF", "#EFCCCC", "#DF9999", "#D06666", "#C03333", "#B00000")
-mapPredVals_eriocarpa <- getRasterVals(eriocarpa_pred) # change for different types
+mapPredVals_eriocarpa <- getRasterVals(eriocarpa_pred)
 
 legendPal_eriocarpa <- colorNumeric(pal_habitat, mapPredVals_eriocarpa, na.color = 'transparent')
 rasPal_eriocarpa <- colorNumeric(pal_habitat, mapPredVals_eriocarpa, na.color = 'transparent')
