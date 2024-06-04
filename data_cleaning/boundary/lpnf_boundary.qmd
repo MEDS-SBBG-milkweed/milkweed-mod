@@ -9,12 +9,15 @@ Load packages
 library(tidyverse)
 library(sf)
 library(here)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 ```
 
 ## Read in CA National Forest boundaries
 ```{r}
 # California National Forest boundaries
-boundary <- st_read(here("~/../../capstone/milkweedmod/raw_data/S_USA_AdministrativeForest.gdb/"))
+boundary <- st_read(here::here(base_dir, "raw_data", "S_USA_AdministrativeForest.gdb"))
 ```
 
 ## Filter boundaries to Los Padres National Forest
@@ -30,13 +33,13 @@ forest_buffer <- lpnf_boundary  %>%
 # save boundaries as shapefiles
 
 # st_write(lpnf_boundary,
-#          here("~/../../capstone/milkweedmod/cleandata/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+#          here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary", "lpnf_boundary.shp"),
 #          append = FALSE)
 # st_write(forest_buffer,
-#         here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_buffered/lpnf_boundary_buffered.shp"),
+#         here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_buffered", "lpnf_boundary_buffered.shp"),
 #         append = FALSE)
  
-write_rds(lpnf_boundary, "outputs/dashboard/lpnf_boundary.rda")
+write_rds(lpnf_boundary, here(base_dir, "outputs","dashboard", "lpnf_boundary.rda"))
 ```
 
 ## Separate LPNF boundary into northern and southern sections
@@ -83,9 +86,9 @@ ggplot() +
 Save boundaries as shapefiles
 ```{r}
 # write the forest boundaries
-# st_write(lpnf_north, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north/lpnf_boundary_north.shp"), append = FALSE)
-# st_write(lpnf_south, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south/lpnf_boundary_south.shp"), append = FALSE)
-# st_write(lpnf_north_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_north_buffered/lpnf_boundary_north_buffered.shp"), append = FALSE)
-# st_write(lpnf_south_buffered, here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary_south_buffered/lpnf_boundary_south_buffered.shp"), append = FALSE)
+# st_write(lpnf_north, here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_north", "lpnf_boundary_north.shp"), append = FALSE)
+# st_write(lpnf_south, here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_south", "lpnf_boundary_south.shp"), append = FALSE)
+# st_write(lpnf_north_buffered, here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_north_buffered", "lpnf_boundary_north_buffered.shp"), append = FALSE)
+# st_write(lpnf_south_buffered, here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary_south_buffered", "lpnf_boundary_south_buffered.shp"), append = FALSE)
 ```
 

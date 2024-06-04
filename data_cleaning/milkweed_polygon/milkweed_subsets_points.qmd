@@ -6,7 +6,7 @@ date-modified: "2024-05-22"
 This notebook subsets the milkweed polygon data, creates centroids, and exports files for each species. 
 
 ```{r setup}
-# load required packages
+# Load required packages
 library(tidyverse)
 library(janitor)
 library(sf)
@@ -14,13 +14,13 @@ library(ggspatial)
 library(terra)
 library(here)
 library(leaflet)
-library(plotly)
-library(rnaturalearth)
-library(rnaturalearthdata)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 
 # read in data
 
-milkweed_path <- here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/")
+milkweed_path <- here(base_dir, "raw_data", "milkweed_polygon_data")
 
 milkweed_data_raw <- st_read(milkweed_path)
 
@@ -97,10 +97,13 @@ vestitia_centroids <- vestita |>
 # checking crs
 # st_crs(all_spec_centroids)
 # epsg 3857
-# ------------ Writing data to new files in Taylor ----------------------------
+# ------------ Writing data to new files in Box ----------------------------
 
-all_spec_points <- st_write(all_spec_centroids, "~/../../capstone/milkweedmod/data/milkweed_cleaned_data/points/all_species_points.shp")
-write_rds(all_spec_centroids, "outputs/dashboard/all_species_points.rda")
+all_spec_points <- st_write(all_spec_centroids, here(base_dir, "cleaned_data", "survey_location_centroids", "all_species_points.shp"))
+
+# Writing output as an rda to GitHub for use in milkweed-site-finder dashboard
+write_rds(all_spec_centroids, here("outputs", "dashboard", "all_species_points.rda"))
+
 ```
 
 

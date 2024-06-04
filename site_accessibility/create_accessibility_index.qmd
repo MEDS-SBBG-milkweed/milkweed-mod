@@ -11,6 +11,12 @@ library(here)
 
 # source rescale_raster function
 source(here("R", "rescale_raster.R"))
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+
+# Define path to dashboard folder within the outputs folder (in this GitHub repo)
+outputs_dir <- here::here("outputs", "dashboard")
 ```
 
 
@@ -18,11 +24,11 @@ source(here("R", "rescale_raster.R"))
 
 ## Read in layers
 ```{r}
-canopy <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/canopy_rescaled.tif"))
-slope <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/slope_rescaled.tif"))
-trails <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/trails_rescaled.tif"))
-roads <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/roads_rescaled.tif"))
-ownership <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/ownership_rescaled.tif"))
+canopy <- rast(here(outputs_dir, "canopy_rescaled.tif"))
+slope <- rast(here(outputs_dir, "slope_rescaled.tif"))
+trails <- rast(here(outputs_dir, "trails_rescaled.tif"))
+roads <- rast(here(outputs_dir, "roads_rescaled.tif"))
+ownership <- rast(here(outputs_dir, "ownership_rescaled.tif"))
 ```
 
 
@@ -40,8 +46,8 @@ plot(access_index_final)
 ```
 # Save final accessibility index
 ```{r}
-
-#writeRaster(access_index_final, here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"), overwrite = TRUE)
+# Uncomment to save outputs
+#writeRaster(access_index_final, here(base_dir, "outputs", "site_accessibility_outputs", "access_index_final.tif"), overwrite = TRUE)
 ```
 
 # Save final accessibility index to GitHub
@@ -66,8 +72,8 @@ library(wallace)
 source(here("R", "addLegend_decreasing.R"))
 
 # read in final accessibility index we made in the previous code chunks
-access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+access_index <- rast(here("outputs", "dashboard", "access_index_final.tif"))
+lpnf_boundary <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary", "lpnf_boundary.shp"),
                          quiet = TRUE)
 
 # get raster values
@@ -255,6 +261,8 @@ slope_index_leaflet
 
 
 ## save leaflet as png
+
+(note: this didn't work for us)
 ```{r}
 library(mapview)
 
