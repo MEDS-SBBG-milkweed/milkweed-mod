@@ -6,35 +6,40 @@ date: "Last Updated: 2024-06-03"
 This notebook joins the habitat suitability maps and the survey site accessibility index to create a survey site priority index for each of the four early-season milkweed species.
 
 ```{r setup}
+# Load packages
 library(terra)
 library(here)
 library(wallace)
 library(leaflet)
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
+outputs_dir <- here::here(base_dir, "outputs")
 ```
 
 # Read in Habitat Suitability Maps, Accessibility Index, Template Raster
 
 ```{r}
 # ---- Template Raster ----
-template_rast <- rast(here("~/../../capstone/milkweedmod/clean_data/site_accessibility/template_raster.tif"))
+template_rast <- rast(here(base_dir, "clean_data", "site_accessibility", "template_raster.tif"))
 
 # ---- Accessibility Index ----
-access_index <- rast(here("~/../../capstone/milkweedmod/outputs/site_accessibility_outputs/access_index_final.tif"))
+access_index <- rast(here(outputs_dir, "site_accessibility_outputs", "access_index_final.tif"))
 
 
 # ---- Habitat Suitability Maps ----
 
 # Californica
-californica <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/californica_sdm.tif"))
+californica <- rast(here(outputs_dir, "sdm_outputs", "californica_sdm.tif"))
 
 # Eriocarpa
-eriocarpa <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/eriocarpa_sdm.tif"))
+eriocarpa <- rast(here(outputs_dir, "sdm_outputs", "eriocarpa_sdm.tif"))
 
 # Erosa
-erosa <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/erosa_sdm.tif"))
+erosa <- rast(here(outputs_dir, "sdm_outputs", "erosa_sdm.tif"))
 
 # Vestita
-vestita <- rast(here("~/../../capstone/milkweedmod/outputs/sdm_outputs/vestita_sdm.tif"))
+vestita <- rast(here(outputs_dir, "sdm_outputs" "vestita_sdm.tif"))
 
 ```
 
@@ -120,13 +125,13 @@ names(vestita_rescaled) <- "vestita_priority"
 # Save outputs to outputs folder
 
 ```{r}
-#writeRaster(californica_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/californica_priority.tif"), overwrite = TRUE)
+#writeRaster(californica_rescaled, here(outputs_dir, "priority_sites_outputs", "californica_priority.tif"), overwrite = TRUE)
 # 
-#writeRaster(eriocarpa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/eriocarpa_priority.tif"), overwrite = TRUE)
+#writeRaster(eriocarpa_rescaled, here(outputs_dir, "priority_sites_outputs", "eriocarpa_priority.tif"), overwrite = TRUE)
 # 
-#writeRaster(erosa_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/erosa_priority.tif"), overwrite = TRUE)
+#writeRaster(erosa_rescaled, here(outputs_dir, "priority_sites_outputs", "erosa_priority.tif"), overwrite = TRUE)
 # 
-#writeRaster(vestita_rescaled, here("~/../../capstone/milkweedmod/outputs/priority_sites_outputs/vestita_priority.tif"), overwrite = TRUE)
+#writeRaster(vestita_rescaled, here(outputs_dir, "priority_sites_outputs", "vestita_priority.tif"), overwrite = TRUE)
 ```
 
 # Save priority maps to GitHub
