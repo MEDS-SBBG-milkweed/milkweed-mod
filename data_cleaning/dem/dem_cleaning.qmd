@@ -37,7 +37,9 @@ n37w122 <- rast(here(file_path, "USGS_1_n37w122_20201207.tif"))
 # mosaic the tiles to get full area
 dem <- mosaic(n35w119, n35w120, n35w121, n36w120, n36w121, n36w122, n37w122)
 plot(dem)
+```
 
+```{r}
 # writeRaster(dem, here(data_dir, "data", "dem", "lpnf_dem.tif"))
 ```
 

@@ -1,5 +1,7 @@
 library(wallace)
 
+# This R script gets WorldClim's Bioclim data for the area of the LPNF. Two tiles are needed to cover this whole area. 
+
 # Define base directory file path
 base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 

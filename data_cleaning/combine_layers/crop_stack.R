@@ -4,6 +4,8 @@ library(terra)
 library(sf)
 library(here)
 
+# This R script reads in the environmental layers, prepares them to be stacked, creates the raster stack
+
 # Define base directory file path
 base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 
