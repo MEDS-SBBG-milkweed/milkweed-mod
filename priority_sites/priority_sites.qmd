@@ -155,7 +155,7 @@ californica <- rast(here("outputs", "dashboard", "californica_priority.tif"))
 eriocarpa <- rast(here("outputs", "dashboard", "eriocarpa_priority.tif"))
 erosa <- rast(here("outputs", "dashboard", "erosa_priority.tif"))
 vestita <- rast(here("outputs", "dashboard", "vestita_priority.tif"))
-lpnf_boundary <- st_read(here("~/../../capstone/milkweedmod/clean_data/lpnf_boundary/lpnf_boundary/lpnf_boundary.shp"),
+lpnf_boundary <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary", "lpnf_boundary.shp"),
                          quiet = TRUE)
 
 # define color palette 
