@@ -3,17 +3,24 @@ title: "Priority Sites table"
 date: "Last Updated: 2024-05-07"
 ---
 
+This notebook creates the data table displayed on the priority sites tab of the milkweed-site-finder dashboard.
+
 ```{r setup}
+# Load packages
 library(terra)
 library(tidyverse)
 library(DT)
+library(here) # for file paths
+
+# Define base directory file path
+base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 ```
 
 # Read in Milkweed Survey Points, Accessibility Index & Priority Raster
 
 ```{r}
 # ---- Milkweed Points ----
-milkweed_data_raw <- st_read(here("~/../../capstone/milkweedmod/raw_data/milkweed_polygon_data/")) # need to update to read from box
+milkweed_data_raw <- st_read(here(base_dir, "raw_data", "milkweed_polygon_data")) 
 
 # ---- Accessibility Index ----
 access_index <- raster("https://raw.githubusercontent.com/MEDS-SBBG-milkweed/milkweed-mod/main/outputs/dashboard/access_index_final.tif")
@@ -102,7 +109,7 @@ DT::datatable(
 # Save outputs to outputs folder
 
 ```{r}
-# write_csv(priority_surveyed_accessibility, "~/../../capstone/milkweedmod/outputs/priority_sites_outputs/priority_datatable.csv")
+# write_csv(priority_surveyed_accessibility, here(base_dir, "outputs", "priority_sites_outputs", "priority_datatable.csv"))
 
-write_csv(priority_surveyed_accessibility, "outputs/dashboard/priority_datatable.csv")
+write_csv(priority_surveyed_accessibility, here(base_dir, "outputs", "dashboard", "priority_datatable.csv"))
 ```
