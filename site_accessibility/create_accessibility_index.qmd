@@ -44,7 +44,7 @@ access_index_final <- rescale_raster(access_index)
 
 plot(access_index_final)
 ```
-# Save final accessibility index
+# Save final accessibility index to box
 ```{r}
 # Uncomment to save outputs
 #writeRaster(access_index_final, here(base_dir, "outputs", "site_accessibility_outputs", "access_index_final.tif"), overwrite = TRUE)
