@@ -6,7 +6,7 @@ This notebook walks you through updating the milkweed species distribution model
   - optionally transferring the model to the northern region of the LPNF
 - modeling milkweed suitability in the northern region of the LPNF
 
-In the case that there is not enough data to run SDMs for some of the species, please refer to `maxent/Aerosa_sdm.qmd` as an example of how to join survey data with supplementary data from GBIF. 
+In the case that there is not enough data to run SDMs for some of the species, please refer to `maxent/A_erosa_sdm.qmd` as an example of how to join survey data with supplementary data from GBIF. 
 
 Additionally, this notebook will walk through updating closed trails and roads in the accessibility index, and subsequently, the survey site priority index.  
 
