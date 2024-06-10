@@ -1,15 +1,17 @@
 # Updating Milkweed Models
 
-Hello! This notebook walks you through updating the milkweed species distribution models. This includes:
+This notebook walks you through updating the milkweed species distribution models. This includes:
 - adding new survey data
 - modeling milkweed suitability in the southern region of the LPNF
   - optionally transferring the model to the northern region of the LPNF
 - modeling milkweed suitability in the northern region of the LPNF
 
-Additionally, this notebook will walk through updating closed trails and roads in the accessibility index. 
+In the case that there is not enough data to run SDMs for some of the species, please refer to `maxent/Aerosa_sdm.qmd` as an example of how to join survey data with supplementary data from GBIF. 
+
+Additionally, this notebook will walk through updating closed trails and roads in the accessibility index, and subsequently, the survey site priority index.  
 
 #### Load packages
-```{r}
+```{r, setup}
 # Load packages ----
 # general 
 library(tidyverse)
@@ -32,37 +34,14 @@ library(wallace)
 source(here::here("R", "addLegend_decreasing.R"))
 source(here::here("R", "setup.R"))
 
-# Define base directory file path
+# define base directory file path
 base_dir <- here::here("~/Library/CloudStorage/Box-Box/MEDS-SBBG-milkweed")
 ```
 
-
-```{r}
-# generating *fake* data to test the walk through- will be deleted ----
-library(rgbif)
-gbif_data <- occ_data(scientificName = "Asclepias eriocarpa", hasCoordinate = TRUE, limit = 400) 
-new_data <- gbif_data$data %>%
-  filter(stateProvince == "California",
-         decimalLongitude < -121.0, 
-         decimalLatitude < 37) %>%
-  select(decimalLongitude, decimalLatitude, scientificName) %>%
-  rename(longitude = decimalLongitude,
-         latitude = decimalLatitude,
-         milkweed_sp = scientificName) %>%
-  mutate(milkweed_sp = "Asclepias eriocarpa",
-         region = "North") %>%
-  rename(scientific_name = milkweed_sp)
-
-ggplot() +
-  geom_point(data = new_data, aes(x = longitude, y = latitude), size = 0.5) +
-  geom_sf(data = lpnf_north_buffered, alpha = 0.5)
-```
-
 #### Read in data used for modeling
-```{r}
+```{r, data}
 # environmental data raster stack
 environmental_layers <- brick(here(base_dir, "clean_data", "sdm_env_stack", "env_stack.tif"))
-# environmental_layers <- envs_Ac
 
 # los padres forest boundary files
 lpnf_boundary <- st_read(here(base_dir, "clean_data", "lpnf_boundary", "lpnf_boundary","lpnf_boundary.shp"))
@@ -92,7 +71,7 @@ Different column names/missing columns:
 
 ### Clean New Data
 If everything is looking good, let's move on to cleaning the data up a bit. We want to select only the columns we need for modeling, and rename them to names that are a bit simpler. Since this data has both "yes" and "no" values in the `Milkweed_P`, we want to filter to only keep the "yes" values. Finally, let's transform the coordinate reference system (CRS) to EPSG:4326, since this the the CRS that the prepared environmental data is in. 
-```{r}
+```{r, data-cleaning}
 milkweed_clean <- milkweed_data_raw |> 
   janitor::clean_names() |> 
   filter(milkweed_p != "no")  %>%
@@ -114,7 +93,7 @@ Here's an example what the data structure should look like:
 #### Convert Polygons to Points
 Maxent modeling only works with point data, so we are going to use the multipolygon border to extract points from the area.
 
-```{r}
+```{r, polygons-to-points}
 # get the points from polygons
 milkweed_cast_points <- st_cast(milkweed_clean, "MULTIPOINT") %>% 
   st_cast("POINT")
@@ -132,18 +111,6 @@ milkweed_points <- milkweed_cast_points %>%
   mutate(occID = row_number())
 
 head(milkweed_points)
-
-# --------------------- for Sam--- delete
-milkweed_points <- milkweed_cast_points %>%
-  group_by(milkweed_sp) %>% 
-  st_coordinates() %>% # get the lat long coords from the point geometries (this returns only the lat long as a list)
-  data.frame() %>% # convert list to a data frame
-  cbind(milkweed_cast_points) %>% # join the data frame of points with the casted geometry points to get the species 
-  dplyr::select(-geometry) %>% # drop the casted geometry points (don't need since we have the lat long now)
-  rename(longitude = X, # update names
-         latitude = Y,
-         scientific_name = milkweed_sp) %>%
-  mutate(region = "South")
 ```
 
 The head() of milkweed_points should look similar to this:
@@ -160,12 +127,9 @@ The head() of milkweed_points should look similar to this:
 
 If this new data is in the same data frame as the data originally used for modeling, **do not** run this next code chunk, and move on the the next section **Data Sub-setting**. If this new data has none of the previous survey data, continue with running the code below. 
 
-```{r}
+```{r, join-data}
 milkweed_points <- rbind(milkweed_points, milkweed_survey_2023) %>%
   mutate(occID = row_number())
-
-# milkweed_points <- rbind(milkweed_points, new_data) %>%
-#  mutate(occID = row_number())
 ```
 
 ##### Troubleshooting Errors
@@ -174,7 +138,7 @@ milkweed_points <- rbind(milkweed_points, milkweed_survey_2023) %>%
 ### Data subsetting
 
 #### Select data for each species in the northern region of the LPNF
-```{r}
+```{r, point-subsetting-north}
 # filter to only have data from the northern region 
 milkweed_north <- milkweed_points %>%
   filter(region == "North")
@@ -194,7 +158,7 @@ vestita_north <- milkweed_north %>%
 ```
 
 #### Select data for each species in the southern region of the LPNF
-```{r}
+```{r, point-subsetting-south}
 # filter to only have data from the southern region
 milkweed_south <- milkweed_points %>%
   filter(region == "South")
@@ -223,7 +187,7 @@ To perform species distribution modeling, we have used various functions from th
 This section......
 
 Select the species you want to model
-```{r}
+```{r, sdm-setup}
 ## Change these values! ##
 species_name <- "Asclepias eriocarpa" # change this to the species name
 species_points_south <- eriocarpa_south # change this to the corresponding species data frame for the south
@@ -231,7 +195,7 @@ species_points_south <- eriocarpa_south # change this to the corresponding speci
 
 #### Obtain environmental data values based on the occurence coordinates and join with the occurance points
 
-```{r}
+```{r, env-vals}
 occurence_coordinates_south <- species_points_south[c("longitude", "latitude")]
 environmental_values_south <- as.data.frame(raster::extract(environmental_layers, occurence_coordinates_south, cellnumbers = TRUE))
 
@@ -240,7 +204,7 @@ occurence_env_values_south <- cbind(species_points_south, environmental_values_s
 ```
 
 #### Process the occurence and environmental data
-```{r}
+```{r, process-data}
 # Spatially thin the occurrence points
 species_points_south <- poccs_thinOccs(
   occs = occurence_env_values_south, 
@@ -262,7 +226,7 @@ bg_sample_points_south <- penvs_bgSample(
 # Extract values of environmental layers for each background point
 bg_env_values_south <- as.data.frame(raster::extract(environmental_mask_south,  bg_sample_points_south))
 
-#Add extracted values to background points table
+# Add extracted values to background points table
 bg_env_values_south <- cbind(scientific_name = paste0("bg_", species_name), bg_sample_points_south,
                             occID = NA, year = NA, institution_code = NA, country = NA,
                             state_province = NA, locality = NA, elevation = NA,
@@ -273,7 +237,7 @@ bg_env_values_south <- cbind(scientific_name = paste0("bg_", species_name), bg_s
 
 Partition occurrences and background points for model training and validation using block, a spatial partition method.
 
-```{r}
+```{r, partition}
 # Partitioned data
 partition_groups_south <- part_partitionOccs(
   occs = species_points_south ,
@@ -287,7 +251,7 @@ We are using “Linear” (L) and “Linear Quadratic” (LQ) feature class sett
 
 Regularization multipliers penalize model complexity, where higher values indicate smoother, less complex models. This is used to retain only the variables with the greatest predictive contribution in the model, thus performing feature selection. Regularization multipliers from 0.5 to 4 by increments of 0.5 are used, resulting in 16 models (L, LQ, x1 each per incremental increase). 
 
-```{r}
+```{r, maxent}
 # Run maxent model for the selected species
 species_model_south <- model_maxent(
   occs = species_points_south, 
@@ -301,7 +265,10 @@ species_model_south <- model_maxent(
   algMaxent = "maxnet",
   parallel = FALSE,
   numCores = 7)
+```
 
+View model results and select model
+```{r, model-results}
 # View table of model results
 species_model_south@results %>%
   gt::gt()
@@ -324,7 +291,7 @@ model_prediction_south <- predictMaxnet(selected_model_south, environmental_mask
 
 If you have sufficient data for modeling separately on the Northern part of the forest, continue onto the next section: **Model North**. 
 
-```{r}
+```{r, transfer}
 # Generate a transfer of the model to the desired area
 xfer_area_mod <- xfer_area(
   evalOut = species_model_south,
@@ -435,7 +402,7 @@ joined_model <- merge(model_prediction_south, model_prediction_north) %>%
 
 
 ## Plotting
-```{r}
+```{r, plot-models}
 # Get values of prediction
 map_pred_values <- getRasterVals(joined_model, "cloglog") # change for different types
 
@@ -461,7 +428,7 @@ leaflet() %>%
 ```
 
 ## Save model outputs
-```{r}
+```{r, save-outputs}
 # write spcies model raster locally and push to github
 # install.packages(snakecase)
 writeRaster(joined_model, here("outputs", "dashboard", paste0(snakecase::to_snake_case(species_name), "_sdm.tif")))
@@ -471,8 +438,6 @@ save_rds(species_model_south, here(base_dir, "outputs", "sdm_outputs", paste0(sn
 
 save_rds(species_model_north, here(base_dir, "outputs", "sdm_outputs", paste0(snakecase::to_snake_case(species_name), "_north_sdm.rda")))
 ```
-
-
 
 
 # Updating “closed” Trails and Roads
